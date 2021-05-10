@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -37,20 +39,7 @@ class MyApp extends StatelessWidget {
           );
         }
         else if(snapshot.connectionState == ConnectionState.done){
-          return MaterialApp(
-            home: SplashScreen(),
-            routes: {
-              '/welcome': (context) => Welcome(),
-              '/login': (context) => Login(),
-              '/signup': (context) => SignUp(),
-              '/signupfinish': (context) => FinishSignupPage(),
-              '/notifications': (context) => ActivityScreen(),
-              '/homefeed': (context) => HomeFeed(),
-              '/profile': (context) => ProfileScreen(),
-              '/search' : (context) => Search(),
-              '/editprofile' : (context) => EditProfilePage(),
-            },
-          );
+          return AppBase();
         }
         return MaterialApp(
             home: WelcomeViewNoFB()
@@ -58,5 +47,33 @@ class MyApp extends StatelessWidget {
       },
     );
 
+  }
+}
+
+class AppBase extends StatelessWidget {
+  const AppBase({
+    Key key,
+  }) : super(key: key);
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+  @override
+  Widget build(BuildContext context) {
+
+    return MaterialApp(
+      navigatorObservers: <NavigatorObserver>[observer],
+      home: SplashScreen(analytics: analytics, observer: observer,),
+      routes: {
+        '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
+        '/login': (context) => Login(analytics: analytics, observer: observer,),
+        '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
+        '/signupfinish': (context) => FinishSignupPage(),
+        '/notifications': (context) => ActivityScreen(),
+        '/homefeed': (context) => HomeFeed(),
+        '/profile': (context) => ProfileScreen(),
+        '/search' : (context) => Search(),
+        '/editprofile' : (context) => EditProfilePage(),
+      },
+    );
   }
 }

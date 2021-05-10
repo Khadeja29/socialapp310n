@@ -1,4 +1,7 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -6,14 +9,44 @@ import 'package:socialapp310/utils/dimension.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 
 class Login extends StatefulWidget {
+  const Login({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-
+  String email;
+  String password;
   bool remember = false;
+  bool validuser = false;
+  bool validpassword = false;
+  FirebaseAuth auth = FirebaseAuth.instance;
+  Future<void> loginUser() async {
+    try {
+      print(email);
+      print(password);
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+          email: email,
+          password: password
+      );
+      validuser = true;
+      validpassword = true;
+      print(userCredential.toString());
+
+    } on FirebaseAuthException catch (e) {
+      print(e.toString());
+      if(e.code == 'user-not-found') {
+        validuser = false;
+      }
+      else if (e.code == 'wrong-password') {
+        validpassword = false;
+        validuser = true;
+      }
+    }
+  }
   Future<void> showAlertDialog(String title, String message) async {
     return showDialog<void>(
         context: context,
@@ -121,6 +154,7 @@ class _LoginState extends State<Login> {
                                   if(!EmailValidator.validate(value)) {
                                     return 'The e-mail address is not valid';
                                   }
+                                  email = value;
                                   return null;
                                 },
                                 // onSaved: (input) => loginRequestModel.email = input,
@@ -179,6 +213,8 @@ class _LoginState extends State<Login> {
                                   if(value.length < 8) {
                                     return 'Password must be at least 8 characters';
                                   }
+                                  print("here" + value);
+                                  password = value;
                                   return null;
                                 },
                                 // onSaved: (input) => loginRequestModel.password = input,
@@ -220,13 +256,28 @@ class _LoginState extends State<Login> {
                                   style: OutlinedButton.styleFrom(
                                       backgroundColor: AppColors.primarypurple,
                                     ),
-                                  onPressed: () {Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomeFeed()),
-                                        (Route<dynamic> route) => false);},
+                                  onPressed: () async {
+                                      if(_formKey.currentState.validate()) {
+                                        await loginUser();
+                                        if (validpassword && validuser) {
+                                          Navigator.of(context).pushAndRemoveUntil(
+                                              MaterialPageRoute(builder: (BuildContext context) => HomeFeed()), (
+                                              Route<dynamic> route) => false);
+                                        }
+                                        else if (!validuser) {
+                                          showAlertDialog("Error", "User Does not exist");
+                                        }
+                                        else if (!validpassword) {
+                                          showAlertDialog("Error", "Password is wrong");
+                                        }
+                                      }
+                                  }
+                                    ,
                                   child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                child: Text(
-                                  'Login',
-                                  style: kButtonDarkTextStyle,
+                                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                        child: Text(
+                                        'Login',
+                                        style: kButtonDarkTextStyle,
                                     ),
                                   ),
                                 ),
