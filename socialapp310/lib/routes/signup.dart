@@ -128,6 +128,23 @@ class _SignUpState extends State<SignUp> {
                               filled: true,
                               hintText: 'E-mail',
                               //labelText: 'username',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
                               labelStyle: kLabelLightTextStyle,
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(color: AppColors.darkpurple),
@@ -166,6 +183,23 @@ class _SignUpState extends State<SignUp> {
                               fillColor: AppColors.lightgrey,
                               filled: true,
                               hintText: 'Password',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
                               //labelText: 'username',
                               labelStyle: kLabelLightTextStyle,
                               border: OutlineInputBorder(
@@ -203,6 +237,23 @@ class _SignUpState extends State<SignUp> {
                               filled: true,
                               hintText: 'Confirm Password',
                               //labelText: 'username',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
                               labelStyle: kLabelLightTextStyle,
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(color: AppColors.darkpurple),
@@ -235,7 +286,7 @@ class _SignUpState extends State<SignUp> {
 
                     Text(_message,
                       style: TextStyle(
-                      color: Colors.red,
+                      color: AppColors.peachpink,
                     ),
                     ),
                     Row(

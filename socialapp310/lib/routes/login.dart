@@ -139,6 +139,23 @@ class _LoginState extends State<Login> {
                                   filled: true,
                                   hintText: 'E-mail',
                                   // labelText: 'Username',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: AppColors.peachpink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(color: AppColors.darkgreyblack),
@@ -194,10 +211,28 @@ class _LoginState extends State<Login> {
                                   fillColor: AppColors.lightgrey,
                                   filled: true,
                                   hintText: 'Password',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: AppColors.peachpink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+
                                   //labelText: 'Username',
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.darkgreyblack),
+                                    borderSide: BorderSide(color: AppColors.darkpurple),
                                     borderRadius: BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                 ),
