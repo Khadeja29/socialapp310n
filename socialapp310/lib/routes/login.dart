@@ -116,23 +116,7 @@ class _LoginState extends State<Login> {
                           Expanded(
                             flex: 1,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
+                              
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
@@ -182,30 +166,11 @@ class _LoginState extends State<Login> {
                       ),
 
                       SizedBox(height: 16.0,),
-
-
                       Row(
                         children: [
                           Expanded(
                             flex: 1,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
