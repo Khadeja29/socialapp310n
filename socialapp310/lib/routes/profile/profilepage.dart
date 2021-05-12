@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/models/user.dart';
+import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
@@ -10,6 +12,7 @@ import 'package:socialapp310/routes/profile/profilewidget.dart';
 
 import 'package:socialapp310/utils/color.dart';
 
+import '../welcome.dart';
 import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -29,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   int _following = profuser.followings.length;
   TabController _controller;
   String _biodata =profuser.bio;
+  String _email = profuser.email;
 
   int _selectedIndex = 4;
   void _onItemTapped(int index) {
@@ -85,13 +89,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
           ],
         ),
-        trailing: IconButton(
-          icon: Icon(
-            Icons.article_outlined,
+        trailing: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.article_outlined),
             color: Colors.white,
+            onPressed: () => Scaffold.of(context).openEndDrawer(),
+            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
           ),
-          onPressed: () => Navigator.pushNamed(context, "/editprofile")
         ),
+
         profileStats: profileStats(screen: _screen, color: Colors.white, post: _postnum, followers: _followers, following: _following, context: context),
         bio: bio(name: _name, biodata:_biodata),
         tabbar: TabBar(
@@ -104,6 +110,81 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             Tab(icon: Icon(MyFlutterApp.pen_alt)),
           ],
           controller: _controller,
+        ),
+      ),
+      endDrawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text(_name),
+              accountEmail: Text(_email),
+              currentAccountPicture:  GestureDetector(
+                child: Hero(
+                  tag: '${profuser.imageUrlAvatar}',
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage(profuser.imageUrlAvatar),
+                    radius: 90,
+                  ),
+                ),
+                onTap: (){
+                  Navigator.push(context,MaterialPageRoute(builder: (_) {
+                    return DetailScreen(ImageUrlPost: profuser.imageUrlAvatar,);
+                  }));
+                },
+              ),
+              decoration: new BoxDecoration(
+                color: AppColors.darkpurple,
+              ),
+            ),
+            InkWell(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomeFeed()));
+              },
+              child: ListTile(
+                title: Text('Home Page'),
+                leading: Icon(Icons.home),
+              ),
+            ),
+
+            InkWell(
+              onTap: () => Navigator.pushNamed(context, "/editprofile"),
+              child: ListTile(
+                title: Text('Edit Profile'),
+                leading: Icon(Icons.edit_outlined),
+              ),
+            ),
+
+            InkWell(
+              onTap: (){},
+              child: ListTile(
+                title: Text('Favourites'),
+                leading: Icon(Icons.bookmark),
+              ),
+            ),
+
+            Divider(),
+            InkWell(
+              onTap: (){},
+              child: ListTile(
+                title: Text('Settings'),
+                leading: Icon(Icons.settings),
+              ),
+            ),
+
+
+            InkWell(
+              onTap: (){
+                FirebaseAuth.instance.signOut().then((value){
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Welcome()));
+                });
+              },
+              child: ListTile(
+                title: Text('Log out'),
+                leading: Icon(Icons.transit_enterexit, color: Colors.grey,),
+              ),
+            ),
+
+          ],
         ),
       ),
       body: TabBarView(
