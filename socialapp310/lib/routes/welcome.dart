@@ -15,6 +15,14 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Welcome Page');
+    print("SCS : Welcome Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

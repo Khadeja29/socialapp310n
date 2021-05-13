@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -13,8 +15,9 @@ import 'package:socialapp310/utils/color.dart';
 import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key key}) : super(key: key);
-
+  const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -46,12 +49,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       } //TODO: if index 3 push notif page, if index 4 push profile page
     });
   }
-
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
+    print("SCS : Profile Page succeeded");
+  }
 
   @override
+
   void initState() {
     
     super.initState();
+    _setCurrentScreen();
     _controller = TabController(length: 3, vsync: this);
     _controller.addListener(() {
       //print(_controller.index);

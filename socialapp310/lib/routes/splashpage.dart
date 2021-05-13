@@ -27,28 +27,30 @@ class _SplashScreenState extends State<SplashScreen> {
 
     bool _seen = (prefs.getBool('_seen') ?? false);
     //User cool = await auth.currentUser;
-    //print(_seen);
-    await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
+    //print(cool);
+    //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
     if (_seen && !signedin) {
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) => new Welcome()));
+      Navigator.of(context).pushReplacementNamed('/welcome');
     }
     else if(_seen && signedin)
     {
-    Navigator.of(context).pushReplacement(
-    new MaterialPageRoute(builder: (context) => new HomeFeed()));
+      Navigator.of(context).pushReplacementNamed('/homefeed');
 
     }
     else {
       await prefs.setBool('_seen', true);
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) => new WalkThrough()));
+      Navigator.of(context).pushReplacementNamed('/walkthrough');
     }
+  }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
+    print("SCS : Splash Page succeeded");
   }
   FirebaseAuth auth = FirebaseAuth.instance;
   void initState() {
     super.initState();
-    auth.authStateChanges().listen((User user) {
+    _setCurrentScreen();
+    auth.authStateChanges().listen((User user) {//firebase user class clashes with the user class we have defined
       if(user == null) {
         print('User is signed out');
         signedin = false;

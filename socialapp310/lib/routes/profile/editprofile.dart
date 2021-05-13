@@ -1,9 +1,15 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'profilepage.dart';
 
 class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
@@ -13,6 +19,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool private = false;
   int _pageIndex = 0;
   int _selectedIndex = 4;
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
+    print("SCS : Edit Profile Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    //FirebaseCrashlytics.instance.crash(); //Emulating a crash
+    _setCurrentScreen();
+  }
   void _onItemTapped(int index) {
     setState(() {
       print(index);
