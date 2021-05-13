@@ -124,29 +124,30 @@ class _LoginState extends State<Login> {
                           Expanded(
                             flex: 1,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
+                              
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
                                   filled: true,
                                   hintText: 'E-mail',
                                   // labelText: 'Username',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: AppColors.peachpink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(color: AppColors.darkgreyblack),
@@ -173,39 +174,38 @@ class _LoginState extends State<Login> {
                       ),
 
                       SizedBox(height: 16.0,),
-
-
                       Row(
                         children: [
                           Expanded(
                             flex: 1,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
                                   filled: true,
                                   hintText: 'Password',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: AppColors.peachpink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+
                                   //labelText: 'Username',
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.darkgreyblack),
+                                    borderSide: BorderSide(color: AppColors.darkpurple),
                                     borderRadius: BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                 ),
