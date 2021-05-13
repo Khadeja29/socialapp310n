@@ -13,7 +13,6 @@ import 'package:socialapp310/routes/profile/profilewidget.dart';
 import 'package:socialapp310/utils/color.dart';
 
 import '../welcome.dart';
-import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key key}) : super(key: key);
