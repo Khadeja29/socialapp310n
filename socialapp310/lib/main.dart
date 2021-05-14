@@ -11,7 +11,8 @@ import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 
 void main() {
@@ -49,6 +50,8 @@ class MyApp extends StatelessWidget {
               '/profile': (context) => ProfileScreen(),
               '/search' : (context) => Search(),
               '/editprofile' : (context) => EditProfilePage(),
+              '/uploadpic' : (context) => Uploadpic(),
+              '/createpost': (context) => CreatePost(),
             },
           );
         }
