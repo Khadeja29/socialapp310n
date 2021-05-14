@@ -9,6 +9,7 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
 
+
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({Key key, this.analytics, this.observer}): super (key: key);
   final FirebaseAnalytics analytics;
@@ -42,6 +43,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
         Navigator.pushReplacementNamed(context, '/homefeed');
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
+      } else if (_selectedIndex == 2) {
+        Navigator.pushReplacementNamed(context, '/uploadpic');
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {

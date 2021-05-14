@@ -14,7 +14,8 @@ import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 
 void main() {
@@ -40,7 +41,23 @@ class MyApp extends StatelessWidget {
           );
         }
         else if(snapshot.connectionState == ConnectionState.done){
-          return AppBase();
+//          return AppBase();
+          return MaterialApp(
+            home: SplashScreen(),
+            routes: {
+              '/welcome': (context) => Welcome(),
+              '/login': (context) => Login(),
+              '/signup': (context) => SignUp(),
+              '/signupfinish': (context) => FinishSignupPage(),
+              '/notifications': (context) => ActivityScreen(),
+              '/homefeed': (context) => HomeFeed(),
+              '/profile': (context) => ProfileScreen(),
+              '/search' : (context) => Search(),
+              '/editprofile' : (context) => EditProfilePage(),
+              '/uploadpic' : (context) => Uploadpic(),
+              '/createpost': (context) => CreatePost(),
+            },
+          );
         }
         return MaterialApp(
             home: WelcomeViewNoFB()
