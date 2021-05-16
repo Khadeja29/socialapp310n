@@ -1,10 +1,13 @@
-
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+final GoogleSignIn gSignIn = GoogleSignIn();
+//final usersReference = Firestore.instance.collection("users").
 
 class Welcome extends StatefulWidget {
   const Welcome({Key key, this.analytics, this.observer}): super (key: key);
@@ -15,13 +18,62 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
+  bool isSignedIn = false;
+
+  controlSignIn(GoogleSignInAccount signInAccount) async {
+      if(signInAccount != null){
+        setState(() {
+          isSignedIn = true;
+          print("signed in");
+        });
+      }else{
+        setState(() {
+          isSignedIn = false;
+          print("not signed in");
+
+        });
+      }
+  }
+
+  loginUser(){
+    //await saveUserInfoToFireStore();
+    gSignIn.signIn();
+    //Navigator.of(context).pushNamedAndRemoveUntil(
+      //  "/homefeed", (
+        //Route<dynamic> route) => false);
+
+  }
+   logOutUser(){
+    gSignIn.signOut();
+   }
+
+  //saveUserInfoToFireStore() async {
+    //final GoogleSignInAccount gCurrentUser = gSignIn.currentUser;
+    //DocumentSnapshot documentSnapshot = await
+  //}
+
   Future<void> _setCurrentScreen() async {
+    print("before await");
     await widget.analytics.setCurrentScreen(screenName: 'Welcome Page');
     print("SCS : Welcome Page succeeded");
   }
   void initState() {
     super.initState();
     _setCurrentScreen();
+
+    gSignIn.onCurrentUserChanged.listen((gSignInAccount){
+        controlSignIn(gSignInAccount);
+    }, onError: (gError){
+      print("Error Message ");
+
+    });
+
+
+    gSignIn.signInSilently(suppressErrors: false).then((gSignInAccount){
+      controlSignIn(gSignInAccount);
+    }).catchError((gError){
+      print("Error Message1 ");
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -40,12 +92,30 @@ class _WelcomeState extends State<Welcome> {
                   Text("Welcome to Woof", style: kHeadingTextStyle ,),
                   Padding(
                     padding: const EdgeInsets.all(0.0),
-                    child: Image.asset('assets/images/welcoming.png',height: 370,
+                    child: Image.asset('assets/images/welcoming.png',height: 270,
                       width: 370,
                     ),
                   ),
                   Column(
                     children: <Widget>[
+                      Container(
+                        height: 60.0,
+                        width: 400.0,
+
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(40),
+
+
+                          child:   SignInButton(
+                            Buttons.Google,
+                            onPressed: () {
+                                  loginUser();
+
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(height:10),
                       Container(
                         height: 60.0,
                         width: 400.0,
@@ -81,7 +151,7 @@ class _WelcomeState extends State<Welcome> {
                           ),
                         ),
                       ),
-                      SizedBox(height:20),
+                      SizedBox(height:10),
                       Container(
                         height: 60.0,
                         width: 400.0,
@@ -117,6 +187,7 @@ class _WelcomeState extends State<Welcome> {
                           ),
                         ),
                       ),
+
                     ],
                   )
                 ],

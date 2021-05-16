@@ -11,7 +11,7 @@ import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
 import 'package:socialapp310/routes/profile/profilewidget.dart';
-
+import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/utils/color.dart';
 
 import 'editprofile.dart';
@@ -183,6 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
             InkWell(
               onTap: (){
+                //logOutUser();
                 FirebaseAuth.instance.signOut().then((value){
                   Navigator.pushReplacementNamed(context, '/welcome');
                 });

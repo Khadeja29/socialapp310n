@@ -322,8 +322,8 @@ class _SignUpState extends State<SignUp> {
                                       await signUpUser();
                                       print(_message);
                                       if(_message == "") {
-                                        Navigator.pushNamed(
-                                            context, '/signupfinish');
+                                        //Navigator.pushNamed(
+                                         //   context, '/signupfinish');
                                       }
                                     }
                                   }

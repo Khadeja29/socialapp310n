@@ -6,7 +6,7 @@ import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
+// https://www.youtube.com/watch?v=H3CCtCmBUoQ&ab_channel=1ManStartup
 class Search extends StatefulWidget {
   const Search({Key key, this.analytics, this.observer}): super (key: key);
   final FirebaseAnalytics analytics;
