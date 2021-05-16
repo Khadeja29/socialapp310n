@@ -62,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
 
   void initState() {
-    
+
     super.initState();
     _setCurrentScreen();
     _controller = TabController(length: 3, vsync: this);
