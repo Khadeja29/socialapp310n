@@ -132,11 +132,15 @@ class _WelcomeState extends State<Welcome> {
 }
 
 class Authentication {
+
   static Future<User> signInWithGoogle({BuildContext context}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User user;
 
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      scopes: <String>[
+      'email',
+    ],);
 
     final GoogleSignInAccount googleSignInAccount =
     await googleSignIn.signIn();
@@ -169,6 +173,24 @@ class Authentication {
     }
 
     return user;
+  }
+  static Future<User> signOutWithGoogle({BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      await googleSignIn.disconnect();
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.black,
+          content: Text(
+            "Logging Out",
+            style: TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+          ),
+        ),
+      );
+    }
   }
 }
 

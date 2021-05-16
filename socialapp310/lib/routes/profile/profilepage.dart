@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/models/user.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -11,6 +12,7 @@ import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
 import 'package:socialapp310/routes/profile/profilewidget.dart';
+import 'package:socialapp310/routes/welcome.dart';
 
 import 'package:socialapp310/utils/color.dart';
 
@@ -181,7 +183,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
             InkWell(
               onTap: (){
-                FirebaseAuth.instance.signOut().then((value){
+                Authentication.signOutWithGoogle(context: context);
+                 FirebaseAuth.instance.signOut().then((value){
                   Navigator.pushReplacementNamed(context, '/welcome');
                 });
               },
