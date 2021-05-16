@@ -1,10 +1,11 @@
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 final GoogleSignIn gSignIn = GoogleSignIn();
 //final usersReference = Firestore.instance.collection("users").
@@ -20,37 +21,6 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   bool isSignedIn = false;
 
-  controlSignIn(GoogleSignInAccount signInAccount) async {
-      if(signInAccount != null){
-        setState(() {
-          isSignedIn = true;
-          print("signed in");
-        });
-      }else{
-        setState(() {
-          isSignedIn = false;
-          print("not signed in");
-
-        });
-      }
-  }
-
-  loginUser(){
-    //await saveUserInfoToFireStore();
-    gSignIn.signIn();
-    //Navigator.of(context).pushNamedAndRemoveUntil(
-      //  "/homefeed", (
-        //Route<dynamic> route) => false);
-
-  }
-   logOutUser(){
-    gSignIn.signOut();
-   }
-
-  //saveUserInfoToFireStore() async {
-    //final GoogleSignInAccount gCurrentUser = gSignIn.currentUser;
-    //DocumentSnapshot documentSnapshot = await
-  //}
 
   Future<void> _setCurrentScreen() async {
     print("before await");
@@ -60,20 +30,6 @@ class _WelcomeState extends State<Welcome> {
   void initState() {
     super.initState();
     _setCurrentScreen();
-
-    gSignIn.onCurrentUserChanged.listen((gSignInAccount){
-        controlSignIn(gSignInAccount);
-    }, onError: (gError){
-      print("Error Message ");
-
-    });
-
-
-    gSignIn.signInSilently(suppressErrors: false).then((gSignInAccount){
-      controlSignIn(gSignInAccount);
-    }).catchError((gError){
-      print("Error Message1 ");
-    });
   }
   @override
   Widget build(BuildContext context) {
@@ -92,30 +48,12 @@ class _WelcomeState extends State<Welcome> {
                   Text("Welcome to Woof", style: kHeadingTextStyle ,),
                   Padding(
                     padding: const EdgeInsets.all(0.0),
-                    child: Image.asset('assets/images/welcoming.png',height: 270,
+                    child: Image.asset('assets/images/welcoming.png',height: 300,
                       width: 370,
                     ),
                   ),
                   Column(
                     children: <Widget>[
-                      Container(
-                        height: 60.0,
-                        width: 400.0,
-
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(40),
-
-
-                          child:   SignInButton(
-                            Buttons.Google,
-                            onPressed: () {
-                                  loginUser();
-
-                            },
-                          ),
-                        ),
-                      ),
-                      SizedBox(height:10),
                       Container(
                         height: 60.0,
                         width: 400.0,
@@ -183,17 +121,157 @@ class _WelcomeState extends State<Welcome> {
                                   )
                               ),
                             ),
-
+                            ),
+                            ),
                           ),
-                        ),
-                      ),
-
+                      SizedBox(height:20),
+                      GoogleSignInButton(),
                     ],
                   )
                 ],
               )
 
           )
+      ),
+    );
+  }
+}
+
+class Authentication {
+
+  static Future<User> signInWithGoogle({BuildContext context}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User user;
+
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      scopes: <String>[
+      'email',
+    ],);
+
+    final GoogleSignInAccount googleSignInAccount =
+    await googleSignIn.signIn();
+
+    if (googleSignInAccount != null) {
+      final GoogleSignInAuthentication googleSignInAuthentication =
+      await googleSignInAccount.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+
+      try {
+        print("here1");
+        final UserCredential userCredential =
+        await auth.signInWithCredential(credential);
+        print("here2");
+        user = userCredential.user;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'account-exists-with-different-credential') {
+          // handle the error here
+        }
+        else if (e.code == 'invalid-credential') {
+          // handle the error here
+        }
+      } catch (e) {
+        // handle the error here
+      }
+    }
+
+    return user;
+  }
+  static Future<User> signOutWithGoogle({BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      await googleSignIn.disconnect();
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.black,
+          content: Text(
+            "Logging Out",
+            style: TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+          ),
+        ),
+      );
+    }
+  }
+}
+
+class GoogleSignInButton extends StatefulWidget {
+  @override
+  _GoogleSignInButtonState createState() => _GoogleSignInButtonState();
+}
+
+class _GoogleSignInButtonState extends State<GoogleSignInButton> {
+  bool _isSigningIn = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 60.0,
+      width: 400.0,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 6.0),
+        child: _isSigningIn
+            ? CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+        )
+            : OutlinedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.white),
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
+          ),
+          onPressed: () async {
+            setState(() {
+              _isSigningIn = true;
+            });
+
+            User user =
+            await Authentication.signInWithGoogle(context: context);
+
+            setState(() {
+              _isSigningIn = false;
+            });
+
+            if (user != null) {
+              Navigator.of(context).pushReplacementNamed('/homefeed');
+            }
+
+            setState(() {
+              _isSigningIn = false;
+            });
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image(
+                image: AssetImage("assets/images/googlelogo.png"),
+                height: 20.0,
+                width: 20,
+                  fit:BoxFit.contain,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  'Sign in with Google',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.darkpurple,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

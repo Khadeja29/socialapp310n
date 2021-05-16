@@ -26,9 +26,9 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     bool _seen = (prefs.getBool('_seen') ?? false);
-    //User cool = await auth.currentUser;
-    //print(cool);
-    //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
+    User cool = await auth.currentUser;
+    print(cool);
+    await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
     if (_seen && !signedin) {
       Navigator.of(context).pushReplacementNamed('/welcome');
     }
@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       else {
         print('User is signed in');
-
+        signedin = true;
       }
     });
     Timer(Duration(seconds: 4), () => checkFirstSeen()); //TODO:ADD CONTEXT TO ONBOARDING SCREENS
