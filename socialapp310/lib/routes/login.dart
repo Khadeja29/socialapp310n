@@ -24,6 +24,14 @@ class _LoginState extends State<Login> {
   bool validuser = false;
   bool validpassword = false;
   FirebaseAuth auth = FirebaseAuth.instance;
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Log in Page');
+    print("SCS : Log in Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
   Future<void> loginUser() async {
     try {
       print(email);
@@ -260,8 +268,8 @@ class _LoginState extends State<Login> {
                                       if(_formKey.currentState.validate()) {
                                         await loginUser();
                                         if (validpassword && validuser) {
-                                          Navigator.of(context).pushAndRemoveUntil(
-                                              MaterialPageRoute(builder: (BuildContext context) => HomeFeed()), (
+                                          Navigator.of(context).pushNamedAndRemoveUntil(
+                                              "/homefeed", (
                                               Route<dynamic> route) => false);
                                         }
                                         else if (!validuser) {

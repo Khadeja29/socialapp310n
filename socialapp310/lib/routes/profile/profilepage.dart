@@ -1,7 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/models/user.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -9,14 +12,16 @@ import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
 import 'package:socialapp310/routes/profile/profilewidget.dart';
+import 'package:socialapp310/routes/welcome.dart';
 
 import 'package:socialapp310/utils/color.dart';
 
-import '../welcome.dart';
+import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key key}) : super(key: key);
-
+  const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -49,12 +54,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       } //TODO: if index 3 push notif page, if index 4 push profile page
     });
   }
-
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
+    print("SCS : Profile Page succeeded");
+  }
 
   @override
+
   void initState() {
     
     super.initState();
+    _setCurrentScreen();
     _controller = TabController(length: 3, vsync: this);
     _controller.addListener(() {
       //print(_controller.index);
@@ -119,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               accountEmail: Text(_email),
               currentAccountPicture:  GestureDetector(
                 child: Hero(
-                  tag: '${profuser.imageUrlAvatar}',
+                  tag: '${profuser.imageUrlAvatar}1',
                   child: CircleAvatar(
                     backgroundImage: AssetImage(profuser.imageUrlAvatar),
                     radius: 90,
@@ -137,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
             InkWell(
               onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => HomeFeed()));
+                Navigator.pushReplacementNamed(context, '/homefeed');
               },
               child: ListTile(
                 title: Text('Home Page'),
@@ -173,8 +183,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
             InkWell(
               onTap: (){
-                FirebaseAuth.instance.signOut().then((value){
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Welcome()));
+                Authentication.signOutWithGoogle(context: context);
+                 FirebaseAuth.instance.signOut().then((value){
+                  Navigator.pushReplacementNamed(context, '/welcome');
                 });
               },
               child: ListTile(

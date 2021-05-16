@@ -30,6 +30,16 @@ class _SignUpState extends State<SignUp> {
   String username;
   final _formKey = GlobalKey<FormState>();
   FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'SignUp Page');
+    print("SCS : SignUp Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
+
   Future<void> signUpUser() async{
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: email, password: password);
