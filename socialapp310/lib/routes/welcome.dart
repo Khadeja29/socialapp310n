@@ -1,4 +1,3 @@
-
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -30,11 +29,11 @@ class _WelcomeState extends State<Welcome> {
       //backgroundColor: AppColors.darkgreyblack,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              //width: double.infinity,
-              //height: MediaQuery.of(context).size.height/3,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          child: Container(
+            //width: double.infinity,
+            //height: MediaQuery.of(context).size.height/3,
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -124,9 +123,9 @@ class _WelcomeState extends State<Welcome> {
                       ],
                     )
                   ],
-                )
+                ),
+              )
 
-            ),
           )
       ),
     );
@@ -141,8 +140,8 @@ class Authentication {
 
     final GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: <String>[
-      'email',
-    ],);
+        'email',
+      ],);
 
     final GoogleSignInAccount googleSignInAccount =
     await googleSignIn.signIn();
@@ -160,7 +159,6 @@ class Authentication {
         print("here1");
         final UserCredential userCredential =
         await auth.signInWithCredential(credential);
-        //print(UserCredential);
         print("here2");
         user = userCredential.user;
       } on FirebaseAuthException catch (e) {
@@ -186,10 +184,10 @@ class Authentication {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.grey,
           content: Text(
             "Logging Out",
-            style: TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+            style: TextStyle(color: Colors.deepPurpleAccent, letterSpacing: 0.5),
           ),
         ),
       );
