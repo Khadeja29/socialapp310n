@@ -3,12 +3,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
-
-final GoogleSignIn gSignIn = GoogleSignIn();
-//final usersReference = Firestore.instance.collection("users").
 
 class Welcome extends StatefulWidget {
   const Welcome({Key key, this.analytics, this.observer}): super (key: key);
@@ -19,11 +15,7 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
-  bool isSignedIn = false;
-
-
   Future<void> _setCurrentScreen() async {
-    print("before await");
     await widget.analytics.setCurrentScreen(screenName: 'Welcome Page');
     print("SCS : Welcome Page succeeded");
   }
@@ -89,7 +81,7 @@ class _WelcomeState extends State<Welcome> {
                           ),
                         ),
                       ),
-                      SizedBox(height:10),
+                      SizedBox(height:20),
                       Container(
                         height: 60.0,
                         width: 400.0,
@@ -121,9 +113,10 @@ class _WelcomeState extends State<Welcome> {
                                   )
                               ),
                             ),
-                            ),
-                            ),
+
                           ),
+                        ),
+                      ),
                       SizedBox(height:20),
                       GoogleSignInButton(),
                     ],
@@ -145,8 +138,8 @@ class Authentication {
 
     final GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: <String>[
-      'email',
-    ],);
+        'email',
+      ],);
 
     final GoogleSignInAccount googleSignInAccount =
     await googleSignIn.signIn();
