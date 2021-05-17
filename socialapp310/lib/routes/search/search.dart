@@ -4,6 +4,8 @@ import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -35,7 +37,9 @@ class searchState extends State<Search> {
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
-        Navigator.pushReplacementNamed(context, '/uploadpic');
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Uploadpic()));
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {

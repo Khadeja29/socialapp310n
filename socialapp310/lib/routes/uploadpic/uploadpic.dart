@@ -127,7 +127,7 @@ class _Uploadpic extends State<Uploadpic> {
                   backgroundColor: AppColors.peachpink,
                 ),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/homefeed');
+                  Navigator.pop(context);
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),

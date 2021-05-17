@@ -34,7 +34,7 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
-                  Navigator.pushNamed(context, '/homefeed');
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
                 }),
           )
         ],

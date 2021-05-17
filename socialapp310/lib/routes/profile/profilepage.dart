@@ -7,9 +7,9 @@ import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
 import 'package:socialapp310/routes/profile/profilewidget.dart';
-
 import 'package:socialapp310/utils/color.dart';
-
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -40,7 +40,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
-        Navigator.pushReplacementNamed(context, '/uploadpic');
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Uploadpic()));
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {
