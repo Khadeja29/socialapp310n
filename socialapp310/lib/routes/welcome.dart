@@ -160,6 +160,7 @@ class Authentication {
         print("here1");
         final UserCredential userCredential =
         await auth.signInWithCredential(credential);
+        //print(UserCredential);
         print("here2");
         user = userCredential.user;
       } on FirebaseAuthException catch (e) {
