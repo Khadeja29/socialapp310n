@@ -33,95 +33,97 @@ class _WelcomeState extends State<Welcome> {
             //width: double.infinity,
             //height: MediaQuery.of(context).size.height/3,
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text("Welcome to Woof", style: kHeadingTextStyle ,),
-                  Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: Image.asset('assets/images/welcoming.png',height: 300,
-                      width: 370,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text("Welcome to Woof", style: kHeadingTextStyle ,),
+                    Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: Image.asset('assets/images/welcoming.png',height: 370,
+                        width: 370,
+                      ),
                     ),
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Container(
-                        height: 60.0,
-                        width: 400.0,
+                    Column(
+                      children: <Widget>[
+                        Container(
+                          height: 60.0,
+                          width: 400.0,
 
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(40),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
 
-                          child: OutlinedButton(
+                            child: OutlinedButton(
 
-                            style: OutlinedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40.0),
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(40.0),
 
+                                ),
+                                backgroundColor: AppColors.lightgrey,
                               ),
-                              backgroundColor: AppColors.lightgrey,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/login');
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
-                              child: Text(
-                                  'Login',
-                                  style:  TextStyle(
-                                      color: AppColors.darkpurple,
-                                      fontSize: 20.0,
-                                      letterSpacing: -0.7,
-                                      fontFamily: 'OpenSansCondensed-Light'
-                                  )
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/login');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
+                                child: Text(
+                                    'Login',
+                                    style:  TextStyle(
+                                        color: AppColors.darkpurple,
+                                        fontSize: 20.0,
+                                        letterSpacing: -0.7,
+                                        fontFamily: 'OpenSansCondensed-Light'
+                                    )
+                                ),
                               ),
-                            ),
 
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height:20),
-                      Container(
-                        height: 60.0,
-                        width: 400.0,
+                        SizedBox(height:20),
+                        Container(
+                          height: 60.0,
+                          width: 400.0,
 
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(40),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
 
-                          child: OutlinedButton(
+                            child: OutlinedButton(
 
-                            style: OutlinedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40.0),
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(40.0),
 
+                                ),
+                                backgroundColor: AppColors.darkpurple,
                               ),
-                              backgroundColor: AppColors.darkpurple,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/signup');
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
-                              child: Text(
-                                  'Sign up',
-                                  style:  TextStyle(
-                                      color: AppColors.lightgrey,
-                                      fontSize: 20.0,
-                                      letterSpacing: -0.7,
-                                      fontFamily: 'OpenSansCondensed-Light'
-                                  )
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/signup');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
+                                child: Text(
+                                    'Sign up',
+                                    style:  TextStyle(
+                                        color: AppColors.lightgrey,
+                                        fontSize: 20.0,
+                                        letterSpacing: -0.7,
+                                        fontFamily: 'OpenSansCondensed-Light'
+                                    )
+                                ),
                               ),
-                            ),
 
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height:20),
-                      GoogleSignInButton(),
-                    ],
-                  )
-                ],
+                        SizedBox(height:20),
+                        GoogleSignInButton(),
+                      ],
+                    )
+                  ],
+                ),
               )
 
           )
@@ -182,10 +184,10 @@ class Authentication {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.grey,
           content: Text(
             "Logging Out",
-            style: TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+            style: TextStyle(color: Colors.deepPurpleAccent, letterSpacing: 0.5),
           ),
         ),
       );
