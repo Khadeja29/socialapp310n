@@ -13,7 +13,7 @@ import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
+import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 
 void main() {
@@ -62,7 +62,8 @@ class AppBase extends StatelessWidget {
 
     return MaterialApp(
       navigatorObservers: <NavigatorObserver>[observer],
-      home: SplashScreen(analytics: analytics, observer: observer,),
+      home: Favourites(),
+      // SplashScreen(analytics: analytics, observer: observer,),
       routes: {
         '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
         '/login': (context) => Login(analytics: analytics, observer: observer,),
