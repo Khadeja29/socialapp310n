@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
     bool _seen = (prefs.getBool('_seen') ?? false);
     User cool = await auth.currentUser;
     print(cool);
-    await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
+    //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
     if (_seen && !signedin) {
       Navigator.of(context).pushReplacementNamed('/welcome');
     }
