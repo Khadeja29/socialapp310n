@@ -8,7 +8,7 @@ import 'dart:async';
 import 'package:socialapp310/utils/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'homefeed/HomeFeed.dart';
 
 
@@ -26,8 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     bool _seen = (prefs.getBool('_seen') ?? false);
-    User cool = await auth.currentUser;
-    print(cool);
+
     //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
     if (_seen && !signedin) {
       Navigator.of(context).pushReplacementNamed('/welcome');
@@ -46,11 +45,13 @@ class _SplashScreenState extends State<SplashScreen> {
     await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
     print("SCS : Splash Page succeeded");
   }
+
   FirebaseAuth auth = FirebaseAuth.instance;
+
   void initState() {
     super.initState();
     _setCurrentScreen();
-    auth.authStateChanges().listen((User user) {//firebase user class clashes with the user class we have defined
+    auth.authStateChanges().listen((User user)  {//firebase user class clashes with the user class we have defined
       if(user == null) {
         print('User is signed out');
         signedin = false;
@@ -58,6 +59,31 @@ class _SplashScreenState extends State<SplashScreen> {
       else {
         print('User is signed in');
         signedin = true;
+        CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+        User currentUser = auth.currentUser;
+        print(currentUser.uid);
+        print(currentUser);
+        usersCollection
+            .doc(currentUser.uid)
+            .get()
+            .then((DocumentSnapshot documentSnapshot) {
+          if (documentSnapshot.exists) {//dont do anything
+            print('Document exists on the database');
+          }
+          else {
+            usersCollection
+                .doc(currentUser.uid)
+                .set({
+              "Bio": "This is a temporary Bio.",
+              "FullName": "John Doe",
+              "IsPrivate": false,
+              "Username": "Default123",
+              "Email" : currentUser.email
+            })
+                .then((value) => print("User Added"))
+                .catchError((error) => print("Failed to add user: $error"));
+          }
+        });
       }
     });
     Timer(Duration(seconds: 4), () => checkFirstSeen()); //TODO:ADD CONTEXT TO ONBOARDING SCREENS
