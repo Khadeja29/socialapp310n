@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -9,63 +12,54 @@ import 'package:http/http.dart' as http;
 
 
 class SignUp extends StatefulWidget {
+  const SignUp({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _SignUpState createState() => _SignUpState();
 }
 
 class _SignUpState extends State<SignUp> {
 
-  int attemptCount;
+  String _message = '';
+  bool valid = false;
+  int attemptCount = 0;
   String email;
   String password;
   String password2;
   String username;
   final _formKey = GlobalKey<FormState>();
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'SignUp Page');
+    print("SCS : SignUp Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
 
   Future<void> signUpUser() async{
-    final url = Uri.parse('http://10.0.2.2:5000/register');
-    var body ={
-      'call': 'signup',
-      'email': email,
-      'password': password,
-    };
-
-    final response = await http.post(
-      Uri.http(url.authority, url.path),
-      headers: <String, String>{
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      },
-      body: body,
-      encoding: Encoding.getByName("utf-8"),
-    );
-
-    if(response.statusCode >= 200 && response.statusCode < 300){
-      //successful transmission
-      Map<String, dynamic> jsonMap = json.decode(response.body);
-      showAlertDialog('Sign up',"successful");
-      for(var entry in jsonMap.entries) {
-        print("${entry.key} ==> ${entry.value}");
+    try {
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: email, password: password);
+      valid = true;
+      _message = "";
+      print(userCredential.toString());
+    } on FirebaseAuthException catch (e) {
+      print(e.toString());
+      if(e.code == 'email-already-in-use') {
+        _message = 'This email is already in use';
+        valid = false;
       }
-    }
-    else if(response.statusCode >= 400 && response.statusCode < 500) {
-
-      Map<String, dynamic> jsonMap = json.decode(response.body);
-      print("hello im an error");
-
-      for(var entry in jsonMap.entries) {
-        print("${entry.key} ==> ${entry.value}");
+      else if(e.code == 'weak-password') {
+        _message = 'Weak password, add uppercase, lowercase, digit, special character, emoji, etc.';
+        valid = false;
       }
 
-      showAlertDialog('WARNING', jsonMap['error_msg']);
     }
-    else {
-      print(response.body.toString());
-      print(response.statusCode);
-      showAlertDialog('WARNING', 'Response was not recognized');
-    }
-    print(response.statusCode);
   }
+
 
   Future<void> showAlertDialog(String title, String message) async {
     return showDialog<void>(
@@ -144,6 +138,23 @@ class _SignUpState extends State<SignUp> {
                               filled: true,
                               hintText: 'E-mail',
                               //labelText: 'username',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
                               labelStyle: kLabelLightTextStyle,
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(color: AppColors.darkpurple),
@@ -159,6 +170,7 @@ class _SignUpState extends State<SignUp> {
                               if(!EmailValidator.validate(value)) {
                                 return 'The e-mail address is not valid';
                               }
+
                               return null;
                             },
                             onSaved: (String value) {
@@ -181,6 +193,23 @@ class _SignUpState extends State<SignUp> {
                               fillColor: AppColors.lightgrey,
                               filled: true,
                               hintText: 'Password',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
                               //labelText: 'username',
                               labelStyle: kLabelLightTextStyle,
                               border: OutlineInputBorder(
@@ -218,6 +247,23 @@ class _SignUpState extends State<SignUp> {
                               filled: true,
                               hintText: 'Confirm Password',
                               //labelText: 'username',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
                               labelStyle: kLabelLightTextStyle,
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(color: AppColors.darkpurple),
@@ -248,7 +294,11 @@ class _SignUpState extends State<SignUp> {
 
                     SizedBox(height: 16,),
 
-
+                    Text(_message,
+                      style: TextStyle(
+                      color: AppColors.peachpink,
+                    ),
+                    ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -257,7 +307,7 @@ class _SignUpState extends State<SignUp> {
                           child: Container(
                             width: 60.0,
                             child:OutlinedButton(
-                              onPressed: () {
+                              onPressed: () async {
 
                                 if(_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
@@ -269,9 +319,12 @@ class _SignUpState extends State<SignUp> {
                                     if (_formKey.currentState.validate()) {
                                       _formKey.currentState.save();
                                       // if all are valid then go to success screen
-                                      //signUpUser();
-
-                                      Navigator.pushNamed(context, '/signupfinish');
+                                      await signUpUser();
+                                      print(_message);
+                                      if(_message == "") {
+                                        Navigator.pushNamed(
+                                            context, '/signupfinish');
+                                      }
                                     }
                                   }
                                   //

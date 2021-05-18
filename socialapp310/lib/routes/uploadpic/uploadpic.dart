@@ -16,8 +16,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:math';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 class Uploadpic extends StatefulWidget {
+  const Uploadpic({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _Uploadpic createState() => _Uploadpic();
 }
@@ -81,7 +86,7 @@ class _Uploadpic extends State<Uploadpic> {
               ),
               SizedBox(height: 40),
               Container(
-                margin: EdgeInsets.symmetric(vertical: 0.0, horizontal: 60),
+                margin: EdgeInsets.symmetric(vertical: 0.0, horizontal: 50),
                 child: ElevatedButton(
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -180,6 +185,15 @@ class _Uploadpic extends State<Uploadpic> {
         ),
       ),
     );
+  }
+
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Upload page');
+    print("SCS : Upload page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
   }
   _getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(

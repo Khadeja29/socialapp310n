@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
@@ -8,6 +10,9 @@ import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 
 class Search extends StatefulWidget {
+  const Search({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   searchState createState() => searchState();
 }
@@ -18,10 +23,14 @@ class searchState extends State<Search> {
   String query = '';
 
   searchState();
-
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Search Page');
+    print("SCS : Search Page succeeded");
+  }
   @override
   void initState() {
     super.initState();
+    _setCurrentScreen();
     post_list = posts;
     choiceIdx = 0;
   }

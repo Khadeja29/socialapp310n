@@ -10,10 +10,15 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:math';
 import 'package:flutter/src/material/colors.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 class CreatePost extends StatefulWidget {
   File imageFile;
-  CreatePost({this.imageFile});
+  CreatePost({Key key, this.analytics, this.observer,this.imageFile}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _CreatePost createState() => _CreatePost();
 }
@@ -93,6 +98,14 @@ class _CreatePost extends State<CreatePost> {
         ],
       ),
     );
+  }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Create Post');
+    print("SCS : Create Post succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
   }
 }
 

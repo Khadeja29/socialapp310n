@@ -1,4 +1,7 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -6,14 +9,52 @@ import 'package:socialapp310/utils/dimension.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 
 class Login extends StatefulWidget {
+  const Login({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-
+  String email;
+  String password;
   bool remember = false;
+  bool validuser = false;
+  bool validpassword = false;
+  FirebaseAuth auth = FirebaseAuth.instance;
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Log in Page');
+    print("SCS : Log in Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
+  Future<void> loginUser() async {
+    try {
+      print(email);
+      print(password);
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+          email: email,
+          password: password
+      );
+      validuser = true;
+      validpassword = true;
+      print(userCredential.toString());
+
+    } on FirebaseAuthException catch (e) {
+      print(e.toString());
+      if(e.code == 'user-not-found') {
+        validuser = false;
+      }
+      else if (e.code == 'wrong-password') {
+        validpassword = false;
+        validuser = true;
+      }
+    }
+  }
   Future<void> showAlertDialog(String title, String message) async {
     return showDialog<void>(
         context: context,
@@ -83,29 +124,30 @@ class _LoginState extends State<Login> {
                           Expanded(
                             flex: 1,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
+                              
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
                                   filled: true,
                                   hintText: 'E-mail',
                                   // labelText: 'Username',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: AppColors.peachpink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(color: AppColors.darkgreyblack),
@@ -121,6 +163,7 @@ class _LoginState extends State<Login> {
                                   if(!EmailValidator.validate(value)) {
                                     return 'The e-mail address is not valid';
                                   }
+                                  email = value;
                                   return null;
                                 },
                                 // onSaved: (input) => loginRequestModel.email = input,
@@ -131,39 +174,38 @@ class _LoginState extends State<Login> {
                       ),
 
                       SizedBox(height: 16.0,),
-
-
                       Row(
                         children: [
                           Expanded(
                             flex: 1,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
                                   filled: true,
                                   hintText: 'Password',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: AppColors.peachpink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                  ),
+
                                   //labelText: 'Username',
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.darkgreyblack),
+                                    borderSide: BorderSide(color: AppColors.darkpurple),
                                     borderRadius: BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                 ),
@@ -179,6 +221,8 @@ class _LoginState extends State<Login> {
                                   if(value.length < 8) {
                                     return 'Password must be at least 8 characters';
                                   }
+                                  print("here" + value);
+                                  password = value;
                                   return null;
                                 },
                                 // onSaved: (input) => loginRequestModel.password = input,
@@ -220,13 +264,28 @@ class _LoginState extends State<Login> {
                                   style: OutlinedButton.styleFrom(
                                       backgroundColor: AppColors.primarypurple,
                                     ),
-                                  onPressed: () {Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomeFeed()),
-                                        (Route<dynamic> route) => false);},
+                                  onPressed: () async {
+                                      if(_formKey.currentState.validate()) {
+                                        await loginUser();
+                                        if (validpassword && validuser) {
+                                          Navigator.of(context).pushNamedAndRemoveUntil(
+                                              "/homefeed", (
+                                              Route<dynamic> route) => false);
+                                        }
+                                        else if (!validuser) {
+                                          showAlertDialog("Error", "User Does not exist");
+                                        }
+                                        else if (!validpassword) {
+                                          showAlertDialog("Error", "Password is wrong");
+                                        }
+                                      }
+                                  }
+                                    ,
                                   child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                child: Text(
-                                  'Login',
-                                  style: kButtonDarkTextStyle,
+                                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                        child: Text(
+                                        'Login',
+                                        style: kButtonDarkTextStyle,
                                     ),
                                   ),
                                 ),

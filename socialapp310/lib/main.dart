@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -10,6 +12,7 @@ import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
+import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
@@ -38,22 +41,7 @@ class MyApp extends StatelessWidget {
           );
         }
         else if(snapshot.connectionState == ConnectionState.done){
-          return MaterialApp(
-            home: SplashScreen(),
-            routes: {
-              '/welcome': (context) => Welcome(),
-              '/login': (context) => Login(),
-              '/signup': (context) => SignUp(),
-              '/signupfinish': (context) => FinishSignupPage(),
-              '/notifications': (context) => ActivityScreen(),
-              '/homefeed': (context) => HomeFeed(),
-              '/profile': (context) => ProfileScreen(),
-              '/search' : (context) => Search(),
-              '/editprofile' : (context) => EditProfilePage(),
-              '/uploadpic' : (context) => Uploadpic(),
-              '/createpost': (context) => CreatePost(),
-            },
-          );
+          return AppBase();
         }
         return MaterialApp(
             home: WelcomeViewNoFB()
@@ -61,5 +49,36 @@ class MyApp extends StatelessWidget {
       },
     );
 
+  }
+}
+
+class AppBase extends StatelessWidget {
+  const AppBase({
+    Key key,
+  }) : super(key: key);
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+  @override
+  Widget build(BuildContext context) {
+
+    return MaterialApp(
+      navigatorObservers: <NavigatorObserver>[observer],
+      home: SplashScreen(analytics: analytics, observer: observer,),
+      routes: {
+        '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
+        '/login': (context) => Login(analytics: analytics, observer: observer,),
+        '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
+        '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
+        '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
+        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
+        '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
+        '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
+        '/search' : (context) => Search(analytics: analytics, observer: observer,),
+        '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
+        '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
+        '/creatpost' :  (context) => Uploadpic(analytics: analytics, observer: observer,),
+      },
+    );
   }
 }

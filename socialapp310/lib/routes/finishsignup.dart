@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -5,6 +7,7 @@ import 'package:socialapp310/utils/dimension.dart';
 import 'homefeed/HomeFeed.dart';
 
 class SettingsUI extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,6 +19,9 @@ class SettingsUI extends StatelessWidget {
 }
 
 class FinishSignupPage extends StatefulWidget {
+  const FinishSignupPage({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _FinishSignupPageState createState() => _FinishSignupPageState();
 }
@@ -29,6 +35,14 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
     setState(() {
       switchValue = value;
     });
+  }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
+    print("SCS : Finished SignUp Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
   }
 
   @override
@@ -170,10 +184,7 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
                       backgroundColor: AppColors.darkpurple,
                     ),
                     onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => HomeFeed()),
-                          (Route<dynamic> route) => false);
+                      Navigator.of(context).pushNamedAndRemoveUntil("/homefeed", (route) => false);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
