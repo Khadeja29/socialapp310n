@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
         signedin = true;
       }
     });
-    Timer(Duration(seconds: 4), () => checkFirstSeen()); //TODO:ADD CONTEXT TO ONBOARDING SCREENS
+    Timer(Duration(seconds: 4), () => checkFirstSeen());
 
   }
   @override

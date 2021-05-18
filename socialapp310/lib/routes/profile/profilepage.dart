@@ -76,7 +76,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     var _screen = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: InstaAppBar(
+      appBar:
+      InstaAppBar(
         height: 345,
         isProfileScreen: true,
         backgroundColor: AppColors.darkpurple,
