@@ -62,3 +62,25 @@ final kImageCaptions = TextStyle(
     letterSpacing: -0.7,
     fontFamily: 'OpenSansCondensed-Bold'
 );
+final InboxName= TextStyle(
+    color: AppColors.primarypurple,
+    fontSize: 16.0,
+    fontWeight: FontWeight.bold,
+    letterSpacing: -0.7,
+    fontFamily: 'OpenSansCondensed-Bold'
+);
+final TimeStamp= TextStyle(
+    color: AppColors.darkgrey,
+    fontSize: 11.0,
+    fontWeight: FontWeight.w300,
+    letterSpacing: -0.7,
+    fontFamily: 'OpenSansCondensed-Bold'
+);
+
+final Messages= TextStyle(
+    color: AppColors.peachpink,
+    fontSize: 14.0,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.7,
+    fontFamily: 'OpenSansCondensed-Bold'
+);

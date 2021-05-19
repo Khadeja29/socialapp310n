@@ -4,6 +4,8 @@ import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
+import 'package:socialapp310/routes/inbox.dart';
+
 
 class HomeFeed extends StatefulWidget {
   @override
@@ -49,6 +51,9 @@ class _TestPostState extends State {
               color: Colors.white,
             ),
             onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Inbox()));
               // do something
             },
           )
