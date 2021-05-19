@@ -44,7 +44,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
+    _setLogEvent();
     print("SCS : Splash Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Splash_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Splash Page',
+        }
+    );
   }
   FirebaseAuth auth = FirebaseAuth.instance;
   void initState() {

@@ -17,7 +17,16 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Welcome Page');
+    _setLogEvent();
     print("SCS : Welcome Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Welcome_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Welcome Page',
+        }
+    );
   }
   void initState() {
     super.initState();

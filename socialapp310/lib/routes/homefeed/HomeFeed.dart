@@ -20,7 +20,16 @@ class _TestPostState extends State<HomeFeed> {
   int _selectedIndex = 0;
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Home Page');
+    _setLogEvent();
     print("SCS : Home Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Home_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Home Page',
+        }
+    );
   }
   void initState() {
     super.initState();
