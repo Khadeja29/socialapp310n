@@ -29,12 +29,23 @@ class _WalkThroughState extends State<WalkThrough> {
   String BRbutton = "Next";
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Walkthrough Page');
+    _setLogEvent();
     print("SCS : Finished Walkthrough succeeded");
+  }
+  Future<void> _setLogEvent() async {
+
+    await widget.analytics.logEvent(
+        name: 'Walk_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Walkthrough Page',
+        }
+    );
   }
   void initState() {
     super.initState();
     _setCurrentScreen();
   }
+
   void nextPage() {
 
     setState(() {
