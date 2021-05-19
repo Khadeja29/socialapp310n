@@ -8,13 +8,16 @@ import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:socialapp310/routes/settings/settings.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
+import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
+import 'package:socialapp310/routes/settings/password.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,18 +65,21 @@ class AppBase extends StatelessWidget {
 
     return MaterialApp(
       navigatorObservers: <NavigatorObserver>[observer],
-      home: Favourites(),
+      home: Password(),
+      // Settings(),
+      // Favourites(),
       // SplashScreen(analytics: analytics, observer: observer,),
       routes: {
         '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
         '/login': (context) => Login(analytics: analytics, observer: observer,),
         '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
-        '/signupfinish': (context) => FinishSignupPage(),
-        '/notifications': (context) => ActivityScreen(),
-        '/homefeed': (context) => HomeFeed(),
-        '/profile': (context) => ProfileScreen(),
-        '/search' : (context) => Search(),
-        '/editprofile' : (context) => EditProfilePage(),
+        '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
+        '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
+        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
+        '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
+        '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
+        '/search' : (context) => Search(analytics: analytics, observer: observer,),
+        '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
       },
     );
   }

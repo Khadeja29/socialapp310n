@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
@@ -6,13 +8,24 @@ import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 
 class HomeFeed extends StatefulWidget {
+  const HomeFeed({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _TestPostState createState() => _TestPostState();
 }
 
 //to connect to main use Function '/someroutename': (context) => HomeFeed(),
-class _TestPostState extends State {
+class _TestPostState extends State<HomeFeed> {
   int _selectedIndex = 0;
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Home Page');
+    print("SCS : Home Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
   void _onItemTapped(int index) {
     setState(() {
       print(index);

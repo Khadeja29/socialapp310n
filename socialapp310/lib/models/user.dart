@@ -4,8 +4,7 @@ import 'package:socialapp310/models/post.dart';
 class User {
   final String username;
   final int userId;
-  final String
-      email; // types include liked photo, follow user, comment on photo
+  final String email; // types include liked photo, follow user, comment on photo
   final String imageUrlAvatar;
   final String fullname;
   final String bio;
