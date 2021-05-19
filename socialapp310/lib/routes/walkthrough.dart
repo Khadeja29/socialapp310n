@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -8,11 +10,14 @@ import 'package:socialapp310/routes/login.dart';
 
 
 class WalkThrough extends StatefulWidget {
+  const WalkThrough({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _WalkThroughState createState() => _WalkThroughState();
 }
 
-class _WalkThroughState extends State {
+class _WalkThroughState extends State<WalkThrough> {
 
   int currentPage = 1;
   int totalPages = 6;
@@ -22,12 +27,32 @@ class _WalkThroughState extends State {
   List <String> imageCaptions = ["An app fit for kings and queens", "An easy sign up process", "Personalize your Image and Bio!" ,"Share your life" ,"Connect with fellow wolves", "Stay connected  "];
 
   String BRbutton = "Next";
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Walkthrough Page');
+    _setLogEvent();
+    print("SCS : Finished Walkthrough succeeded");
+  }
+  Future<void> _setLogEvent() async {
+
+    await widget.analytics.logEvent(
+        name: 'Walk_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Walkthrough Page',
+        }
+    );
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
+
   void nextPage() {
 
     setState(() {
       if(currentPage == totalPages )
       {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Welcome()));
+        Navigator.pushReplacementNamed(context, "/welcome");
+
       }
       if(currentPage < totalPages)
       {currentPage ++ ;}

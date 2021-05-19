@@ -1,3 +1,6 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/walkthrough.dart';
@@ -6,27 +9,66 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socialapp310/routes/welcome.dart';
 
+import 'homefeed/HomeFeed.dart';
+
+
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 class _SplashScreenState extends State<SplashScreen> {
+  bool signedin = false;
   Future checkFirstSeen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     bool _seen = (prefs.getBool('_seen') ?? false);
-    //print(_seen);
-    if (_seen) {
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) => new Welcome()));
-    } else {
+    User cool = await auth.currentUser;
+    print(cool);
+    //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
+    if (_seen && !signedin) {
+      Navigator.of(context).pushReplacementNamed('/welcome');
+    }
+    else if(_seen && signedin)
+    {
+      Navigator.of(context).pushReplacementNamed('/homefeed');
+
+    }
+    else {
       await prefs.setBool('_seen', true);
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) => new WalkThrough()));
+      Navigator.of(context).pushReplacementNamed('/walkthrough');
     }
   }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
+    _setLogEvent();
+    print("SCS : Splash Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Splash_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Splash Page',
+        }
+    );
+  }
+  FirebaseAuth auth = FirebaseAuth.instance;
   void initState() {
     super.initState();
-
+    _setCurrentScreen();
+    auth.authStateChanges().listen((User user) {//firebase user class clashes with the user class we have defined
+      if(user == null) {
+        print('User is signed out');
+        signedin = false;
+      }
+      else {
+        print('User is signed in');
+        signedin = true;
+      }
+    });
     Timer(Duration(seconds: 4), () => checkFirstSeen()); //TODO:ADD CONTEXT TO ONBOARDING SCREENS
 
   }

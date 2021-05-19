@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/models/notifications.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -8,12 +10,32 @@ import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
 
 class ActivityScreen extends StatefulWidget {
+  const ActivityScreen({Key key, this.analytics, this.observer}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _ActivityScreenState createState() => _ActivityScreenState();
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
   int _selectedIndex = 3; //notif page initial index is 3
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Notif Page');
+    _setLogEvent();
+    print("SCS : Notif Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Notif_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Notif Page',
+        }
+    );
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
   void _onItemTapped(int index) {
     setState(() {
       print(index);

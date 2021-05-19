@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "519827229009-7ctfr40c6aae28rg75aqr9bjsfsi4jcn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.sabanciuniv.socialapp310",
+            "certificate_hash": "19206212ec752b0c927ecc46387e5082368d68ed"
+          }
+        },
+        {
           "client_id": "519827229009-n8kl39fjijtukqfj7h5un65m5kgck184.apps.googleusercontent.com",
           "client_type": 3
         }

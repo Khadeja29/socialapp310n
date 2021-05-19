@@ -10,7 +10,9 @@ class InstaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget bio;
   final Widget tabbar;
   final Widget trailing;
+
   final Color backgroundColor;
+
 
   const InstaAppBar({
     Key key,
