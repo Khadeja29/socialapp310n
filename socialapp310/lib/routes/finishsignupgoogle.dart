@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -14,24 +15,24 @@ class SettingsUI extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Setting UI",
-      home: FinishSignupPage(),
+      home: FinishSignupPageGoogle(),
     );
   }
 }
 
-class FinishSignupPage extends StatefulWidget {
-  const FinishSignupPage({Key key, this.analytics, this.observer}): super (key: key);
+class FinishSignupPageGoogle extends StatefulWidget {
+  const FinishSignupPageGoogle({Key key, this.analytics, this.observer}): super (key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
   _FinishSignupPageState createState() => _FinishSignupPageState();
 }
 
-class _FinishSignupPageState extends State<FinishSignupPage> {
+class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
   bool switchValue = false;
   String bio = "";
+  String username;
   bool private = false;
-
   final _formKey = GlobalKey<FormState>();
   void onChangedSwitchValue(bool value) {
     setState(() {
@@ -53,21 +54,14 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
       appBar: AppBar(
         backgroundColor: AppColors.darkpurple,
         elevation: 1,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppColors.lightgrey,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: Container(
-          width: 280,
-          child: Text(
-            'Complete Sign Up',
-            style: kAppBarTitleTextStyle,
-            textAlign: TextAlign.center,
+        title: Center(
+          child: Container(
+            width: 280,
+            child: Text(
+              'Complete Sign Up',
+              style: kAppBarTitleTextStyle,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
@@ -124,7 +118,63 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
                   height: 35,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(0.0),
+                  child: Expanded(
+                    flex: 1,
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        fillColor: AppColors.lightgrey,
+                        filled: true,
+                        hintText: 'Username',
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        errorStyle: TextStyle(
+                          color: AppColors.peachpink,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.peachpink),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        //labelText: 'username',
+                        labelStyle: kLabelLightTextStyle,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.darkpurple),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                      ),
+                      keyboardType: TextInputType.text,
+                      obscureText: false,
+                      enableSuggestions: false,
+                      autocorrect: false,
+
+                      validator: (value) {
+                        if(value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        if(value.length > 8) {
+                          return 'Username has to be less than or equal to 8 characters';
+                        }
+                        return null;
+                      },
+                      onSaved: (String value) {
+                        username = value;//TODO: make if username
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(0.0),
                   child: Expanded(
                     flex: 1,
                     child: TextFormField(
@@ -215,8 +265,9 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
                         if(_formKey.currentState.validate()) {
 
                           _formKey.currentState.save();
-                          await UserFxns.UpdateBio(bio);
-                          await UserFxns.UpdatePrivacy(private);
+                          FirebaseAuth auth = FirebaseAuth.instance;
+                          User currentUser = auth.currentUser;
+                          await UserFxns.AddUserInfo(bio, currentUser.displayName, private, false, username);
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               "/homefeed", (route) => false);
                         }
