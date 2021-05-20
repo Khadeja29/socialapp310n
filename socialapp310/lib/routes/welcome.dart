@@ -143,7 +143,7 @@ class _WelcomeState extends State<Welcome> {
 
 class Authentication {
 
-  static Future<User> signInWithGoogle({BuildContext context}) async {
+  static Future<User> signInWithGoogle({BuildContext context}) async {//TODO: take inputs for user info.
     FirebaseAuth auth = FirebaseAuth.instance;
     User user;
 
@@ -180,6 +180,7 @@ class Authentication {
       } catch (e) {
         // handle the error here
       }
+      //TODO: add information to firestore.
     }
 
     return user;

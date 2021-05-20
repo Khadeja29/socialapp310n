@@ -36,6 +36,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     super.initState();
     _setCurrentScreen();
   }
+
   void _onItemTapped(int index) {
     setState(() {
       print(index);

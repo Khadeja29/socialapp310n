@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
@@ -21,8 +22,7 @@ class _LoginState extends State<Login> {
   String email;
   String password;
   bool remember = false;
-  bool validuser = false;
-  bool validpassword = false;
+
   FirebaseAuth auth = FirebaseAuth.instance;
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Log in Page');
@@ -31,9 +31,9 @@ class _LoginState extends State<Login> {
   }
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
-        name: 'LogIn_Page_Success',
+        name: 'Login_Page_Success',
         parameters: <String, dynamic>{
-          'name': 'login Page',
+          'name': 'Log in Page',
         }
     );
   }
@@ -41,29 +41,7 @@ class _LoginState extends State<Login> {
     super.initState();
     _setCurrentScreen();
   }
-  Future<void> loginUser() async {
-    try {
-      print(email);
-      print(password);
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
-          email: email,
-          password: password
-      );
-      validuser = true;
-      validpassword = true;
-      print(userCredential.toString());
 
-    } on FirebaseAuthException catch (e) {
-      print(e.toString());
-      if(e.code == 'user-not-found') {
-        validuser = false;
-      }
-      else if (e.code == 'wrong-password') {
-        validpassword = false;
-        validuser = true;
-      }
-    }
-  }
   Future<void> showAlertDialog(String title, String message) async {
     return showDialog<void>(
         context: context,
@@ -133,7 +111,7 @@ class _LoginState extends State<Login> {
                           Expanded(
                             flex: 1,
                             child: Container(
-                              
+
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
@@ -247,59 +225,58 @@ class _LoginState extends State<Login> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Expanded(
-                            flex: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(40),
-                                    topRight: Radius.circular(40),
-                                    bottomLeft: Radius.circular(40),
-                                    bottomRight: Radius.circular(40)
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
+                              flex: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(40),
+                                      topRight: Radius.circular(40),
+                                      bottomLeft: Radius.circular(40),
+                                      bottomRight: Radius.circular(40)
                                   ),
-                                ],
-                              ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 3,
+                                      blurRadius: 7,
+                                      offset: Offset(0, 3), // changes position of shadow
+                                    ),
+                                  ],
+                                ),
 
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(40),
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(40),
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
                                       backgroundColor: AppColors.primarypurple,
                                     ),
-                                  onPressed: () async {
+                                    onPressed: () async {
                                       if(_formKey.currentState.validate()) {
-                                        await loginUser();
-                                        if (validpassword && validuser) {
+                                        try {
+                                          await UserFxns.loginUser(email, password);
+                                          await UserFxns.UpdateDeactivation(false);
                                           Navigator.of(context).pushNamedAndRemoveUntil(
                                               "/homefeed", (
                                               Route<dynamic> route) => false);
+                                        } catch (e)
+                                        {
+                                          showAlertDialog("Error", e.code);
                                         }
-                                        else if (!validuser) {
-                                          showAlertDialog("Error", "User Does not exist");
-                                        }
-                                        else if (!validpassword) {
-                                          showAlertDialog("Error", "Password is wrong");
-                                        }
+
                                       }
-                                  }
+                                    }
                                     ,
-                                  child: Padding(
+                                    child: Padding(
                                       padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                        child: Text(
+                                      child: Text(
                                         'Login',
                                         style: kButtonDarkTextStyle,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
+                              )
                           ),
                         ],
                       ),
@@ -355,6 +332,4 @@ class _LoginState extends State<Login> {
     // );
   }
 }
-
-
 
