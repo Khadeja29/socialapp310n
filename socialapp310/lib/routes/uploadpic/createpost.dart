@@ -12,18 +12,40 @@ import 'dart:math';
 import 'package:flutter/src/material/colors.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CreatePost extends StatefulWidget {
-  File imageFile;
+  final File imageFile;
   CreatePost({Key key, this.analytics, this.observer,this.imageFile}): super (key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _CreatePost createState() => _CreatePost();
+  _CreatePost createState() => _CreatePost(imageFile);
 }
 
 class _CreatePost extends State<CreatePost> {
+  File imageFile;
+  _CreatePost(this.imageFile);
+  void imageuploader(){
+    String imagename = DateTime.now().millisecondsSinceEpoch.toString();
+    final Reference storageReference = FirebaseStorage.instance.ref()
+        .child(imagename);
+    final UploadTask uploadTask =  storageReference.putFile(imageFile);
+    uploadTask.then((TaskSnapshot taskSnapshot) {
+      taskSnapshot.ref.getDownloadURL().then((imageUrl){
+        //save info to firestore
+        _saveData(imageUrl);
+      });
+    }).catchError((error){
+      Fluttertoast.showToast(msg: error.toString(),);
+    });
+  }
+  void _saveData(String imageUrl){
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +61,7 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
+                  imageuploader();
                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
                 }),
           )
