@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -17,7 +18,8 @@ import 'package:socialapp310/utils/color.dart';
 import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
+  const ProfileScreen({Key key, this.analytics, this.observer})
+      : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
@@ -34,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   int _followers = profuser.followers.length;
   int _following = profuser.followings.length;
   TabController _controller;
-  String _biodata =profuser.bio;
+  String _biodata = profuser.bio;
   String _email = profuser.email;
 
   int _selectedIndex = 4;
@@ -62,10 +64,18 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   @override
+  Future<DocumentSnapshot> getUserInfo() {
+    // Call the user's CollectionReference to add a new user
+    FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('user');
+    return usersCollection.doc(currentFB.uid).get();
+  }
 
   void initState() {
     super.initState();
     _setCurrentScreen();
+
     _controller = TabController(length: 3, vsync: this);
     _controller.addListener(() {
       //print(_controller.index);
@@ -75,164 +85,186 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     var _screen = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: InstaAppBar(
-        height: 345,
-        isProfileScreen: true,
-        backgroundColor: AppColors.darkpurple,
-        center: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.alternate_email_outlined,
-              color: Colors.white,
-            ),
-            Text(
-              _username,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-        trailing: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.article_outlined),
-            color: Colors.white,
-            onPressed: () => Scaffold.of(context).openEndDrawer(),
-            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          ),
-        ),
 
-        profileStats: profileStats(screen: _screen, color: Colors.white, post: _postnum, followers: _followers, following: _following, context: context),
-        bio: bio(name: _name, biodata:_biodata),
-        tabbar: TabBar(
-          unselectedLabelColor: Colors.white,
-          labelColor: AppColors.peachpink,
-          indicatorColor: AppColors.peachpink,
-          tabs: [
-            Tab(icon: Icon(Icons.grid_on)),
-            Tab(icon: Icon(Icons.location_on_outlined)),
-            Tab(icon: Icon(MyFlutterApp.pen_alt)),
-          ],
-          controller: _controller,
-        ),
-      ),
-      endDrawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text(_name),
-              accountEmail: Text(_email),
-              currentAccountPicture:  GestureDetector(
-                child: Hero(
-                  tag: '${profuser.imageUrlAvatar}1',
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage(profuser.imageUrlAvatar),
-                    radius: 90,
+    return FutureBuilder<DocumentSnapshot>(
+      future: getUserInfo(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          Map<String, dynamic> data = snapshot.data.data();
+          print(data);
+          return Scaffold(
+            appBar: InstaAppBar(
+              height: 345,
+              isProfileScreen: true,
+              backgroundColor: AppColors.darkpurple,
+              center: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    Icons.alternate_email_outlined,
+                    color: Colors.white,
                   ),
+                  Text(
+                    data["Username"],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              trailing: Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.article_outlined),
+                  color: Colors.white,
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
+                  tooltip:
+                      MaterialLocalizations.of(context).openAppDrawerTooltip,
                 ),
-                onTap: (){
-                  Navigator.push(context,MaterialPageRoute(builder: (_) {
-                    return DetailScreen(ImageUrlPost: profuser.imageUrlAvatar,);
-                  }));
-                },
               ),
-              decoration: new BoxDecoration(
-                color: AppColors.darkpurple,
-              ),
-            ),
-            InkWell(
-              onTap: (){
-                Navigator.pushReplacementNamed(context, '/homefeed');
-              },
-              child: ListTile(
-                title: Text('Home Page'),
-                leading: Icon(Icons.home),
-              ),
-            ),
-
-            InkWell(
-              onTap: () => Navigator.pushNamed(context, "/editprofile"),
-              child: ListTile(
-                title: Text('Edit Profile'),
-                leading: Icon(Icons.edit_outlined),
+              profileStats: profileStats(
+                  screen: _screen,
+                  color: Colors.white,
+                  post: _postnum,
+                  followers: _followers,
+                  following: _following,
+                  context: context),
+              bio: bio(name: data["FullName"], biodata: data["Bio"]),
+              tabbar: TabBar(
+                unselectedLabelColor: Colors.white,
+                labelColor: AppColors.peachpink,
+                indicatorColor: AppColors.peachpink,
+                tabs: [
+                  Tab(icon: Icon(Icons.grid_on)),
+                  Tab(icon: Icon(Icons.location_on_outlined)),
+                  Tab(icon: Icon(MyFlutterApp.pen_alt)),
+                ],
+                controller: _controller,
               ),
             ),
-
-            InkWell(
-              onTap: (){},
-              child: ListTile(
-                title: Text('Favourites'),
-                leading: Icon(Icons.bookmark),
+            endDrawer: Drawer(
+              child: ListView(
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    accountName: Text(data["FullName"]),
+                    accountEmail: Text(data[
+                        "Email"]), //TODO: add email to the firestore database
+                    currentAccountPicture: GestureDetector(
+                      child: Hero(
+                        tag: '${profuser.imageUrlAvatar}1',
+                        child: CircleAvatar(
+                          backgroundImage: AssetImage(profuser.imageUrlAvatar),
+                          radius: 90,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return DetailScreen(
+                            ImageUrlPost: profuser.imageUrlAvatar,
+                          );
+                        }));
+                      },
+                    ),
+                    decoration: new BoxDecoration(
+                      color: AppColors.darkpurple,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/homefeed');
+                    },
+                    child: ListTile(
+                      title: Text('Home Page'),
+                      leading: Icon(Icons.home),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => Navigator.pushNamed(context, "/editprofile"),
+                    child: ListTile(
+                      title: Text('Edit Profile'),
+                      leading: Icon(Icons.edit_outlined),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: ListTile(
+                      title: Text('Favourites'),
+                      leading: Icon(Icons.bookmark),
+                    ),
+                  ),
+                  Divider(),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/settings');
+                    },
+                    child: ListTile(
+                      title: Text('Settings'),
+                      leading: Icon(Icons.settings),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Authentication.signOutWithGoogle(context: context);
+                      FBauth.FirebaseAuth.instance.signOut().then((value) {
+                        Navigator.pushReplacementNamed(context, '/welcome');
+                      });
+                    },
+                    child: ListTile(
+                      title: Text('Log out'),
+                      leading: Icon(
+                        Icons.transit_enterexit,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            Divider(),
-            InkWell(
-              onTap: (){},
-              child: ListTile(
-                title: Text('Settings'),
-                leading: Icon(Icons.settings),
-              ),
+            body: TabBarView(
+              children: [
+                //TAB1: Media DISPLAY
+                mediagrid_display(),
+                //TAB2: locations DISPLAY
+                ListView.builder(
+                    itemCount: profuser.locations.length,
+                    itemBuilder: (BuildContext context, int index) =>
+                        buildTripCard(context, index)),
+                //TAB3: POSTS DISPLAY
+                ListView(
+                  children: posts.map((post) => PostCard(post: post)).toList(),
+                ),
+              ],
+              controller: _controller,
             ),
-
-
-            InkWell(
-              onTap: (){
-                Authentication.signOutWithGoogle(context: context);
-                 FirebaseAuth.instance.signOut().then((value){
-                  Navigator.pushReplacementNamed(context, '/welcome');
-                });
-              },
-              child: ListTile(
-                title: Text('Log out'),
-                leading: Icon(Icons.transit_enterexit, color: Colors.grey,),
-              ),
+            bottomNavigationBar: BottomNavigationBar(
+              iconSize: 30,
+              backgroundColor: AppColors.darkpurple,
+              selectedItemColor: AppColors.peachpink,
+              unselectedItemColor: Colors.white,
+              type: BottomNavigationBarType.fixed,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              items: [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined), label: "Home"),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.search), label: "Search"),
+                BottomNavigationBarItem(icon: Icon(Icons.add), label: "Create"),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.favorite_border_outlined),
+                    label: "Notifications"),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.person), label: "Profile"),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
             ),
-
-          ],
-        ),
-      ),
-      body: TabBarView(
-        children: [
-          //TAB1: Media DISPLAY
-          mediagrid_display(),
-          //TAB2: locations DISPLAY
-          ListView.builder(
-              itemCount: profuser.locations.length,
-              itemBuilder: (BuildContext context, int index) =>
-                  buildTripCard(context, index)),
-          //TAB3: POSTS DISPLAY
-          ListView(
-            children: posts.map((post) => PostCard(post: post)).toList(),
-          ),
-        ],
-        controller: _controller,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        iconSize: 30,
-        backgroundColor: AppColors.darkpurple,
-        selectedItemColor: AppColors.peachpink,
-        unselectedItemColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Create"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border_outlined),
-              label: "Notifications"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+          );
+        }
+        return Text("loading");
+      },
     );
   }
 }

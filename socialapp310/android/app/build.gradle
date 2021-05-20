@@ -32,10 +32,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "edu.sabanciuniv.socialapp310"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
     }
     signingConfigs {
         prepro {

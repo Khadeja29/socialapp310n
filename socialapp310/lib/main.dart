@@ -8,6 +8,7 @@ import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:socialapp310/routes/settings/deleteAccount.dart';
 import 'package:socialapp310/routes/settings/settings.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
@@ -65,10 +66,11 @@ class AppBase extends StatelessWidget {
 
     return MaterialApp(
       navigatorObservers: <NavigatorObserver>[observer],
-      home: Password(),
+      home:
+      // Password(),
       // Settings(),
       // Favourites(),
-      // SplashScreen(analytics: analytics, observer: observer,),
+      SplashScreen(analytics: analytics, observer: observer,),
       routes: {
         '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
         '/login': (context) => Login(analytics: analytics, observer: observer,),
@@ -80,6 +82,8 @@ class AppBase extends StatelessWidget {
         '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
         '/search' : (context) => Search(analytics: analytics, observer: observer,),
         '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
+        '/settings' : (context) => Settings(analytics: analytics, observer: observer,),
+        '/deleteaccount' : (context) => DeleteAccount(analytics: analytics, observer: observer,),
       },
     );
   }
