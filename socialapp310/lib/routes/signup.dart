@@ -179,6 +179,7 @@ class _SignUpState extends State<SignUp> {
                                 return 'Please enter your e-mail';
                               }
                               if(!EmailValidator.validate(value)) {
+
                                 return 'The e-mail address is not valid';
                               }
 

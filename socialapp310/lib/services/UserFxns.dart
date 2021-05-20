@@ -54,6 +54,25 @@ class UserFxns{
     //TODO: push Home page here
     //TODO: in the else change deactivated to true. for sign in and not here
   }
+  static Future<void> UpdateBio(String Bio) async {
+    User currentUser = _auth.currentUser;
+    var result = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser.uid)
+        .update({'Bio': Bio})
+        .then((value) => print("Success"))
+        .catchError((error) => print("Error: $error"));
+  }
+
+  static Future<void> UpdatePrivacy(bool Privacy) async{
+    User currentUser = _auth.currentUser;
+    var result = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser.uid)
+        .update({'IsPrivate': Privacy})
+        .then((value) => print("Success"))
+        .catchError((error) => print("Error: $error"));
+  }
   static Future<void> AddUserInfo(String Bio, String FullName, bool isPrivate, bool isDeactivated,String Username) async {
     User currentUser = _auth.currentUser;
     usersCollection
