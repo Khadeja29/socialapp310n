@@ -68,17 +68,11 @@ class _CreatePost extends State<CreatePost> {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = null;
-    var dateFormat = DateFormat('MMM d, yyyy');
-    var timeFormat = DateFormat('EEEE, hh:mm a');
-
-    var date=dateFormat.format(DateTime.now());
-    var time=timeFormat.format(DateTime.now());
-    var date_time=date+time;
     List<String> comments;
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
-      'Location': GeoPoint,
+      'Location': GeoPoint(10,10),
       'Comment': comments,
       'Likes': num,
       'createdAt': Timestamp.now(),
