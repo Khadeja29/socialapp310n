@@ -255,6 +255,7 @@ class _LoginState extends State<Login> {
                                       if(_formKey.currentState.validate()) {
                                         try {
                                           await UserFxns.loginUser(email, password);
+                                          await UserFxns.UpdateDeactivation(false);
                                           Navigator.of(context).pushNamedAndRemoveUntil(
                                               "/homefeed", (
                                               Route<dynamic> route) => false);

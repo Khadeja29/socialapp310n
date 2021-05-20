@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/walkthrough.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'dart:async';
 import 'package:socialapp310/utils/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,17 +25,22 @@ class _SplashScreenState extends State<SplashScreen> {
   bool signedin = false;
   Future checkFirstSeen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    User currentUser = auth.currentUser;
     bool _seen = (prefs.getBool('_seen') ?? false);
-
+    bool firestore = await UserFxns.UserExistsinFireStore(currentUser.uid);
     //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
-    if (_seen && !signedin) {
+    if (_seen && !signedin ) {
       Navigator.of(context).pushReplacementNamed('/welcome');
     }
-    else if(_seen && signedin)
+    else if(_seen && signedin && firestore)
     {
       Navigator.of(context).pushReplacementNamed('/homefeed');
 
+    }
+    else if(_seen && signedin && !firestore)
+    {
+      if(currentUser.providerData[0].providerId == "google.com") {Navigator.of(context).pushReplacementNamed('/signupfinishgoogle');}
+      else {Navigator.of(context).pushReplacementNamed('/signupfinish');}
     }
     else {
       await prefs.setBool('_seen', true);
