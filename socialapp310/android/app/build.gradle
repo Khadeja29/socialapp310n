@@ -26,6 +26,11 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.gms.google-services'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 android {
     compileSdkVersion 30
 
@@ -45,6 +50,12 @@ android {
             keyAlias "androiddebugkey"
             keyPassword "android"
         }
+        lecture {
+            keyAlias "woof310"
+            keyPassword "woof310"
+            storeFile rootProject.file("woof310-keystore.jks")
+            storePassword "woof310"
+        }
     }
 
     buildTypes {
@@ -54,7 +65,8 @@ android {
             signingConfig signingConfigs.debug
         }
         debug{
-            signingConfig signingConfigs.prepro
+            signingConfig signingConfigs.lecture
+            //signingConfig signingConfigs.prepro
         }
     }
 }

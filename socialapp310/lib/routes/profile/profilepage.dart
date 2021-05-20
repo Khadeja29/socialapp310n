@@ -60,9 +60,17 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
+    _setLogEvent();
     print("SCS : Profile Page succeeded");
   }
-
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Profile_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Profile Page',
+        }
+    );
+  }
   @override
   Future<DocumentSnapshot> getUserInfo() {
     // Call the user's CollectionReference to add a new user

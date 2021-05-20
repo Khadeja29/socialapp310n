@@ -18,7 +18,16 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Welcome Page');
+    _setLogEvent();
     print("SCS : Welcome Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Welcome_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Welcome Page',
+        }
+    );
   }
   void initState() {
     super.initState();
@@ -135,7 +144,7 @@ class _WelcomeState extends State<Welcome> {
 
 class Authentication {
 
-  static Future<User> signInWithGoogle({BuildContext context}) async {
+  static Future<User> signInWithGoogle({BuildContext context}) async {//TODO: take inputs for user info.
     FirebaseAuth auth = FirebaseAuth.instance;
     User user;
 
@@ -172,6 +181,7 @@ class Authentication {
       } catch (e) {
         // handle the error here
       }
+      //TODO: add information to firestore.
     }
 
     return user;

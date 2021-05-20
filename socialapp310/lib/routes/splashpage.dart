@@ -43,7 +43,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
+    _setLogEvent();
     print("SCS : Splash Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Splash_Page_Success',
+        parameters: <String, dynamic> {
+          'name': 'Splash Page',
+        }
+    );
+
   }
 
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -57,34 +67,12 @@ class _SplashScreenState extends State<SplashScreen> {
         signedin = false;
       }
       else {
+        User currentUser = auth.currentUser;
+
+        print(auth.currentUser);
         print('User is signed in');
         signedin = true;
-        CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
-        User currentUser = auth.currentUser;
-        print(currentUser.uid);
-        print(currentUser);
-        usersCollection
-            .doc(currentUser.uid)
-            .get()
-            .then((DocumentSnapshot documentSnapshot) {
-          if (documentSnapshot.exists) {//dont do anything
-            print('Document exists on the database');
-          }
-          else {
-            usersCollection
-                .doc(currentUser.uid)
-                .set({
-              "Bio": "This is a temporary Bio.",
-              "FullName": "John Doe",
-              "IsPrivate": false,
-              "Username": "Default123",
-              "Email" : currentUser.email
-            })
-                .then((value) => print("User Added"))
-                .catchError((error) => print("Failed to add user: $error"));
-          }
-        });
-      }
+        }
     });
     Timer(Duration(seconds: 4), () => checkFirstSeen()); //TODO:ADD CONTEXT TO ONBOARDING SCREENS
 

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "519827229009",
+    "project_id": "woof310-885a0",
+    "storage_bucket": "woof310-885a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519827229009:android:9cd85c43faa2dfa4fe2b70",
+        "android_client_info": {
+          "package_name": "edu.sabanciuniv.socialapp310"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519827229009-7ctfr40c6aae28rg75aqr9bjsfsi4jcn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.sabanciuniv.socialapp310",
+            "certificate_hash": "19206212ec752b0c927ecc46387e5082368d68ed"
+          }
+        },
+        {
+          "client_id": "519827229009-fqhj4c83ibrj9l4ibufq5k2acn0uoao0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.sabanciuniv.socialapp310",
+            "certificate_hash": "85124799753b063ced2d0afb5b3760f90e973f2f"
+          }
+        },
+        {
+          "client_id": "519827229009-n8kl39fjijtukqfj7h5un65m5kgck184.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbINkjHawYEUDNptCr67l60-WGAeB9KKI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519827229009-n8kl39fjijtukqfj7h5un65m5kgck184.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

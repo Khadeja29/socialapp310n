@@ -23,7 +23,16 @@ class searchState extends State<Search> {
   searchState();
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Search Page');
+    _setLogEvent();
     print("SCS : Search Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Search_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Search Page',
+        }
+    );
   }
   @override
   void initState() {
