@@ -8,12 +8,14 @@ class UserFxns{
   static final CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
 
   static Future<bool> isUserNameUnique(String Username) async{
+
     bool unique = true;
     print(Username);
     var result = await FirebaseFirestore.instance
         .collection('user')
         .where('Username', isEqualTo: Username)
         .get();
+
       if(result.docs.isNotEmpty)
       {unique = false;}
       // result.docs.forEach((doc) {
@@ -47,7 +49,6 @@ class UserFxns{
     }
     if(isNewUser) {
       AddUserInfo(Bio, FullName, false, false, Username);
-      //TODO: we can push page here
     }
     else {}//do nothing
     //TODO: push Home page here

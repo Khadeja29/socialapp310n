@@ -29,6 +29,7 @@ class _SignUpState extends State<SignUp> {
   String password;
   String password2;
   String username;
+  String fullname;
   final _formKey = GlobalKey<FormState>();
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -232,14 +233,14 @@ class _SignUpState extends State<SignUp> {
                                 return 'Please enter your Full Name';
                               }
                               if(value.length > 8) {
-                                return 'Username has to be less than or equal to 8 characters';
+                                return 'Full Name has to be less than or equal to 8 characters';
                               }
-
+                              //Todo: add some more validation logic for full screen
 
                               return null;
                             },
                             onSaved: (String value) {
-                              email = value;//TODO: make if full name
+                              fullname = value;//TODO: make if full name
                             },
                           ),
                         ),
@@ -439,11 +440,17 @@ class _SignUpState extends State<SignUp> {
                                       _formKey.currentState.save();
                                       // if all are valid then go to success screen
                                       //await signUpUser();
-                                      print(_message);
-                                      if(_message == "") {
+                                      //TODO: Try catch Userfxn signinnormal call show alert dialog with error. if no error push appropiate page
+                                      try{
+                                        await UserFxns.SignUpNormal(context, email, password, "Temp", fullname, username);
+                                        print("here");
                                         Navigator.pushNamed(
                                             context, '/signupfinish');
+                                      }catch (e){
+                                        print("here2");
+                                        showAlertDialog("Error", e.code);
                                       }
+
                                     }
                                   }
                                   //
