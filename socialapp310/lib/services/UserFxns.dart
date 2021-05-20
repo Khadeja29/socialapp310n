@@ -73,6 +73,29 @@ class UserFxns{
         .then((value) => print("Success"))
         .catchError((error) => print("Error: $error"));
   }
+
+  static Future<void> loginUser(email, password) async {
+    try {
+      print(email);
+      print(password);
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password
+      );
+
+
+
+    } on FirebaseAuthException catch (e) {
+      print(e.toString());
+      if(e.code == 'user-not-found') {
+        throw(e);
+      }
+      else if (e.code == 'wrong-password') {
+        throw(e);
+      }
+      else { throw(e);}
+    }
+  }
   static Future<void> AddUserInfo(String Bio, String FullName, bool isPrivate, bool isDeactivated,String Username) async {
     User currentUser = _auth.currentUser;
     usersCollection
