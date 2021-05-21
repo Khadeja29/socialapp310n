@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/services/UserFxns.dart';
@@ -27,6 +26,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
   void initState() {
     super.initState();
+    _listFuture = UserFxns.getUserInfo();
     //FirebaseCrashlytics.instance.crash(); //Emulating a crash
     _setCurrentScreen();
   }
@@ -74,14 +74,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
 
-
+  Future<DocumentSnapshot> _listFuture;
 
 
   final _formKey = GlobalKey<FormState>();
   String bio;
   String username;
   String fullname;
-  bool priv;
+  bool priv = false;
 
 
 
@@ -89,7 +89,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
 
     return FutureBuilder<DocumentSnapshot>(
-      future: UserFxns.getUserInfo(),
+      future:_listFuture,
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if(snapshot.connectionState == ConnectionState.done) {
@@ -181,29 +181,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       // buildTextField("Full name","${snapshot.data["FullName"]}" , false),
                       // buildTextField("Bio","${snapshot.data["Bio"]}", false),
                       Padding(
-                       padding: const EdgeInsets.only(bottom: 35.0),
-                       child: TextFormField(
-                         obscureText: false,
-                           initialValue: "${snapshot.data["Username"]}",
-                           decoration: InputDecoration(
-                             contentPadding: EdgeInsets.only(bottom: 3),
-                             labelText:"Username",
-                             floatingLabelBehavior: FloatingLabelBehavior.always,
-                            ),
-                         validator: (value) {
-                           if(value.isEmpty) {
-                             return 'This field cannot be left empty';
-                           }
-                           if(value.length > 8) {
-                             return 'Username must be less than or equal to 8 characters!';
-                           }
-                           return null;
-                         },
-                         onSaved: (String value) {
-                           username = value;
-                         },
-                       ),
-                     ),
+                        padding: const EdgeInsets.only(bottom: 35.0),
+                        child: TextFormField(
+                          obscureText: false,
+                          initialValue: "${snapshot.data["Username"]}",
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.only(bottom: 3),
+                            labelText:"Username",
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                          ),
+                          validator: (value) {
+                            if(value.isEmpty) {
+                              return 'This field cannot be left empty';
+                            }
+                            if(value.length > 8) {
+                              return 'Username must be less than or equal to 8 characters!';
+                            }
+                            return null;
+                          },
+                          onSaved: (String value) {
+                            username = value;
+                          },
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 35.0),
                         child: TextFormField(
@@ -256,15 +256,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                       Row(
                         children: [
-                          // Checkbox(
-                          //   value: snapshot.data["IsPrivate"],
-                          //   activeColor: AppColors.darkgrey,
-                          //   onChanged: (bool value) => setState(()=> private = value,),
-                          // ),
-                          // Text("Make account private"),
+                          Checkbox(
+                            value: priv ^ private ,
+                            activeColor: AppColors.darkgrey,
+                            onChanged: (value) {
+                              setState(() {
 
-
-
+                                priv = !priv;
+                                print( priv ^ private);
+                              });
+                            },
+                          ),
+                          Text("Make account private"),
 
                         ],
                       ),
@@ -291,11 +294,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 _formKey.currentState.save();
                                 bool uniqueUser = await UserFxns.isUserNameUnique(username);
                                 if(uniqueUser)
-                                  {
-                                    UserFxns.UpdateUserInfo( Bio:bio, FullName: fullname ,UserName:username, IsPriv: private);
-                                    Navigator.pushReplacementNamed(
-                                        context, '/profile');
-                                  }
+                                {
+                                  UserFxns.UpdateUserInfo( Bio:bio, FullName: fullname ,UserName:username, IsPriv: priv ^ private);
+                                  Navigator.pushReplacementNamed(
+                                      context, '/profile');
+                                }
                                 else{
                                   showAlertDialog("Error", "UserName is taken");
                                 }
@@ -325,11 +328,51 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
 
           );
+
+        }
+        else {
+          return (Center(
+              child: CircularProgressIndicator(
+                  valueColor: new AlwaysStoppedAnimation<Color>(
+                      AppColors.primarypurple))));
+
         }
         return Text("loading");
       },);
 
+
   }
 
-
+  Widget buildTextFormField(
+      String labelText, String placeholder, bool isPasswordTextField) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 35.0),
+      child: TextField(
+        obscureText: isPasswordTextField ? showPassword : false,
+        decoration: InputDecoration(
+            suffixIcon: isPasswordTextField
+                ? IconButton(
+              onPressed: () {
+                setState(() {
+                  showPassword = !showPassword;
+                });
+              },
+              icon: Icon(
+                Icons.remove_red_eye,
+                color: Colors.grey,
+              ),
+            )
+                : null,
+            contentPadding: EdgeInsets.only(bottom: 3),
+            labelText: labelText,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            hintText: placeholder,
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            )),
+      ),
+    );
+  }
 }
