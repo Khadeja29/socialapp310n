@@ -10,6 +10,8 @@ import 'package:socialapp310/utils/dimension.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 
+import '../welcome.dart';
+
 class DeleteAccount extends StatefulWidget {
   const DeleteAccount({Key key, this.analytics, this.observer})
       : super(key: key);
@@ -46,11 +48,34 @@ class _DeleteAccountState extends State<DeleteAccount> {
     CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('user');
 
-    await currentFB.reauthenticateWithCredential(credential).then((value) {
-      usersCollection.doc(currentFB.uid).delete().then((res) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Deleting account!')));
+    try {
+      await currentFB.reauthenticateWithCredential(credential).then((value) {
+        FirebaseAuth.instance.currentUser.delete().then((val) {
+          usersCollection.doc(currentFB.uid).delete().then((res) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text('Deleting account!')));
+            // Navigator.pushReplacementNamed(context, '/welcome');
+          });
+        });
+      });
+
+     await Authentication.signOutWithGoogle(context: context);
+      FBauth.FirebaseAuth.instance.signOut().then((value) {
         Navigator.pushReplacementNamed(context, '/welcome');
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        print('The user must reauthenticate before this operation can be executed.');
+      }
+    }
+
+    await currentFB.reauthenticateWithCredential(credential).then((value) {
+      FirebaseAuth.instance.currentUser.delete().then((res) {
+        usersCollection.doc(currentFB.uid).delete().then((res) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Deleting account!')));
+          Navigator.pushReplacementNamed(context, '/welcome');
+        });
       });
     });
   }

@@ -8,10 +8,10 @@ import 'package:socialapp310/utils/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 
 class Settings extends StatefulWidget {
-  const Settings({Key key, this.analytics, this.observer})
-      : super(key: key);
+  const Settings({Key key, this.analytics, this.observer}) : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
+
   @override
   _SettingsState createState() => _SettingsState();
 }
@@ -21,20 +21,20 @@ class _SettingsState extends State<Settings> {
     // Call the user's CollectionReference to add a new user
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection('user');
-    return usersCollection.doc(currentFB.uid).update({'isDeactivated': true})
+        FirebaseFirestore.instance.collection('user');
+    return usersCollection
+        .doc(currentFB.uid)
+        .update({'IsDeactivated': true})
         .then((value) => CoolAlert.show(
-      context: context,
-      type: CoolAlertType.success,
-      text: "Successfully deleted",
-      backgroundColor: AppColors.lightgrey,
-      borderRadius: 40,
-      confirmBtnColor: AppColors.darkpurple,
-      onConfirmBtnTap: () {
-        Navigator.pushReplacementNamed(context, '/welcome');
-      }
-      )
-    )
+            context: context,
+            type: CoolAlertType.success,
+            text: "Successfully deleted",
+            backgroundColor: AppColors.lightgrey,
+            borderRadius: 40,
+            confirmBtnColor: AppColors.darkpurple,
+            onConfirmBtnTap: () {
+              Navigator.pushReplacementNamed(context, '/welcome');
+            }))
         .catchError((error) => print("Failed to deactivate user: $error"));
   }
 
@@ -43,46 +43,28 @@ class _SettingsState extends State<Settings> {
     bool isSwitched = true;
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Settings',
-            style: kAppBarTitleTextStyle,
-          ),
-          backgroundColor: AppColors.darkpurple,
-          centerTitle: true,
-          elevation: 1,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+      appBar: AppBar(
+        title: Text(
+          'Settings',
+          style: kAppBarTitleTextStyle,
         ),
-        body: Container(
-            child: ListView(
+        backgroundColor: AppColors.darkpurple,
+        centerTitle: true,
+        elevation: 1,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Container(
+        child: ListView(
           padding: const EdgeInsets.all(8),
           children: <Widget>[
-            InkWell(
-              onTap: () {
-                // Navigator.pushReplacementNamed(context, '/homefeed');
-              },
-              child: ListTile(
-                title: Text('Change Password',
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.7,
-                        fontFamily: 'OpenSansCondensed-Bold',
-                        color: Colors.black)),
-                leading: Icon(Icons.now_widgets_outlined),
-              ),
-            ),
-            Divider(
-              color: Colors.black,
-            ),
             InkWell(
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/deleteaccount');
@@ -96,28 +78,6 @@ class _SettingsState extends State<Settings> {
                         fontFamily: 'OpenSansCondensed-Bold',
                         color: Colors.black)),
                 leading: Icon(Icons.auto_delete_outlined),
-                // trailing: OutlinedButton(
-                //   onPressed: () {
-                //     Navigator.pushReplacementNamed(context, '/deleteaccount');
-                //   },
-                //   child: Text(
-                //     'Delete',
-                //     style: TextStyle(
-                //       color: Colors.white,
-                //       fontSize: 16.0,
-                //       letterSpacing: -0.7,
-                //       fontFamily: 'OpenSansCondensed-Bold',
-                //     ),
-                //   ),
-                //   style: OutlinedButton.styleFrom(
-                //     backgroundColor: AppColors.primarypurple,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(18.0),
-                //     ),
-                //     side: BorderSide(
-                //         width: 2, color: AppColors.primarypurple),
-                //   ),
-                // )
               ),
             ),
             Divider(
@@ -125,14 +85,14 @@ class _SettingsState extends State<Settings> {
             ),
             InkWell(
               child: ListTile(
-                title: Text('Deactivate Account',
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.7,
-                        fontFamily: 'OpenSansCondensed-Bold',
-                        color: Colors.black)),
-                leading: Icon(Icons.admin_panel_settings_rounded),
+                  title: Text('Deactivate Account',
+                      style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -0.7,
+                          fontFamily: 'OpenSansCondensed-Bold',
+                          color: Colors.black)),
+                  leading: Icon(Icons.admin_panel_settings_rounded),
                   trailing: OutlinedButton(
                     onPressed: () {
                       deactivateUser();
@@ -151,11 +111,10 @@ class _SettingsState extends State<Settings> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18.0),
                       ),
-                      side: BorderSide(
-                          width: 2, color: AppColors.primarypurple),
+                      side:
+                          BorderSide(width: 2, color: AppColors.primarypurple),
                     ),
-                  )
-              ),
+                  )),
             ),
             Divider(
               color: Colors.black,
@@ -164,32 +123,13 @@ class _SettingsState extends State<Settings> {
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/homefeed');
               },
-              child: ListTile(
-                title: Text('Private Account',
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.7,
-                        fontFamily: 'OpenSansCondensed-Bold',
-                        color: Colors.black)),
-                leading: Icon(Icons.lock_outline),
-                trailing: Switch(
-                  value: isSwitched,
-                  onChanged: (value) {
-                    setState(() {
-                      isSwitched = !value;
-                      print(isSwitched);
-                    });
-                  },
-                  activeTrackColor: AppColors.primarypurple,
-                  activeColor: AppColors.primarypurple,
-                ),
-              ),
             ),
             Divider(
               color: Colors.black,
             ),
           ],
-        )));
+        ),
+      ),
+    );
   }
 }
