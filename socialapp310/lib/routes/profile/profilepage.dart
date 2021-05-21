@@ -56,7 +56,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
+    _setLogEvent();
     print("SCS : Profile Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Profile_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Profile Page',
+        }
+    );
   }
 
   @override
@@ -65,6 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     
     super.initState();
     _setCurrentScreen();
+
     _controller = TabController(length: 3, vsync: this);
     _controller.addListener(() {
       //print(_controller.index);

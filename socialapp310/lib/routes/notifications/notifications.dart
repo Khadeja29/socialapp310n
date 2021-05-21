@@ -22,7 +22,16 @@ class _ActivityScreenState extends State<ActivityScreen> {
   int _selectedIndex = 3; //notif page initial index is 3
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Notif Page');
+    _setLogEvent();
     print("SCS : Notif Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Notif_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Notif Page',
+        }
+    );
   }
   void initState() {
     super.initState();

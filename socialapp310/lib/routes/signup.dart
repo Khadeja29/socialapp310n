@@ -33,7 +33,16 @@ class _SignUpState extends State<SignUp> {
 
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'SignUp Page');
+    _setLogEvent();
     print("SCS : SignUp Page succeeded");
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'SignUp_Page_Success',
+        parameters: <String, dynamic>{
+          'name': 'Sign Up Page',
+        }
+    );
   }
   void initState() {
     super.initState();
