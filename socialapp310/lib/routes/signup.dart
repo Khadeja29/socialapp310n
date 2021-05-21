@@ -30,6 +30,7 @@ class _SignUpState extends State<SignUp> {
   String password2;
   String username;
   String fullname;
+  String DefaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
   final _formKey = GlobalKey<FormState>();
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -179,6 +180,7 @@ class _SignUpState extends State<SignUp> {
                                 return 'Please enter your e-mail';
                               }
                               if(!EmailValidator.validate(value)) {
+
                                 return 'The e-mail address is not valid';
                               }
 
@@ -442,7 +444,7 @@ class _SignUpState extends State<SignUp> {
                                       //await signUpUser();
                                       //TODO: Try catch Userfxn signinnormal call show alert dialog with error. if no error push appropiate page
                                       try{
-                                        await UserFxns.SignUpNormal(context, email, password, "Temp", fullname, username);
+                                        await UserFxns.SignUpNormal(context, email, password, " ", fullname, username,DefaultProfilePicture);
                                         print("here");
                                         Navigator.pushNamed(
                                             context, '/signupfinish');
