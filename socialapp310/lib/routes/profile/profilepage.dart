@@ -279,7 +279,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           );
         }
-        return Text("loading");
+        else {
+          return (Center(
+              child: CircularProgressIndicator(
+                  valueColor: new AlwaysStoppedAnimation<Color>(
+                      AppColors.primarypurple))));
+
+        }
     },);
   }
 }

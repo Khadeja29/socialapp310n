@@ -8,7 +8,7 @@ class UserFxns{
   static final CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
 
   static Future<bool> isUserNameUnique(String Username) async{
-
+    User currentUser = _auth.currentUser;
     bool unique = true;
     print(Username);
     var result = await FirebaseFirestore.instance
@@ -18,14 +18,15 @@ class UserFxns{
 
       if(result.docs.isNotEmpty)
       {unique = false;}
-      // result.docs.forEach((doc) {
-      //   print("it works");
-      //   print(doc["Username"]);
-      //   if(doc["Username"] == Username)
-      //   {
-      //     unique = false;
-      //   }
-      // });
+
+       result.docs.forEach((doc) {
+         if(currentUser != null)
+         {
+           if (doc.id == currentUser.uid) {
+             unique = true;
+           }
+         }
+       });
     print("here ${unique}");
     return unique;
   }
@@ -148,5 +149,25 @@ class UserFxns{
             .catchError((error) => print("Failed to add user: $error"));
       }
     });
+
   }
+  static Future<DocumentSnapshot> getUserInfo() {
+    //Call the user's CollectionReference to add a new user
+    User currentFB =  FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    return usersCollection
+        .doc(currentFB.uid)
+        .get();
+  }
+
+  static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {
+    User currentUser = _auth.currentUser;
+    var result = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser.uid)
+        .update({'Bio': Bio, 'FullName': FullName, 'Username':UserName, 'IsPrivate':IsPriv})
+        .then((value) => print("Successful Edit User"))
+        .catchError((error) => print("Error: $error"));
+  }
+
 }
