@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
@@ -21,8 +22,7 @@ class _LoginState extends State<Login> {
   String email;
   String password;
   bool remember = false;
-  bool validuser = false;
-  bool validpassword = false;
+
   FirebaseAuth auth = FirebaseAuth.instance;
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Log in Page');
@@ -31,9 +31,9 @@ class _LoginState extends State<Login> {
   }
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
-        name: 'LogIn_Page_Success',
+        name: 'Login_Page_Success',
         parameters: <String, dynamic>{
-          'name': 'login Page',
+          'name': 'Log in Page',
         }
     );
   }
@@ -41,29 +41,7 @@ class _LoginState extends State<Login> {
     super.initState();
     _setCurrentScreen();
   }
-  Future<void> loginUser() async {
-    try {
-      print(email);
-      print(password);
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
-          email: email,
-          password: password
-      );
-      validuser = true;
-      validpassword = true;
-      print(userCredential.toString());
 
-    } on FirebaseAuthException catch (e) {
-      print(e.toString());
-      if(e.code == 'user-not-found') {
-        validuser = false;
-      }
-      else if (e.code == 'wrong-password') {
-        validpassword = false;
-        validuser = true;
-      }
-    }
-  }
   Future<void> showAlertDialog(String title, String message) async {
     return showDialog<void>(
         context: context,
@@ -275,18 +253,17 @@ class _LoginState extends State<Login> {
                                     ),
                                   onPressed: () async {
                                       if(_formKey.currentState.validate()) {
-                                        await loginUser();
-                                        if (validpassword && validuser) {
+                                        try {
+                                          await UserFxns.loginUser(email, password);
+                                          await UserFxns.UpdateDeactivation(false);
                                           Navigator.of(context).pushNamedAndRemoveUntil(
                                               "/homefeed", (
                                               Route<dynamic> route) => false);
+                                        } catch (e)
+                                        {
+                                          showAlertDialog("Error", e.code);
                                         }
-                                        else if (!validuser) {
-                                          showAlertDialog("Error", "User Does not exist");
-                                        }
-                                        else if (!validpassword) {
-                                          showAlertDialog("Error", "Password is wrong");
-                                        }
+
                                       }
                                   }
                                     ,

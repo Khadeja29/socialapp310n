@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/routes/finishsignupgoogle.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/routes/finishsignup.dart';
 import 'package:socialapp310/routes/profile/editprofile.dart';
@@ -75,6 +76,7 @@ class AppBase extends StatelessWidget {
         '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
         '/search' : (context) => Search(analytics: analytics, observer: observer,),
         '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
+        '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
       },
     );
   }

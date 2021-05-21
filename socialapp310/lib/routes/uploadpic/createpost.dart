@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -10,15 +11,74 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:math';
 import 'package:flutter/src/material/colors.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_auth/firebase_auth.dart' as FBauth;
+import 'package:intl/intl.dart';
 
 class CreatePost extends StatefulWidget {
-  File imageFile;
-  CreatePost({this.imageFile});
+  final File imageFile;
+  CreatePost({Key key, this.analytics, this.observer,this.imageFile}): super (key: key);
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
-  _CreatePost createState() => _CreatePost();
+  _CreatePost createState() => _CreatePost(imageFile);
 }
 
 class _CreatePost extends State<CreatePost> {
+  File imageFile;
+  var location_pic;
+  var caption;
+  _CreatePost(this.imageFile);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    location_pic = TextEditingController();
+    caption = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    location_pic?.dispose();
+    caption?.dispose();
+  }
+
+  void imageuploader(String caption, String Location_pic){
+    String imagename = DateTime.now().millisecondsSinceEpoch.toString();
+    final Reference storageReference = FirebaseStorage.instance.ref()
+        .child(imagename);
+    final UploadTask uploadTask =  storageReference.putFile(imageFile);
+    uploadTask.then((TaskSnapshot taskSnapshot) {
+      taskSnapshot.ref.getDownloadURL().then((imageUrl){
+        //save info to firestore
+        _saveData(imageUrl,caption,Location_pic);
+      });
+    }).catchError((error){
+      Fluttertoast.showToast(msg: error.toString(),);
+    });
+  }
+  void _saveData(String imageUrl,String caption,String Location_pic){
+    FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+    String id_user = currentFB.uid;
+    int num = null;
+    List<String> comments;
+    FirebaseFirestore.instance.collection('Post').add({
+      'Image': imageUrl,
+      'Caption': caption,
+      'Location': GeoPoint(10,10),
+      'Comment': comments,
+      'Likes': num,
+      'createdAt': Timestamp.now(),
+      'PostUser': id_user,
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +94,8 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
-                  Navigator.pushNamed(context, '/homefeed');
+                  imageuploader(caption,location_pic);
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
                 }),
           )
         ],
@@ -66,7 +127,9 @@ class _CreatePost extends State<CreatePost> {
                       hintText: 'Write a caption...',
                     ),
                     onChanged: ((value) {
-
+                      setState(() {
+                        caption=value;
+                      });
                     }),
                   ),
                 ),
@@ -79,8 +142,10 @@ class _CreatePost extends State<CreatePost> {
 
             child: TextField(
 
-              onChanged: ((value) {
-
+              onChanged: ((location_picx) {
+                setState(() {
+                  location_pic=location_picx;
+                });
               }),
               decoration: InputDecoration(
                 hintText: 'Add location',
@@ -94,6 +159,12 @@ class _CreatePost extends State<CreatePost> {
       ),
     );
   }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Create Post');
+    print("SCS : Create Post succeeded");
+  }
+  void _initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
 }
-
-

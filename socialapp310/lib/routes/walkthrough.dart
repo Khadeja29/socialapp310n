@@ -33,6 +33,7 @@ class _WalkThroughState extends State<WalkThrough> {
     print("SCS : Finished Walkthrough succeeded");
   }
   Future<void> _setLogEvent() async {
+<<<<<<< HEAD
 
     await widget.analytics.logEvent(
         name: 'Walk_Page_Success',
@@ -40,6 +41,15 @@ class _WalkThroughState extends State<WalkThrough> {
           'name': 'Walkthrough Page',
         }
     );
+=======
+    await widget.analytics.logEvent(
+        name: 'Walkthrough_Page_Success',
+        parameters: <String, dynamic> {
+          'name': 'Walkthrough Page',
+        }
+    );
+
+>>>>>>> 187a43d3b18f3e2cd4cedd56205faf9e3c04bb9e
   }
   void initState() {
     super.initState();

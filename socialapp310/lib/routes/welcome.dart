@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 
@@ -143,7 +144,7 @@ class _WelcomeState extends State<Welcome> {
 
 class Authentication {
 
-  static Future<User> signInWithGoogle({BuildContext context}) async {
+  static Future<User> signInWithGoogle({BuildContext context}) async {//TODO: take inputs for user info.
     FirebaseAuth auth = FirebaseAuth.instance;
     User user;
 
@@ -154,7 +155,7 @@ class Authentication {
 
     final GoogleSignInAccount googleSignInAccount =
     await googleSignIn.signIn();
-
+    print(googleSignInAccount);
     if (googleSignInAccount != null) {
       final GoogleSignInAuthentication googleSignInAuthentication =
       await googleSignInAccount.authentication;
@@ -180,6 +181,7 @@ class Authentication {
       } catch (e) {
         // handle the error here
       }
+      //TODO: add information to firestore.
     }
 
     return user;
@@ -244,9 +246,21 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
               _isSigningIn = false;
             });
 
+<<<<<<< HEAD
             if (user != null) {
               Navigator.of(context).pushReplacementNamed('/homefeed');
             }
+=======
+          if (user != null) {
+            //TODO: take user id and check if it exists in firestore
+            //TODO: if doesnt exist take to page to fill out info
+            //TODO: if does exist push to home page
+            bool exists = await UserFxns.UserExistsinFireStore(user.uid);
+            if(exists)
+            {Navigator.of(context).pushReplacementNamed('/homefeed');}
+            else {Navigator.of(context).pushNamedAndRemoveUntil('/signupfinishgoogle', (route) => false);}
+          }
+>>>>>>> 187a43d3b18f3e2cd4cedd56205faf9e3c04bb9e
 
             setState(() {
               _isSigningIn = false;
