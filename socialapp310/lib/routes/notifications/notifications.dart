@@ -8,6 +8,8 @@ import 'package:socialapp310/routes/notifications/activity_tile.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({Key key, this.analytics, this.observer}): super (key: key);
@@ -52,6 +54,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
         Navigator.pushReplacementNamed(context, '/homefeed');
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
+      } else if (_selectedIndex == 2) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Uploadpic()));
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {

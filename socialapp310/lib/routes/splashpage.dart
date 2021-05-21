@@ -60,6 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
         name: 'Splash_Page_Success',
+
         parameters: <String, dynamic> {
           'name': 'Splash Page',
         }

@@ -8,6 +8,8 @@ import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 
 class HomeFeed extends StatefulWidget {
   const HomeFeed({Key key, this.analytics, this.observer}): super (key: key);
@@ -47,6 +49,10 @@ class _TestPostState extends State<HomeFeed> {
 
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
+      } else if (_selectedIndex == 2) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Uploadpic()));
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {

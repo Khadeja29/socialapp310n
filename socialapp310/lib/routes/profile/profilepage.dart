@@ -14,10 +14,12 @@ import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
 import 'package:socialapp310/routes/profile/profilewidget.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
 import 'package:socialapp310/utils/color.dart';
-
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 import 'editprofile.dart';
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
@@ -51,6 +53,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         Navigator.pushReplacementNamed(context, '/homefeed');
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
+      } else if (_selectedIndex == 2) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Uploadpic()));
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {
@@ -71,6 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         }
     );
   }
+
   @override
   Future<DocumentSnapshot> getUserInfo() {
     // Call the user's CollectionReference to add a new user
