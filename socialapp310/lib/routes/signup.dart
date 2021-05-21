@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -28,6 +29,8 @@ class _SignUpState extends State<SignUp> {
   String password;
   String password2;
   String username;
+  String fullname;
+  String DefaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
   final _formKey = GlobalKey<FormState>();
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -40,7 +43,7 @@ class _SignUpState extends State<SignUp> {
     await widget.analytics.logEvent(
         name: 'SignUp_Page_Success',
         parameters: <String, dynamic>{
-          'name': 'Sign Up Page',
+          'name': 'SignUp Page',
         }
     );
   }
@@ -177,6 +180,7 @@ class _SignUpState extends State<SignUp> {
                                 return 'Please enter your e-mail';
                               }
                               if(!EmailValidator.validate(value)) {
+
                                 return 'The e-mail address is not valid';
                               }
 
@@ -191,8 +195,114 @@ class _SignUpState extends State<SignUp> {
                     ),
 
                     SizedBox(height: 16.0,),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              fillColor: AppColors.lightgrey,
+                              filled: true,
+                              hintText: 'Full Name',
+                              //labelText: 'username',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              labelStyle: kLabelLightTextStyle,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.darkpurple),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+
+                            validator: (value)  {
+                              if(value.isEmpty) {
+                                return 'Please enter your Full Name';
+                              }
+                              if(value.length > 8) {
+                                return 'Full Name has to be less than or equal to 8 characters';
+                              }
+                              //Todo: add some more validation logic for full screen
+
+                              return null;
+                            },
+                            onSaved: (String value) {
+                              fullname = value;//TODO: make if full name
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0,),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              fillColor: AppColors.lightgrey,
+                              filled: true,
+                              hintText: 'User Name',
+                              //labelText: 'username',
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              errorStyle: TextStyle(
+                                color: AppColors.peachpink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                              labelStyle: kLabelLightTextStyle,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.darkpurple),
+                                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                              ),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+
+                            validator: (value) {
+                              if(value.isEmpty) {
+                                return 'Please enter your username';
+                              }
+                              if(value.length > 8) {
+                                return 'Username has to be less than or equal to 8 characters';
+                              }
 
 
+                              return null;
+                            },
+                            onSaved: (String value) {
+                              username = value;//TODO: make if username
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0,),
                     Row(
                       children: [
                         Expanded(
@@ -320,20 +430,29 @@ class _SignUpState extends State<SignUp> {
 
                                 if(_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-
-                                  if(password != password2) {
+                                  if(!(await UserFxns.isUserNameUnique(username)))
+                                  {
+                                    showAlertDialog("Error", "UserName is taken");
+                                  }
+                                  else if(password != password2) {
                                     showAlertDialog("Error", "Passwords don't match");
                                   }
                                   else {
                                     if (_formKey.currentState.validate()) {
                                       _formKey.currentState.save();
                                       // if all are valid then go to success screen
-                                      await signUpUser();
-                                      print(_message);
-                                      if(_message == "") {
+                                      //await signUpUser();
+                                      //TODO: Try catch Userfxn signinnormal call show alert dialog with error. if no error push appropiate page
+                                      try{
+                                        await UserFxns.SignUpNormal(context, email, password, " ", fullname, username,DefaultProfilePicture);
+                                        print("here");
                                         Navigator.pushNamed(
                                             context, '/signupfinish');
+                                      }catch (e){
+                                        print("here2");
+                                        showAlertDialog("Error", e.code);
                                       }
+
                                     }
                                   }
                                   //
@@ -366,9 +485,11 @@ class _SignUpState extends State<SignUp> {
                         ),
                       ],
                     ),
+
                   ],
                 ),
               ),
+
             ],
           ),
         ),

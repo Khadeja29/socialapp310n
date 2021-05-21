@@ -4,7 +4,7 @@ import 'package:socialapp310/routes/homefeed/postCard.dart';
 
 import 'package:socialapp310/utils/color.dart';
 
-Widget profileStats({Size screen, Color color, @required  post , @required  int followers , @required int following, @required BuildContext context}) {
+Widget profileStats({Size screen, Color color, @required  post , @required  int followers , @required int following, @required String ProfilePicLink,@required BuildContext context}) {
   return Container(
     padding: const EdgeInsets.only(left: 10, right: 10),
     color: color,
@@ -17,6 +17,7 @@ Widget profileStats({Size screen, Color color, @required  post , @required  int 
           child: Align(
             alignment: Alignment.centerLeft,
             child: profileAvatar(
+              ProfilePicLink: ProfilePicLink,
               height: 100,
               width: 100,
               context: context,
@@ -107,6 +108,7 @@ Widget statsBox({
 Widget profileAvatar({
   @required double height,
   @required double width,
+  @required String ProfilePicLink,
   @required BuildContext context,
 }) {
   return Container(
@@ -121,16 +123,16 @@ Widget profileAvatar({
             shape: BoxShape.circle,
           ),
           child: GestureDetector(
-            child: Hero(
-              tag: '${profuser.imageUrlAvatar}',
+            child: Hero(//change this link from hardcode to normal
+              tag: '${ProfilePicLink}',
               child: CircleAvatar(
-                backgroundImage: AssetImage(profuser.imageUrlAvatar),
+                backgroundImage: NetworkImage(ProfilePicLink),//AssetImage(profuser.imageUrlAvatar),
                 radius: 90,
               ),
             ),
             onTap: (){
               Navigator.push(context,MaterialPageRoute(builder: (_) {
-                return DetailScreen(ImageUrlPost: profuser.imageUrlAvatar,);
+                return DetailScreenLink(ImageUrlPost: ProfilePicLink,);
               }));
             },
           ),

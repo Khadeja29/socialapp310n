@@ -26,6 +26,11 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.gms.google-services'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 android {
     compileSdkVersion 30
 
@@ -37,6 +42,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+
     }
     signingConfigs {
         prepro {
@@ -61,6 +67,7 @@ android {
         }
         debug{
             signingConfig signingConfigs.lecture
+            //signingConfig signingConfigs.prepro
         }
     }
 }

@@ -17,7 +17,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
+import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
+
 
 class CreatePost extends StatefulWidget {
   final File imageFile;
@@ -168,5 +170,4 @@ class _CreatePost extends State<CreatePost> {
     _setCurrentScreen();
   }
 }
-
 
