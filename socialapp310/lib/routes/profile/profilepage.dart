@@ -8,7 +8,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/models/user.dart';
-import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
@@ -30,15 +30,10 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   int _pageIndex = 0;
 
-
-  String _name = profuser.fullname;
-  String _username =profuser.username;
   int _postnum = profuser.userPost.length;
   int _followers = profuser.followers.length;
   int _following = profuser.followings.length;
   TabController _controller;
-  String _biodata = profuser.bio;
-  String _email = profuser.email;
 
 
 
@@ -71,15 +66,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         }
     );
   }
+
   @override
-  Future<DocumentSnapshot> getUserInfo() {
-    // Call the user's CollectionReference to add a new user
-    FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
-    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
-    return usersCollection
-        .doc(currentFB.uid)
-        .get();
-  }
+
+
+
+
   void initState() {
 
     super.initState();
@@ -97,12 +89,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     var _screen = MediaQuery.of(context).size;
 
     return FutureBuilder<DocumentSnapshot>(
-      future: getUserInfo(),
+      future: UserFxns.getUserInfo(),
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if(snapshot.connectionState == ConnectionState.done) {
           Map<String, dynamic> data = snapshot.data.data();
-          print(data);
+          //print(data);
           return Scaffold(
             appBar: InstaAppBar(
               height: 345,
@@ -137,7 +129,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           .openAppDrawerTooltip,
                     ),
               ),
-
               profileStats: profileStats(screen: _screen,
                   color: Colors.white,
                   post: _postnum,

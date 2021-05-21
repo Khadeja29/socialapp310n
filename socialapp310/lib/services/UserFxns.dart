@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+
 class UserFxns{
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -149,4 +150,25 @@ class UserFxns{
       }
     });
   }
+
+  static Future<DocumentSnapshot> getUserInfo() {
+    //Call the user's CollectionReference to add a new user
+    User currentFB =  FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    return usersCollection
+        .doc(currentFB.uid)
+        .get();
+  }
+
+  static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {
+    User currentUser = _auth.currentUser;
+    var result = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser.uid)
+        .update({'Bio': Bio, 'FullName': FullName, 'Username':UserName, 'IsPrivate':IsPriv})
+        .then((value) => print("Successful Edit User"))
+        .catchError((error) => print("Error: $error"));
+  }
+
+
 }

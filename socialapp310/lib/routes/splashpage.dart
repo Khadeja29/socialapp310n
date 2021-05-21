@@ -27,7 +27,10 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     User currentUser = auth.currentUser;
     bool _seen = (prefs.getBool('_seen') ?? false);
-    bool firestore = await UserFxns.UserExistsinFireStore(currentUser.uid);
+    bool firestore = true;
+    if(currentUser != null){
+       firestore = await UserFxns.UserExistsinFireStore(currentUser.uid);
+    }
     //await auth.signOut();//TODO: Remove this auto sign out. Keep to test log in and sign up for now.
     if (_seen && !signedin ) {
       Navigator.of(context).pushReplacementNamed('/welcome');
