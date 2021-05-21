@@ -19,7 +19,7 @@ class UserFxns{
       if(result.docs.isNotEmpty)
       {unique = false;}
 
-       result.docs.forEach((doc) {
+       result.docs.forEach((doc) {// for doc in docs in python
          if(currentUser != null)
          {
            if (doc.id == currentUser.uid) {
@@ -42,7 +42,7 @@ class UserFxns{
     return result.exists;
   }
   static Future<void> SignUpNormal(BuildContext context, String email,String password,String Bio, String FullName,
-       String Username ) async {
+       String Username ,String ProfilePicture) async {
     var isNewUser = false;
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
@@ -60,7 +60,7 @@ class UserFxns{
       }
     }
     if(isNewUser) {
-      AddUserInfo(Bio, FullName, false, false, Username);
+      AddUserInfo(Bio, FullName, false, false, Username, ProfilePicture);
     }
     else {}//do nothing
     //TODO: push Home page here
@@ -85,6 +85,7 @@ class UserFxns{
         .catchError((error) => print("Error: $error"));
   }
 
+
   static Future<void> UpdatePrivacy(bool Privacy) async{
     User currentUser = _auth.currentUser;
     var result = await FirebaseFirestore.instance
@@ -101,6 +102,16 @@ class UserFxns{
         .collection('user')
         .doc(currentUser.uid)
         .update({'isDeactivated': deactivated})
+        .then((value) => print("Success"))
+        .catchError((error) => print("Error: $error"));
+  }
+
+  static Future<void> UpdateProfilePic(String ProfilePic) async {
+    User currentUser = _auth.currentUser;
+    var result = await FirebaseFirestore.instance
+        .collection('user')
+        .doc(currentUser.uid)
+        .update({'ProfilePic': ProfilePic})
         .then((value) => print("Success"))
         .catchError((error) => print("Error: $error"));
   }
@@ -126,7 +137,7 @@ class UserFxns{
       else { throw(e);}
     }
   }
-  static Future<void> AddUserInfo(String Bio, String FullName, bool isPrivate, bool isDeactivated,String Username) async {
+  static Future<void> AddUserInfo(String Bio, String FullName, bool isPrivate, bool isDeactivated,String Username, String ProfilePic) async {
     User currentUser = _auth.currentUser;
     usersCollection
         .doc(currentUser.uid)
@@ -138,6 +149,7 @@ class UserFxns{
         usersCollection
             .doc(currentUser.uid)
             .set({
+              "ProfilePic" : ProfilePic,
               "Bio": Bio,
               "FullName": FullName,
               "IsPrivate": isPrivate,
@@ -151,6 +163,7 @@ class UserFxns{
     });
 
   }
+
   static Future<DocumentSnapshot> getUserInfo() {
     //Call the user's CollectionReference to add a new user
     User currentFB =  FirebaseAuth.instance.currentUser;
@@ -158,6 +171,16 @@ class UserFxns{
     return usersCollection
         .doc(currentFB.uid)
         .get();
+  }
+
+  static Future<String> getProfilePic() async {
+    //Call the user's CollectionReference to add a new user
+    User currentFB =  FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+                .doc(currentFB.uid)
+                .get();
+    return result.get("ProfilePic");
   }
 
   static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {

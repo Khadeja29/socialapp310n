@@ -139,11 +139,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
 
               profileStats: profileStats(screen: _screen,
+                  ProfilePicLink: data["ProfilePic"],
                   color: Colors.white,
                   post: _postnum,
                   followers: _followers,
                   following: _following,
-                  context: context),
+                  context: context),//TODO: add profile picture link as variable here
               bio: bio(name: data["FullName"], biodata: data["Bio"]),
               tabbar: TabBar(
                 unselectedLabelColor: Colors.white,
@@ -165,16 +166,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     accountEmail: Text(data["Email"]),//TODO: add email to the firestore database
                     currentAccountPicture: GestureDetector(
                       child: Hero(
-                        tag: '${profuser.imageUrlAvatar}1',
+                        tag: '${data["ProfilePic"]}1',
                         child: CircleAvatar(
-                          backgroundImage: AssetImage(profuser.imageUrlAvatar),
+                          backgroundImage: NetworkImage(data["ProfilePic"]),
                           radius: 90,
                         ),
                       ),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) {
-                          return DetailScreen(
-                            ImageUrlPost: profuser.imageUrlAvatar,);
+                          return DetailScreenLink(
+                            ImageUrlPost: data["ProfilePic"],);
                         }));
                       },
                     ),

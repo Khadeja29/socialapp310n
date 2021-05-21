@@ -33,6 +33,7 @@ class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
   String bio = "";
   String username;
   bool private = false;
+  String DefaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
   final _formKey = GlobalKey<FormState>();
   void onChangedSwitchValue(bool value) {
     setState(() {
@@ -267,7 +268,7 @@ class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
                           _formKey.currentState.save();
                           FirebaseAuth auth = FirebaseAuth.instance;
                           User currentUser = auth.currentUser;
-                          await UserFxns.AddUserInfo(bio, currentUser.displayName, private, false, username);
+                          await UserFxns.AddUserInfo(bio, currentUser.displayName, private, false, username,DefaultProfilePicture);
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               "/homefeed", (route) => false);
                         }
