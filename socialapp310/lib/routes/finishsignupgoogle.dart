@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -29,11 +34,12 @@ class FinishSignupPageGoogle extends StatefulWidget {
 }
 
 class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
+  File imageFile;
   bool switchValue = false;
   String bio = "";
   String username;
   bool private = false;
-  String DefaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
+  String ProfilePic = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
   final _formKey = GlobalKey<FormState>();
   void onChangedSwitchValue(bool value) {
     setState(() {
@@ -48,7 +54,42 @@ class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
     super.initState();
     _setCurrentScreen();
   }
+  _getFromGallery() async {
+    PickedFile pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
 
+        imageFile = File(pickedFile.path);
+        imageuploader();
+      });
+    }
+  }
+  void imageuploader(){
+    String imagename = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final Reference storageReference = FirebaseStorage.instance.ref()
+        .child(imagename);
+    final UploadTask uploadTask =  storageReference.putFile(imageFile);
+    uploadTask.then((TaskSnapshot taskSnapshot) {
+
+      taskSnapshot.ref.getDownloadURL().then((imageUrl){
+        //save info to firestore
+
+        setState(() {
+          ProfilePic = imageUrl;
+        });
+
+        print(ProfilePic);
+
+      });
+    }).catchError((error){
+      Fluttertoast.showToast(msg: error.toString(),);//TODO: remove this package
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,28 +131,49 @@ class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
                 Center(
                   child: Stack(
                     children: [
-                      Container(
-                        width: 230,
-                        height: 230,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 4,
+                      GestureDetector(
+                        onTap: () {_getFromGallery();},
+                        child: Container(
+                          width: 130,
+                          height: 130,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  width: 4,
+                                  color: Theme.of(context).scaffoldBackgroundColor),
+                              boxShadow: [
+                                BoxShadow(
+                                    spreadRadius: 2,
+                                    blurRadius: 10,
+                                    color: Colors.black.withOpacity(0.1),
+                                    offset: Offset(0, 10))
+                              ],
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(
+                                    ProfilePic,
+                                  ))),
+                        ),
+                      ),
+                      Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                width: 4,
+                                color: Theme.of(context).scaffoldBackgroundColor,
+                              ),
+                              color: AppColors.darkpurple,
+                            ),
+                            child: Icon(
+                              Icons.edit,
                               color: Colors.white,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                  spreadRadius: 2,
-                                  blurRadius: 10,
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: Offset(0, 10))
-                            ],
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage(
-                                  "assets/images/blank_profile_picture.jpg",
-                                ))),
-                      ),
+                          )),
                     ],
                   ),
                 ),
@@ -268,7 +330,7 @@ class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
                           _formKey.currentState.save();
                           FirebaseAuth auth = FirebaseAuth.instance;
                           User currentUser = auth.currentUser;
-                          await UserFxns.AddUserInfo(bio, currentUser.displayName, private, false, username,DefaultProfilePicture);
+                          await UserFxns.AddUserInfo(bio, currentUser.displayName, private, false, username, ProfilePic);
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               "/homefeed", (route) => false);
                         }
