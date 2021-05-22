@@ -79,7 +79,7 @@ class AppBase extends StatelessWidget {
         '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
         '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
         '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
-        '/creatpost' :  (context) => Uploadpic(analytics: analytics, observer: observer,),
+        '/creatpost' :  (context) => CreatePost(analytics: analytics, observer: observer,),
       },
     );
   }

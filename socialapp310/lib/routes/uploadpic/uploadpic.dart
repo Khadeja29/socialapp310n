@@ -174,10 +174,7 @@ class _Uploadpic extends State<Uploadpic> {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 onPressed: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CreatePost(imageFile: imageFile)),
-                  )
+                  Navigator.pushNamed(context, '/creatpost', arguments: PassingValues(imageFile))
                 },
               ),
             ],
