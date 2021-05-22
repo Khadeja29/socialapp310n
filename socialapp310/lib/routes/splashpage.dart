@@ -60,13 +60,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
         name: 'Splash_Page_Success',
-<<<<<<< HEAD
-        parameters: <String, dynamic>{
-          'name': 'Splash Page',
-        }
-    );
-  }
-=======
         parameters: <String, dynamic> {
           'name': 'Splash Page',
         }
@@ -74,7 +67,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   }
 
->>>>>>> 187a43d3b18f3e2cd4cedd56205faf9e3c04bb9e
   FirebaseAuth auth = FirebaseAuth.instance;
 
   void initState() {

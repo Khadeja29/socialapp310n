@@ -14,7 +14,9 @@ import 'package:socialapp310/routes/profile/appBar.dart';
 import 'package:socialapp310/routes/profile/my_flutter_app_icons.dart';
 import 'package:socialapp310/routes/profile/profilewidget.dart';
 import 'package:socialapp310/routes/welcome.dart';
+
 import 'package:socialapp310/utils/color.dart';
+
 import 'editprofile.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -49,8 +51,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         Navigator.pushReplacementNamed(context, '/homefeed');
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
-      } else if (_selectedIndex == 2) {
-        Navigator.pushReplacementNamed(context, '/uploadpic');
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {
@@ -71,10 +71,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         }
     );
   }
-<<<<<<< HEAD
-
-=======
->>>>>>> 187a43d3b18f3e2cd4cedd56205faf9e3c04bb9e
   @override
   Future<DocumentSnapshot> getUserInfo() {
     // Call the user's CollectionReference to add a new user
@@ -85,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         .get();
   }
   void initState() {
-    
+
     super.initState();
     _setCurrentScreen();
 
@@ -99,11 +95,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     var _screen = MediaQuery.of(context).size;
-    
+
     return FutureBuilder<DocumentSnapshot>(
       future: getUserInfo(),
       builder:
-      (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if(snapshot.connectionState == ConnectionState.done) {
           Map<String, dynamic> data = snapshot.data.data();
           print(data);
@@ -291,78 +287,78 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       AppColors.primarypurple))));
 
         }
-    },);
+      },);
   }
 }
 
 Widget mediagrid_display () {
   return SingleChildScrollView(
+    child: Column(
+      children: <Widget>[
+        StaggeredGridView.countBuilder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          crossAxisCount: 3,
+          itemCount: posts.length,
+          itemBuilder: (contex, index) {
+            return Container(
+              padding:  EdgeInsets.all(0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0),
+                child: Image(
+                  fit: BoxFit.cover,
+                  image:
+                  AssetImage(posts.elementAt(index).ImageUrlPost),
+                ),
+              ),
+            );
+          },
+          staggeredTileBuilder: (index) => StaggeredTile.count(1 , 1 ),
+          crossAxisSpacing: 2,
+          mainAxisSpacing: 2,
+        ),
+      ],
+    ),
+  );
+}
+Widget buildTripCard(BuildContext context, int index) {
+  final loc = profuser.locations[index];
+  return new Container(
+    child: Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: <Widget>[
-            StaggeredGridView.countBuilder(
-              physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              crossAxisCount: 3,
-              itemCount: posts.length,
-              itemBuilder: (contex, index) {
-                return Container(
-                  padding:  EdgeInsets.all(0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image(
-                      fit: BoxFit.cover,
-                      image:
-                      AssetImage(posts.elementAt(index).ImageUrlPost),
-                    ),
-                  ),
-                );
-              },
-              staggeredTileBuilder: (index) => StaggeredTile.count(1 , 1 ),
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
+          children: [
+            Row(
+              children: <Widget>[
+                Icon(Icons.location_on, size: 18, color: AppColors.darkpurple,),
+                SizedBox(width: 5,),
+                Text(loc.loc_name, style: new TextStyle(fontSize: 18.0),),
+              ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  child: Text('Subscribed'),
+                  style: ElevatedButton.styleFrom(
+                    primary: AppColors.peachpink,
+                    onPrimary: Colors.white,
+                    shadowColor: Colors.grey,
+                    elevation: 5,
+                  ),
+                  onPressed: () {
+                    print('Pressed');
+                  },
+                ),
+              ],
+            )
           ],
         ),
-      );
-}
-  Widget buildTripCard(BuildContext context, int index) {
-    final loc = profuser.locations[index];
-    return new Container(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Row(
-                children: <Widget>[
-                  Icon(Icons.location_on, size: 18, color: AppColors.darkpurple,),
-                  SizedBox(width: 5,),
-                  Text(loc.loc_name, style: new TextStyle(fontSize: 18.0),),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    child: Text('Subscribed'),
-                    style: ElevatedButton.styleFrom(
-                      primary: AppColors.peachpink,
-                      onPrimary: Colors.white,
-                      shadowColor: Colors.grey,
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      print('Pressed');
-                    },
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
       ),
-    );
-  }
+    ),
+  );
+}

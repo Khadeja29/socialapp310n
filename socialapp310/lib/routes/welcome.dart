@@ -246,11 +246,6 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
               _isSigningIn = false;
             });
 
-<<<<<<< HEAD
-            if (user != null) {
-              Navigator.of(context).pushReplacementNamed('/homefeed');
-            }
-=======
           if (user != null) {
             //TODO: take user id and check if it exists in firestore
             //TODO: if doesnt exist take to page to fill out info
@@ -260,7 +255,6 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
             {Navigator.of(context).pushReplacementNamed('/homefeed');}
             else {Navigator.of(context).pushNamedAndRemoveUntil('/signupfinishgoogle', (route) => false);}
           }
->>>>>>> 187a43d3b18f3e2cd4cedd56205faf9e3c04bb9e
 
             setState(() {
               _isSigningIn = false;

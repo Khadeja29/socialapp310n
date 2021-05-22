@@ -58,3 +58,22 @@ class _SearchWidgetState extends State<SearchWidget> {
     );
   }
 }
+
+/*TextFormField buildSearch(){
+    return TextFormField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search for a user...",
+        filled: true,
+        prefixIcon: Icon(
+          Icons.account_box,
+          size: 28.0,
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.clear),
+          onPressed: clearSearch,
+        ),
+      ),
+      onFieldSubmitted: handleSearch,
+    );
+  }*/
