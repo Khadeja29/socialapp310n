@@ -1,12 +1,13 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/chats_page.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
-import 'package:socialapp310/routes/inbox.dart';
+
 
 
 class HomeFeed extends StatefulWidget {
@@ -75,7 +76,7 @@ class _TestPostState extends State<HomeFeed> {
             onPressed: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Inbox()));
+                  MaterialPageRoute(builder: (context) => ChatsPage()));
               // do something
             },
           )

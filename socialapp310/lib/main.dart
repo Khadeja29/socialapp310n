@@ -14,13 +14,27 @@ import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
+import 'package:socialapp310/api/firebase_api.dart';
+import 'package:socialapp310/models/user.dart';
+import 'package:socialapp310/users.dart';
+import 'package:socialapp310/utils.dart';
 
+/*
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  //await FirebaseApi.addRandomUsers(Users.initUsers);
   runApp(MyApp());
 }
+ */
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await FirebaseApi.addRandomUsers(Users.initUsers);
+
+  runApp(MyApp());
+}
+
 
 class MyApp extends StatelessWidget {
 

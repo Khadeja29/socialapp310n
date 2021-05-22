@@ -1,5 +1,12 @@
 import 'package:socialapp310/models/location.dart';
 import 'package:socialapp310/models/post.dart';
+import 'package:socialapp310/utils.dart';
+
+
+class UserField {
+  static final String lastMessageTime = 'lastMessageTime';
+}
+
 
 class User {
   final String username;
@@ -10,6 +17,7 @@ class User {
   final String bio;
   final bool isPrivate;
   final String password;
+  final DateTime lastMessageTime;
   List<dynamic> userPost;
   List<dynamic> followers;
   List<dynamic> followings;
@@ -24,11 +32,68 @@ class User {
     this.isPrivate,
     this.bio,
     this.password,
+    this.lastMessageTime,
     this.userPost,
     this.followers,
     this.followings,
     this.locations,
   });
+
+   User copyWith({
+     String username,
+     int userId,
+     String email, // types include liked photo, follow user, comment on photo
+     String imageUrlAvatar,
+     String fullname,
+     String bio,
+     bool isPrivate,
+     String password,
+     String lastMessageTime,
+    List<dynamic> userPost,
+    List<dynamic> followers,
+    List<dynamic> followings,
+    List<dynamic> locations,
+
+
+   }) =>
+      User(
+        username: username ?? this.username,
+        userId: userId ?? this.userId,
+        email: email ?? this.email,
+        imageUrlAvatar: imageUrlAvatar ?? this.imageUrlAvatar,
+        fullname: fullname ?? this.fullname,
+        bio: bio ?? this.bio,
+        isPrivate: isPrivate ?? this.isPrivate,
+        password: password ?? this.password,
+        lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+      );
+
+
+  static User fromJson(Map<String, dynamic> json) => User(
+        username: json['username'],
+        userId: json['userId'],
+        email: json['email'],
+        imageUrlAvatar: json['imageUrlAvatar'],
+        fullname: json['fullname'],
+        bio: json['bio'],
+        isPrivate: json['isPrivate'],
+        password: json['password'],
+    lastMessageTime: Utils.toDateTime(json['lastMessageTime']),
+  );
+
+
+  Map<String, dynamic> toJson() => {
+      'username': username,
+      'userId': userId,
+      'email': email,
+      'imageUrlAvatar': imageUrlAvatar,
+      'fullname': fullname,
+      'bio': bio,
+      'isPrivate': isPrivate,
+      'password': password,
+    'lastMessageTime': Utils.fromDateTimeToJson(lastMessageTime),
+  };
+
 }
 
 User profuser = User(
