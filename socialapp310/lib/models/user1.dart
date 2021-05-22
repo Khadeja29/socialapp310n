@@ -26,7 +26,7 @@ class User1 {
       isPrivate: doc['isPrivate'],
       isDeactivated: doc['isDeactivated'],
       bio: doc['Bio'],
-        ProfilePic: doc['ProfilePic'],
+      ProfilePic: doc['ProfilePic'],
     );
   }
 }
