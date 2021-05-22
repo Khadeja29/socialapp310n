@@ -6,11 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
-
 import 'package:socialapp310/utils/color.dart';
-
-
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
@@ -21,8 +17,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
+  //Variables
   String postOrientation = "grid";
   int _selectedIndex = 4;
+
+
+  //BottomNavBar
   void _onItemTapped(int index) {
     setState(() {
       print(index);
@@ -43,6 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _setLogEvent();
     print("SCS : Profile Page succeeded");
   }
+
+  //Analytics
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
         name: 'Profile_Page_Success',
@@ -52,6 +55,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  //init State
+  void initState() {
+
+    super.initState();
+    _setCurrentScreen();
+
+  }
+
+  //Get user functions //TODO:replicated use from UserFnx try to remove
   @override
   Future<DocumentSnapshot> getUserInfo() {
 
@@ -61,13 +73,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .doc(currentFB.uid)
         .get();
   }
-  void initState() {
 
-    super.initState();
-    _setCurrentScreen();
-
-  }
-
+  //Displaying count of posts, followers and following
   Column buildCountColumn(String label, int count) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -92,10 +99,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  //Follow/unfollow button and Edit Profile Buttton
   buildProfileButton() {
     return Text("profile button");
   }
 
+  //Main Header Widget: Avatar,following,follower,Post count,Bio,Username,Name
   buildProfileHeader() {
     return FutureBuilder(
       future: getUserInfo(),
@@ -196,13 +205,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  //Tab Bar View
   setPostOrientation(String postOrientation) {
     setState(() {
       this.postOrientation = postOrientation;
     });
   }
-
-
   buildTogglePostOrientation() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -211,6 +219,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => setPostOrientation("grid"),
           icon: Icon(Icons.grid_on),
           color: postOrientation == 'grid'
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
+        ),
+        IconButton(
+          onPressed: () => setPostOrientation("grid"),
+          icon: Icon(Icons.add_location),
+          color: postOrientation == 'locations'
               ? Theme.of(context).primaryColor
               : Colors.grey,
         ),
@@ -225,6 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  //Main Page function
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,8 +251,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ),
       body: ListView(
         children: <Widget>[
+          //Header Widget Called
           buildProfileHeader(),
           Divider(),
+          //Tab Bar view widget
           buildTogglePostOrientation(),
           Divider(
             height: 0.0,
