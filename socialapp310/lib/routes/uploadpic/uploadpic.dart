@@ -132,7 +132,7 @@ class _Uploadpic extends State<Uploadpic> {
                   backgroundColor: AppColors.peachpink,
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, '/homefeed');
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
@@ -175,6 +175,7 @@ class _Uploadpic extends State<Uploadpic> {
                 foregroundColor: Colors.white,
                 onPressed: () => {
                   Navigator.pushNamed(context, '/creatpost', arguments: PassingValues(imageFile))
+
                 },
               ),
             ],

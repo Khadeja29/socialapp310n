@@ -46,7 +46,6 @@ class _WalkThroughState extends State<WalkThrough> {
     super.initState();
     _setCurrentScreen();
   }
-
   void nextPage() {
 
     setState(() {

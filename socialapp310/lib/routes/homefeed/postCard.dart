@@ -294,4 +294,6 @@ class DetailScreenLink extends StatelessWidget {
       },
     );
   }
+
 }
+

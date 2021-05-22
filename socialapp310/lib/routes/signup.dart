@@ -415,8 +415,8 @@ class _SignUpState extends State<SignUp> {
 
                     Text(_message,
                       style: TextStyle(
-                      color: AppColors.peachpink,
-                    ),
+                        color: AppColors.peachpink,
+                      ),
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,4 +497,3 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
-
