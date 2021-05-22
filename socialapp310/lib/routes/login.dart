@@ -111,7 +111,7 @@ class _LoginState extends State<Login> {
                           Expanded(
                             flex: 1,
                             child: Container(
-
+                              
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
@@ -225,33 +225,33 @@ class _LoginState extends State<Login> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Expanded(
-                              flex: 1,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(40),
-                                      topRight: Radius.circular(40),
-                                      bottomLeft: Radius.circular(40),
-                                      bottomRight: Radius.circular(40)
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 3,
-                                      blurRadius: 7,
-                                      offset: Offset(0, 3), // changes position of shadow
-                                    ),
-                                  ],
+                            flex: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(40),
+                                    topRight: Radius.circular(40),
+                                    bottomLeft: Radius.circular(40),
+                                    bottomRight: Radius.circular(40)
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 3,
+                                    blurRadius: 7,
+                                    offset: Offset(0, 3), // changes position of shadow
+                                  ),
+                                ],
+                              ),
 
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(40),
-                                  child: OutlinedButton(
-                                    style: OutlinedButton.styleFrom(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(40),
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
                                       backgroundColor: AppColors.primarypurple,
                                     ),
-                                    onPressed: () async {
+                                  onPressed: () async {
                                       if(_formKey.currentState.validate()) {
                                         try {
                                           await UserFxns.loginUser(email, password);
@@ -265,18 +265,18 @@ class _LoginState extends State<Login> {
                                         }
 
                                       }
-                                    }
+                                  }
                                     ,
-                                    child: Padding(
+                                  child: Padding(
                                       padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                      child: Text(
+                                        child: Text(
                                         'Login',
                                         style: kButtonDarkTextStyle,
-                                      ),
                                     ),
                                   ),
                                 ),
-                              )
+                              ),
+                            )
                           ),
                         ],
                       ),

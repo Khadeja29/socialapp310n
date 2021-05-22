@@ -215,9 +215,9 @@ class DetailScreen extends StatelessWidget {
 
   DetailScreen({this.ImageUrlPost});
   Matrix4 initialScale =
-      Matrix4(1, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  Matrix4(1, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   TransformationController _transformationController =
-      TransformationController();
+  TransformationController();
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -252,6 +252,7 @@ class DetailScreen extends StatelessWidget {
     );
   }
 }
+
 class DetailScreenLink extends StatelessWidget {
   final String ImageUrlPost;
 
@@ -293,4 +294,6 @@ class DetailScreenLink extends StatelessWidget {
       },
     );
   }
+
 }
+
