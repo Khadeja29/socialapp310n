@@ -79,6 +79,7 @@ Widget bio({@required String name, @required String biodata}) {
   );
 }
 
+
 Widget statsBox({
   @required String count,
   @required String title,

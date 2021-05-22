@@ -71,6 +71,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void initState() {
     super.initState();
+
+    Authentication.signOutWithGoogle(context: context);
+    FirebaseAuth.instance.signOut().then((value) {
+      Navigator.pushReplacementNamed(context, '/welcome');
+    });
     _setCurrentScreen();
     auth.authStateChanges().listen((User user)  {//firebase user class clashes with the user class we have defined
       if(user == null) {

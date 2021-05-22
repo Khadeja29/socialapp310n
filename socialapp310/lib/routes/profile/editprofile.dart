@@ -1,10 +1,16 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/services/UserFxns.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 import 'profilepage.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -17,16 +23,57 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   bool showPassword = false;
-
+  String ProfilePic;
+  File imageFile;
   int _pageIndex = 0;
   int _selectedIndex = 4;
+  void imageuploader(){
+    String imagename = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final Reference storageReference = FirebaseStorage.instance.ref()
+        .child(imagename);
+    final UploadTask uploadTask =  storageReference.putFile(imageFile);
+    uploadTask.then((TaskSnapshot taskSnapshot) {
+
+      taskSnapshot.ref.getDownloadURL().then((imageUrl){
+        //save info to firestore
+
+        setState(() {
+          ProfilePic = imageUrl;
+        });
+
+        print(ProfilePic);
+
+      });
+    }).catchError((error){
+      Fluttertoast.showToast(msg: error.toString(),);//TODO: remove this package
+    });
+  }
+  _getFromGallery() async {
+    PickedFile pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
+
+        imageFile = File(pickedFile.path);
+        imageuploader();
+      });
+    }
+  }
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
     print("SCS : Edit Profile Page succeeded");
+
+    ProfilePic = await UserFxns.getProfilePic();
+    print(ProfilePic);
   }
   void initState() {
     super.initState();
     _listFuture = UserFxns.getUserInfo();
+
     //FirebaseCrashlytics.instance.crash(); //Emulating a crash
     _setCurrentScreen();
   }
@@ -131,26 +178,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Center(
                         child: Stack(
                           children: [
-                            Container(
-                              width: 130,
-                              height: 130,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 4,
-                                      color: Theme.of(context).scaffoldBackgroundColor),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        spreadRadius: 2,
-                                        blurRadius: 10,
-                                        color: Colors.black.withOpacity(0.1),
-                                        offset: Offset(0, 10))
-                                  ],
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(
-                                        "https://pbs.twimg.com/profile_images/1306087157086339075/DUEIvfCg_400x400.jpg",
-                                      ))),
+                            GestureDetector(
+                              onTap: () {_getFromGallery();},
+                              child: Container(
+                                width: 130,
+                                height: 130,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 4,
+                                        color: Theme.of(context).scaffoldBackgroundColor),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          spreadRadius: 2,
+                                          blurRadius: 10,
+                                          color: Colors.black.withOpacity(0.1),
+                                          offset: Offset(0, 10))
+                                    ],
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(
+                                          ProfilePic,
+                                        ))),
+                              ),
                             ),
                             Positioned(
                                 bottom: 0,
@@ -281,9 +331,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             padding: EdgeInsets.symmetric(horizontal: 50),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
                             child: Text("CANCEL",
                                 style: TextStyle(
+
                                     fontSize: 14,
                                     letterSpacing: 2.2,
                                     color: Colors.black)),
@@ -295,9 +348,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 bool uniqueUser = await UserFxns.isUserNameUnique(username);
                                 if(uniqueUser)
                                 {
+                                  UserFxns.UpdateProfilePic(ProfilePic);
                                   UserFxns.UpdateUserInfo( Bio:bio, FullName: fullname ,UserName:username, IsPriv: priv ^ private);
-                                  Navigator.pushReplacementNamed(
-                                      context, '/profile');
+                                  Navigator.pop(context);
                                 }
                                 else{
                                   showAlertDialog("Error", "UserName is taken");

@@ -252,3 +252,45 @@ class DetailScreen extends StatelessWidget {
     );
   }
 }
+class DetailScreenLink extends StatelessWidget {
+  final String ImageUrlPost;
+
+  DetailScreenLink({this.ImageUrlPost});
+  Matrix4 initialScale =
+  Matrix4(1, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  TransformationController _transformationController =
+  TransformationController();
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Scaffold(
+        backgroundColor: AppColors.darkgreyblack,
+        body: Center(
+          child: Hero(
+            tag: '${ImageUrlPost}',
+            child: InteractiveViewer(
+              clipBehavior: Clip.none,
+              panEnabled: true, // Set it to false
+              boundaryMargin: EdgeInsets.all(60),
+              minScale: 0.33,
+              maxScale: 3,
+              child: Image(
+                image: NetworkImage(ImageUrlPost),
+                fit: BoxFit.fill,
+              ),
+              transformationController: _transformationController,
+              onInteractionEnd: (details) {
+                if (_transformationController.value.getMaxScaleOnAxis() < 1) {
+                  _transformationController.value = initialScale;
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+}
