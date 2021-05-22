@@ -31,11 +31,9 @@ class _LoginState extends State<Login> {
   }
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
-
         name: 'Login_Page_Success',
         parameters: <String, dynamic>{
           'name': 'Log in Page',
-
         }
     );
   }

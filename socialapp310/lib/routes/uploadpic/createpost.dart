@@ -99,6 +99,7 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
+
                   imageuploader(caption,location_pic,args.imagefile);
                   Navigator.pushNamedAndRemoveUntil(context, '/homefeed', (route) => false);
 
@@ -174,9 +175,12 @@ class _CreatePost extends State<CreatePost> {
     _setCurrentScreen();
   }
 }
+
+
 class PassingValues {
   final File imagefile;
 
 
   PassingValues(this.imagefile);
 }
+
