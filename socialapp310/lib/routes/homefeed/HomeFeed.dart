@@ -1,8 +1,10 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
+import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
@@ -44,12 +46,11 @@ class _TestPostState extends State<HomeFeed> {
           index; //TODO: if index 0 nothing happens, if index 1 push search page, if index 2 push create page,
       if (_selectedIndex == 0) {
         Navigator.pushReplacementNamed(context, '/homefeed');
+
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Uploadpic()));
+        Navigator.pushReplacementNamed(context,'/uploadpic');
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {

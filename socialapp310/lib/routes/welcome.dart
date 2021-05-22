@@ -1,9 +1,9 @@
-
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 
@@ -144,18 +144,18 @@ class _WelcomeState extends State<Welcome> {
 
 class Authentication {
 
-  static Future<User> signInWithGoogle({BuildContext context}) async {
+  static Future<User> signInWithGoogle({BuildContext context}) async {//TODO: take inputs for user info.
     FirebaseAuth auth = FirebaseAuth.instance;
     User user;
 
     final GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: <String>[
-      'email',
-    ],);
+        'email',
+      ],);
 
     final GoogleSignInAccount googleSignInAccount =
     await googleSignIn.signIn();
-
+    print(googleSignInAccount);
     if (googleSignInAccount != null) {
       final GoogleSignInAuthentication googleSignInAuthentication =
       await googleSignInAccount.authentication;
@@ -181,6 +181,7 @@ class Authentication {
       } catch (e) {
         // handle the error here
       }
+      //TODO: add information to firestore.
     }
 
     return user;
@@ -215,58 +216,67 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: _isSigningIn
-          ? CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-      )
-          : OutlinedButton(
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.white),
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(40),
+    return Container(
+      height: 60.0,
+      width: 400.0,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 6.0),
+        child: _isSigningIn
+            ? CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+        )
+            : OutlinedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.white),
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
             ),
           ),
-        ),
-        onPressed: () async {
-          setState(() {
-            _isSigningIn = true;
-          });
+          onPressed: () async {
+            setState(() {
+              _isSigningIn = true;
+            });
 
-          User user =
-          await Authentication.signInWithGoogle(context: context);
+            User user =
+            await Authentication.signInWithGoogle(context: context);
 
-          setState(() {
-            _isSigningIn = false;
-          });
+            setState(() {
+              _isSigningIn = false;
+            });
 
           if (user != null) {
-            Navigator.of(context).pushReplacementNamed('/homefeed');
+            //TODO: take user id and check if it exists in firestore
+            //TODO: if doesnt exist take to page to fill out info
+            //TODO: if does exist push to home page
+            bool exists = await UserFxns.UserExistsinFireStore(user.uid);
+            if(exists)
+            {Navigator.of(context).pushReplacementNamed('/homefeed');}
+            else {Navigator.of(context).pushNamedAndRemoveUntil('/signupfinishgoogle', (route) => false);}
           }
 
-          setState(() {
-            _isSigningIn = false;
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            setState(() {
+              _isSigningIn = false;
+            });
+          },
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Image(
                 image: AssetImage("assets/images/googlelogo.png"),
-                height: 35.0,
+                height: 20.0,
+                width: 20,
+                  fit:BoxFit.contain,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: Text(
                   'Sign in with Google',
                   style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black54,
+                    fontSize: 16,
+                    color: AppColors.darkpurple,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
