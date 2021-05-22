@@ -61,9 +61,10 @@ class _WalkThroughState extends State<WalkThrough> {
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
         name: 'Walkthrough_Page_Success',
-        parameters: <String, dynamic>{
+        parameters: <String, dynamic> {
           'name': 'Walkthrough Page',
-        });
+        }
+    );
   }
 
   void initState() {

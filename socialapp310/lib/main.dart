@@ -73,70 +73,23 @@ class AppBase extends StatelessWidget {
         observer: observer,
       ),
       routes: {
-        '/welcome': (context) => Welcome(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/login': (context) => Login(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/signup': (context) => SignUp(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/walkthrough': (context) => WalkThrough(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/signupfinish': (context) => FinishSignupPage(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/notifications': (context) => ActivityScreen(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/homefeed': (context) => HomeFeed(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/profile': (context) => ProfileScreen(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/search': (context) => Search(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/editprofile': (context) => EditProfilePage(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/settings': (context) => Settings(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/deleteaccount': (context) => DeleteAccount(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/signupfinishgoogle': (context) => FinishSignupPageGoogle(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/uploadpic': (context) => Uploadpic(
-              analytics: analytics,
-              observer: observer,
-            ),
-        '/creatpost': (context) => Uploadpic(
-              analytics: analytics,
-              observer: observer,
-            ),
         '/searchlocation': (context) => SearchLocation(
           analytics: analytics,
           observer: observer,
         ),
+        '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
+        '/login': (context) => Login(analytics: analytics, observer: observer,),
+        '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
+        '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
+        '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
+        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
+        '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
+        '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
+        '/search' : (context) => Search(analytics: analytics, observer: observer,),
+        '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
+        '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
+        '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
+        '/creatpost' :  (context) => Uploadpic(analytics: analytics, observer: observer,),
       },
     );
   }
