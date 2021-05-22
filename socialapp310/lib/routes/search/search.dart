@@ -100,6 +100,7 @@ class _SearchState extends State<Search> {
                ),
                new TabBar(
                  isScrollable: true,
+                 indicatorColor: AppColors.peachpink,
                  tabs: choices.map<Widget>((Choice choice) {
                    return new Container(
                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -388,7 +389,6 @@ class _SearchState extends State<Search> {
     return SingleChildScrollView(
     );
   }
-
 }
 
 class UserResult extends StatelessWidget {
