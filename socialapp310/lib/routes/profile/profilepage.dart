@@ -22,7 +22,6 @@ class ProfileScreen extends StatefulWidget {
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
-
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -140,8 +139,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                   post: _postnum,
                   followers: _followers,
                   following: _following,
-                  context: context),
-              //TODO: add profile picture link as variable here
+                  context:
+                      context), //TODO: add profile picture link as variable here
               bio: bio(name: data["FullName"], biodata: data["Bio"]),
               tabbar: TabBar(
                 unselectedLabelColor: Colors.white,

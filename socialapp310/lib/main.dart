@@ -9,6 +9,7 @@ import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/routes/settings/deleteAccount.dart';
 import 'package:socialapp310/routes/settings/settings.dart';
 import 'package:socialapp310/routes/signup.dart';
@@ -18,8 +19,11 @@ import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/routes/favourites/favourites.dart';
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 import 'package:socialapp310/routes/settings/password.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,31 +31,23 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _initialization,
-      builder: (context, snapshot){
+      builder: (context, snapshot) {
         print(snapshot.connectionState);
-        if(snapshot.hasError)
-        {
+        if (snapshot.hasError) {
           print("cannot connect to firebase" + snapshot.error);
-          return MaterialApp(
-              home: WelcomeViewNoFB()
-          );
-        }
-        else if(snapshot.connectionState == ConnectionState.done){
+          return MaterialApp(home: WelcomeViewNoFB());
+        } else if (snapshot.connectionState == ConnectionState.done) {
           return AppBase();
         }
-        return MaterialApp(
-            home: WelcomeViewNoFB()
-        );
+        return MaterialApp(home: WelcomeViewNoFB());
       },
     );
-
   }
 }
 
@@ -61,31 +57,86 @@ class AppBase extends StatelessWidget {
   }) : super(key: key);
 
   static FirebaseAnalytics analytics = FirebaseAnalytics();
-  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       navigatorObservers: <NavigatorObserver>[observer],
       home:
-      // Password(),
-      // Settings(),
-      // Favourites(),
-      SplashScreen(analytics: analytics, observer: observer,),
+          // SearchLocation(),
+          // Password(),
+          // Settings(),
+          // Favourites(),
+          SplashScreen(
+        analytics: analytics,
+        observer: observer,
+      ),
       routes: {
-        '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
-        '/login': (context) => Login(analytics: analytics, observer: observer,),
-        '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
-        '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
-        '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
-        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
-        '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
-        '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
-        '/search' : (context) => Search(analytics: analytics, observer: observer,),
-        '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
-        '/settings' : (context) => Settings(analytics: analytics, observer: observer,),
-        '/deleteaccount' : (context) => DeleteAccount(analytics: analytics, observer: observer,),
-        '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
+        '/welcome': (context) => Welcome(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/login': (context) => Login(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signup': (context) => SignUp(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/walkthrough': (context) => WalkThrough(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signupfinish': (context) => FinishSignupPage(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/notifications': (context) => ActivityScreen(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/homefeed': (context) => HomeFeed(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/profile': (context) => ProfileScreen(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/search': (context) => Search(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/editprofile': (context) => EditProfilePage(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/settings': (context) => Settings(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/deleteaccount': (context) => DeleteAccount(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signupfinishgoogle': (context) => FinishSignupPageGoogle(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/uploadpic': (context) => Uploadpic(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/creatpost': (context) => Uploadpic(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/searchlocation': (context) => SearchLocation(
+          analytics: analytics,
+          observer: observer,
+        ),
       },
     );
   }

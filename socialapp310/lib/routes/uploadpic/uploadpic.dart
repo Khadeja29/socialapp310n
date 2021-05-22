@@ -20,7 +20,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
 class Uploadpic extends StatefulWidget {
-  const Uploadpic({Key key, this.analytics, this.observer}): super (key: key);
+  const Uploadpic({Key key, this.analytics, this.observer}) : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
@@ -30,7 +30,7 @@ class Uploadpic extends StatefulWidget {
 class _Uploadpic extends State<Uploadpic> {
   File imageFile;
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.purpleAccent,
       appBar: AppBar(
@@ -38,151 +38,145 @@ class _Uploadpic extends State<Uploadpic> {
         title: Text(''),
       ),
       body: Center(
-        child: imageFile == null ? Container(
-          constraints: BoxConstraints.expand(),
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/images/welcoming.png'),
-                  fit: BoxFit.cover)
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 0.0, horizontal: 80),
-                child: ElevatedButton(
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-
+        child: imageFile == null
+            ? Container(
+                constraints: BoxConstraints.expand(),
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('assets/images/welcoming.png'),
+                        fit: BoxFit.cover)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      margin:
+                          EdgeInsets.symmetric(vertical: 0.0, horizontal: 80),
+                      child: ElevatedButton(
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          backgroundColor: AppColors.peachpink,
+                        ),
+                        onPressed: () {
+                          _getFromCamera();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text('Use camera',
+                                  style: TextStyle(
+                                      color: AppColors.darkpurple,
+                                      fontSize: 20.0,
+                                      letterSpacing: -0.7,
+                                      fontFamily: 'OpenSansCondensed-Light')),
+                              SizedBox(width: 5),
+                              Icon(
+                                Icons.camera_alt_outlined,
+                                color: AppColors.darkpurple,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    backgroundColor: AppColors.peachpink,
-                  ),
-                  onPressed: () {
-                    _getFromCamera();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                            'Use camera',
-                            style:  TextStyle(
+                    SizedBox(height: 40),
+                    Container(
+                      margin:
+                          EdgeInsets.symmetric(vertical: 0.0, horizontal: 50),
+                      child: ElevatedButton(
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          backgroundColor: AppColors.peachpink,
+                        ),
+                        onPressed: () {
+                          _getFromGallery();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text('Upload from device',
+                                  style: TextStyle(
+                                      color: AppColors.darkpurple,
+                                      fontSize: 20.0,
+                                      letterSpacing: -0.7,
+                                      fontFamily: 'OpenSansCondensed-Light')),
+                              SizedBox(width: 5),
+                              Icon(Icons.file_upload,
+                                  color: AppColors.darkpurple),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    ElevatedButton(
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        backgroundColor: AppColors.peachpink,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 30),
+                        child: Text('Cancel',
+                            style: TextStyle(
                                 color: AppColors.darkpurple,
                                 fontSize: 20.0,
                                 letterSpacing: -0.7,
-                                fontFamily: 'OpenSansCondensed-Light'
-                            )
-                        ),
-                        SizedBox(width:5),
-                        Icon(Icons.camera_alt_outlined,
-                          color: AppColors.darkpurple,)
-                      ],
+                                fontFamily: 'OpenSansCondensed-Light')),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 40),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 0.0, horizontal: 50),
-                child: ElevatedButton(
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-
-                    ),
-                    backgroundColor: AppColors.peachpink,
-                  ),
-                  onPressed: () {
-                    _getFromGallery();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                            'Upload from device',
-                            style:  TextStyle(
-                                color: AppColors.darkpurple,
-                                fontSize: 20.0,
-                                letterSpacing: -0.7,
-                                fontFamily: 'OpenSansCondensed-Light'
-                            )
-                        ),
-                        SizedBox(width:5),
-                        Icon(Icons.file_upload,
-                            color:AppColors.darkpurple),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 40,),
-              ElevatedButton(
-
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-
-                  ),
-                  backgroundColor: AppColors.peachpink,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
-                  child: Text(
-                      'Cancel',
-                      style:  TextStyle(
-                          color: AppColors.darkpurple,
-                          fontSize: 20.0,
-                          letterSpacing: -0.7,
-                          fontFamily: 'OpenSansCondensed-Light'
-                      )
-                  ),
-                ),
-              ),
-            ],
-
-          ),
-        )
+              )
             : Container(
-          constraints: BoxConstraints.expand(),
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/images/logo_woof.png'),
-                  fit: BoxFit.cover)
-          ),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                    child: Image.file(
-                      imageFile,
-                      fit: BoxFit.cover,
-                    )
+                constraints: BoxConstraints.expand(),
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('assets/images/logo_woof.png'),
+                        fit: BoxFit.cover)),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                          child: Image.file(
+                        imageFile,
+                        fit: BoxFit.cover,
+                      )),
+                    ),
+                    FloatingActionButton(
+                      child: Icon(Icons.backup_outlined),
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      onPressed: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  CreatePost(imageFile: imageFile)),
+                        )
+                      },
+                    ),
+                  ],
                 ),
               ),
-              FloatingActionButton(
-                child: Icon(Icons.backup_outlined),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                onPressed: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CreatePost(imageFile: imageFile)),
-                  )
-                },
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -191,10 +185,12 @@ class _Uploadpic extends State<Uploadpic> {
     await widget.analytics.setCurrentScreen(screenName: 'Upload page');
     print("SCS : Upload page succeeded");
   }
+
   void initState() {
     super.initState();
     _setCurrentScreen();
   }
+
   _getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.gallery,
@@ -207,6 +203,7 @@ class _Uploadpic extends State<Uploadpic> {
       });
     }
   }
+
   _getFromCamera() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.camera,

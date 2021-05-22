@@ -7,10 +7,8 @@ import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
 
-
-
 class WalkThrough extends StatefulWidget {
-  const WalkThrough({Key key, this.analytics, this.observer}): super (key: key);
+  const WalkThrough({Key key, this.analytics, this.observer}) : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
@@ -18,13 +16,40 @@ class WalkThrough extends StatefulWidget {
 }
 
 class _WalkThroughState extends State<WalkThrough> {
-
   int currentPage = 1;
   int totalPages = 6;
-  List <String> AppbarTitles = ["Hello", "Intro", "Profiles" , "Posts", "Following" , "Messages"];
-  List <String> PageTitles = ["Woof", "Sign Up", "Create your profile" , "Create and Share Posts" , "Follow Other People" , "Message Your Friends"];
-  List <String> imageURLs = ["assets/images/logo_woof.png", "assets/images/authentication.png", "assets/images/success.png" , "assets/images/connectionwith.png","assets/images/Connected.png","assets/images/Social_networking.png"];
-  List <String> imageCaptions = ["An app fit for kings and queens", "An easy sign up process", "Personalize your Image and Bio!" ,"Share your life" ,"Connect with fellow wolves", "Stay connected  "];
+  List<String> AppbarTitles = [
+    "Hello",
+    "Intro",
+    "Profiles",
+    "Posts",
+    "Following",
+    "Messages"
+  ];
+  List<String> PageTitles = [
+    "Woof",
+    "Sign Up",
+    "Create your profile",
+    "Create and Share Posts",
+    "Follow Other People",
+    "Message Your Friends"
+  ];
+  List<String> imageURLs = [
+    "assets/images/logo_woof.png",
+    "assets/images/authentication.png",
+    "assets/images/success.png",
+    "assets/images/connectionwith.png",
+    "assets/images/Connected.png",
+    "assets/images/Social_networking.png"
+  ];
+  List<String> imageCaptions = [
+    "An app fit for kings and queens",
+    "An easy sign up process",
+    "Personalize your Image and Bio!",
+    "Share your life",
+    "Connect with fellow wolves",
+    "Stay connected  "
+  ];
 
   String BRbutton = "Next";
   Future<void> _setCurrentScreen() async {
@@ -32,45 +57,43 @@ class _WalkThroughState extends State<WalkThrough> {
     _setLogEvent();
     print("SCS : Finished Walkthrough succeeded");
   }
+
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
         name: 'Walkthrough_Page_Success',
-        parameters: <String, dynamic> {
+        parameters: <String, dynamic>{
           'name': 'Walkthrough Page',
-        }
-    );
-
+        });
   }
+
   void initState() {
     super.initState();
     _setCurrentScreen();
   }
+
   void nextPage() {
-
     setState(() {
-      if(currentPage == totalPages )
-      {
+      if (currentPage == totalPages) {
         Navigator.pushReplacementNamed(context, "/welcome");
-
       }
-      if(currentPage < totalPages)
-      {currentPage ++ ;}
-      if(currentPage == 6)
-      {BRbutton = "Leave";}
-
+      if (currentPage < totalPages) {
+        currentPage++;
+      }
+      if (currentPage == 6) {
+        BRbutton = "Leave";
+      }
     });
-
-
   }
 
   void prevPage() {
     setState(() {
-      if(currentPage > 1)
-      {currentPage -- ;}
-      if(currentPage < 6)
-      {BRbutton = "Next";}
+      if (currentPage > 1) {
+        currentPage--;
+      }
+      if (currentPage < 6) {
+        BRbutton = "Next";
+      }
     });
-
   }
 
   @override
@@ -88,9 +111,8 @@ class _WalkThroughState extends State<WalkThrough> {
       ),
       body: Center(
         child: Column(
-
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children:<Widget> [
+          children: <Widget>[
             Text(
               "${PageTitles[currentPage - 1]}",
               style: kHeadingTextStyle,
@@ -98,9 +120,7 @@ class _WalkThroughState extends State<WalkThrough> {
             Image(
               width: 700,
               height: 300,
-
               image: AssetImage(imageURLs[currentPage - 1]),
-
             ),
             Center(
               child: Text(
@@ -110,24 +130,21 @@ class _WalkThroughState extends State<WalkThrough> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
-              children:<Widget> [
+              children: <Widget>[
                 OutlinedButton(
                   onPressed: prevPage,
                   child: Text(
                     "Prev",
                     style: kLabelLightTextStyle,
-                  ),),
-                Text(
-                    "${currentPage} / ${totalPages}"
+                  ),
                 ),
+                Text("${currentPage} / ${totalPages}"),
                 OutlinedButton(
                   onPressed: nextPage,
                   child: Text(
                     "${BRbutton}",
                     style: kLabelLightTextStyle,
                   ),
-
                 ),
               ],
             ),

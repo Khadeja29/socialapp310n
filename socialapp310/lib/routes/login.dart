@@ -10,7 +10,7 @@ import 'package:socialapp310/utils/dimension.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key key, this.analytics, this.observer}): super (key: key);
+  const Login({Key key, this.analytics, this.observer}) : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
@@ -29,14 +29,14 @@ class _LoginState extends State<Login> {
     _setLogEvent();
     print("SCS : Log in Page succeeded");
   }
+
   Future<void> _setLogEvent() async {
-    await widget.analytics.logEvent(
-        name: 'Login_Page_Success',
-        parameters: <String, dynamic>{
-          'name': 'Log in Page',
-        }
-    );
+    await widget.analytics
+        .logEvent(name: 'Login_Page_Success', parameters: <String, dynamic>{
+      'name': 'Log in Page',
+    });
   }
+
   void initState() {
     super.initState();
     _setCurrentScreen();
@@ -65,8 +65,7 @@ class _LoginState extends State<Login> {
               ),
             ],
           );
-        }
-    );
+        });
   }
 
   @override
@@ -99,7 +98,8 @@ class _LoginState extends State<Login> {
                 // Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(0.0),
-                  child: Image.asset('assets/images/mobile_login.png', width: 300 , height: 300),
+                  child: Image.asset('assets/images/mobile_login.png',
+                      width: 300, height: 300),
                 ),
                 // Spacer(),
                 Form(
@@ -111,7 +111,6 @@ class _LoginState extends State<Login> {
                           Expanded(
                             flex: 1,
                             child: Container(
-                              
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   fillColor: AppColors.lightgrey,
@@ -119,8 +118,11 @@ class _LoginState extends State<Login> {
                                   hintText: 'E-mail',
                                   // labelText: 'Username',
                                   focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide: BorderSide(
+                                        color: AppColors.primarypurple,
+                                        width: 1.5),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                   errorStyle: TextStyle(
                                     color: AppColors.peachpink,
@@ -128,26 +130,32 @@ class _LoginState extends State<Login> {
                                     fontSize: 13,
                                   ),
                                   errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.peachpink),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide:
+                                        BorderSide(color: AppColors.peachpink),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                   focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide: BorderSide(
+                                        color: AppColors.peachpink, width: 2),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.darkgreyblack),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide: BorderSide(
+                                        color: AppColors.darkgreyblack),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                 ),
                                 keyboardType: TextInputType.emailAddress,
 
                                 validator: (value) {
-                                  if(value.isEmpty) {
+                                  if (value.isEmpty) {
                                     return 'Please enter your e-mail';
                                   }
-                                  if(!EmailValidator.validate(value)) {
+                                  if (!EmailValidator.validate(value)) {
                                     return 'The e-mail address is not valid';
                                   }
                                   email = value;
@@ -159,8 +167,9 @@ class _LoginState extends State<Login> {
                           ),
                         ],
                       ),
-
-                      SizedBox(height: 16.0,),
+                      SizedBox(
+                        height: 16.0,
+                      ),
                       Row(
                         children: [
                           Expanded(
@@ -172,8 +181,11 @@ class _LoginState extends State<Login> {
                                   filled: true,
                                   hintText: 'Password',
                                   focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide: BorderSide(
+                                        color: AppColors.primarypurple,
+                                        width: 1.5),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                   errorStyle: TextStyle(
                                     color: AppColors.peachpink,
@@ -181,19 +193,25 @@ class _LoginState extends State<Login> {
                                     fontSize: 13,
                                   ),
                                   errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.peachpink),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide:
+                                        BorderSide(color: AppColors.peachpink),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                   focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.peachpink,width: 2),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide: BorderSide(
+                                        color: AppColors.peachpink, width: 2),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
 
                                   //labelText: 'Username',
                                   labelStyle: kLabelLightTextStyle,
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.darkpurple),
-                                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                                    borderSide:
+                                        BorderSide(color: AppColors.darkpurple),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30.0)),
                                   ),
                                 ),
                                 keyboardType: TextInputType.text,
@@ -202,10 +220,10 @@ class _LoginState extends State<Login> {
                                 autocorrect: false,
 
                                 validator: (value) {
-                                  if(value.isEmpty) {
+                                  if (value.isEmpty) {
                                     return 'Please enter your password';
                                   }
-                                  if(value.length < 8) {
+                                  if (value.length < 8) {
                                     return 'Password must be at least 8 characters';
                                   }
                                   print("here" + value);
@@ -218,69 +236,68 @@ class _LoginState extends State<Login> {
                           ),
                         ],
                       ),
-
-                      SizedBox(height: 16,),
-
+                      SizedBox(
+                        height: 16,
+                      ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Expanded(
-                            flex: 1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(40),
-                                    topRight: Radius.circular(40),
-                                    bottomLeft: Radius.circular(40),
-                                    bottomRight: Radius.circular(40)
+                              flex: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(40),
+                                      topRight: Radius.circular(40),
+                                      bottomLeft: Radius.circular(40),
+                                      bottomRight: Radius.circular(40)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 3,
+                                      blurRadius: 7,
+                                      offset: Offset(
+                                          0, 3), // changes position of shadow
+                                    ),
+                                  ],
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 3,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(40),
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(40),
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
                                       backgroundColor: AppColors.primarypurple,
                                     ),
-                                  onPressed: () async {
-                                      if(_formKey.currentState.validate()) {
+                                    onPressed: () async {
+                                      if (_formKey.currentState.validate()) {
                                         try {
-                                          await UserFxns.loginUser(email, password);
-                                          await UserFxns.UpdateDeactivation(false);
-                                          Navigator.of(context).pushNamedAndRemoveUntil(
-                                              "/homefeed", (
-                                              Route<dynamic> route) => false);
-                                        } catch (e)
-                                        {
+                                          await UserFxns.loginUser(
+                                              email, password);
+                                          await UserFxns.UpdateDeactivation(
+                                              false);
+                                          Navigator.of(context)
+                                              .pushNamedAndRemoveUntil(
+                                                  "/homefeed",
+                                                  (Route<dynamic> route) =>
+                                                      false);
+                                        } catch (e) {
                                           showAlertDialog("Error", e.code);
                                         }
-
                                       }
-                                  }
-                                    ,
-                                  child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                        child: Text(
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12.0),
+                                      child: Text(
                                         'Login',
                                         style: kButtonDarkTextStyle,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
-                          ),
+                              )),
                         ],
                       ),
-
                       Row(
                         children: [
                           Checkbox(
@@ -296,8 +313,6 @@ class _LoginState extends State<Login> {
                           Spacer()
                         ],
                       ),
-
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -306,23 +321,19 @@ class _LoginState extends State<Login> {
                             style: TextStyle(fontSize: 16),
                           ),
                           GestureDetector(
-                            onTap: () => Navigator.pushNamed(context, "/signup"),
+                            onTap: () =>
+                                Navigator.pushNamed(context, "/signup"),
                             child: Text(
                               "Sign Up",
                               style: TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.darkgrey),
+                                  fontSize: 16, color: AppColors.darkgrey),
                             ),
                           ),
                         ],
                       )
-
-
                     ],
                   ),
                 ),
-
-
               ],
             ),
           ),
@@ -332,6 +343,3 @@ class _LoginState extends State<Login> {
     // );
   }
 }
-
-
-

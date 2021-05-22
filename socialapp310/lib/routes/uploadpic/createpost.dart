@@ -18,10 +18,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreatePost extends StatefulWidget {
   final File imageFile;
-  CreatePost({Key key, this.analytics, this.observer,this.imageFile}): super (key: key);
+  CreatePost({Key key, this.analytics, this.observer, this.imageFile})
+      : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -50,21 +52,24 @@ class _CreatePost extends State<CreatePost> {
     caption?.dispose();
   }
 
-  void imageuploader(String caption, String Location_pic){
+  void imageuploader(String caption, String Location_pic) {
     String imagename = DateTime.now().millisecondsSinceEpoch.toString();
-    final Reference storageReference = FirebaseStorage.instance.ref()
-        .child(imagename);
-    final UploadTask uploadTask =  storageReference.putFile(imageFile);
+    final Reference storageReference =
+        FirebaseStorage.instance.ref().child(imagename);
+    final UploadTask uploadTask = storageReference.putFile(imageFile);
     uploadTask.then((TaskSnapshot taskSnapshot) {
-      taskSnapshot.ref.getDownloadURL().then((imageUrl){
+      taskSnapshot.ref.getDownloadURL().then((imageUrl) {
         //save info to firestore
-        _saveData(imageUrl,caption,Location_pic);
+        _saveData(imageUrl, caption, Location_pic);
       });
-    }).catchError((error){
-      Fluttertoast.showToast(msg: error.toString(),);
+    }).catchError((error) {
+      Fluttertoast.showToast(
+        msg: error.toString(),
+      );
     });
   }
-  void _saveData(String imageUrl,String caption,String Location_pic){
+
+  void _saveData(String imageUrl, String caption, String Location_pic) {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = null;
@@ -72,19 +77,22 @@ class _CreatePost extends State<CreatePost> {
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
-      'Location': GeoPoint(10,10),
+      'Location': GeoPoint(10, 10),
       'Comment': comments,
       'Likes': num,
       'createdAt': Timestamp.now(),
       'PostUser': id_user,
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Post',
-          style:TextStyle(color: Colors.white), ),
+        title: Text(
+          'New Post',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.darkpurple,
         elevation: 1.0,
         actions: <Widget>[
@@ -94,8 +102,11 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
-                  imageuploader(caption,location_pic);
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
+                  imageuploader(caption, location_pic);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeFeed()),
+                      (Route<dynamic> route) => false);
                 }),
           )
         ],
@@ -112,23 +123,20 @@ class _CreatePost extends State<CreatePost> {
                   decoration: BoxDecoration(
                       image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: FileImage(widget.imageFile)
-                      )
-                  ),
+                          image: FileImage(widget.imageFile))),
                 ),
               ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 12.0, right: 8.0),
                   child: TextField(
-
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(
                       hintText: 'Write a caption...',
                     ),
                     onChanged: ((value) {
                       setState(() {
-                        caption=value;
+                        caption = value;
                       });
                     }),
                   ),
@@ -136,33 +144,33 @@ class _CreatePost extends State<CreatePost> {
               )
             ],
           ),
-
           Padding(
             padding: const EdgeInsets.all(20.0),
-
             child: TextField(
-
               onChanged: ((location_picx) {
                 setState(() {
-                  location_pic=location_picx;
+                  location_pic = location_picx;
                 });
               }),
               decoration: InputDecoration(
                 hintText: 'Add location',
-                prefixIcon: Icon(Icons.add_location_sharp,
-                  color: Colors.red,),
+                prefixIcon: Icon(
+                  Icons.add_location_sharp,
+                  color: Colors.red,
+                ),
               ),
             ),
           ),
-
         ],
       ),
     );
   }
+
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Create Post');
     print("SCS : Create Post succeeded");
   }
+
   void _initState() {
     super.initState();
     _setCurrentScreen();
