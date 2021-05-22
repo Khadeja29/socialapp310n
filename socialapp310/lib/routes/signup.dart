@@ -40,12 +40,10 @@ class _SignUpState extends State<SignUp> {
   }
 
   Future<void> _setLogEvent() async {
-    await widget.analytics.logEvent(
-        name: 'SignUp_Page_Success',
-        parameters: <String, dynamic>{
-          'name': 'SignUp Page',
-        }
-    );
+    await widget.analytics
+        .logEvent(name: 'SignUp_Page_Success', parameters: <String, dynamic>{
+      'name': 'SignUp Page',
+    });
   }
 
   void initState() {

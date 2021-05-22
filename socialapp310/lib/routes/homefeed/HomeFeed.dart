@@ -50,9 +50,7 @@ class _TestPostState extends State<HomeFeed> {
       } else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Uploadpic()));
+        Navigator.pushReplacementNamed(context,'/uploadpic');
       } else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {

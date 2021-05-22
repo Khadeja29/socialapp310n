@@ -6,10 +6,8 @@ import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:math';
 import 'package:flutter/src/material/colors.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -19,6 +17,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:socialapp310/routes/uploadpic/Mappage.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:geocoder/geocoder.dart';
 
 class CreatePost extends StatefulWidget {
   final File imageFile;
@@ -31,17 +35,61 @@ class CreatePost extends StatefulWidget {
   _CreatePost createState() => _CreatePost(imageFile);
 }
 
+//Location Functions come here
 class _CreatePost extends State<CreatePost> {
   File imageFile;
   var location_pic;
   var caption;
+
   _CreatePost(this.imageFile);
 
+  var locationMessage = '';
+  var locationname = 'Press the button to get current location';
+  String latitude;
+  String longitude;
+  var lat;
+  var long;
+
+  // function for getting the current location
+  // but before that you need to add this permission!
+  void getCurrentLocation() async {
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    lat = position.latitude;
+    long = position.longitude;
+
+    // passing this to latitude and longitude strings
+    latitude = "$lat";
+    longitude = "$long";
+
+    final coordinates = new Coordinates(lat, long);
+    var addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var first = addresses.first;
+    print("${first.featureName} : ${first.addressLine}");
+    setState(() {
+      locationMessage = "Latitude: $lat and Longitude: $long";
+      locationname = ("${first.featureName} : ${first.addressLine}");
+    });
+  }
+
+  // function for opening it in google maps
+
+  void googleMap() async {
+    String googleUrl =
+        "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude";
+
+    if (await canLaunch(googleUrl)) {
+      await launch(googleUrl);
+    } else
+      throw ("Couldn't open google maps");
+  }
+
+//location functions end here
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    location_pic = TextEditingController();
     caption = TextEditingController();
   }
 
@@ -52,15 +100,15 @@ class _CreatePost extends State<CreatePost> {
     caption?.dispose();
   }
 
-  void imageuploader(String caption, String Location_pic) {
+  void imageuploader(String caption, File inputimageFile) {
     String imagename = DateTime.now().millisecondsSinceEpoch.toString();
     final Reference storageReference =
         FirebaseStorage.instance.ref().child(imagename);
-    final UploadTask uploadTask = storageReference.putFile(imageFile);
+    final UploadTask uploadTask = storageReference.putFile(inputimageFile);
     uploadTask.then((TaskSnapshot taskSnapshot) {
       taskSnapshot.ref.getDownloadURL().then((imageUrl) {
         //save info to firestore
-        _saveData(imageUrl, caption, Location_pic);
+        _saveData(imageUrl, caption);
       });
     }).catchError((error) {
       Fluttertoast.showToast(
@@ -69,7 +117,7 @@ class _CreatePost extends State<CreatePost> {
     });
   }
 
-  void _saveData(String imageUrl, String caption, String Location_pic) {
+  void _saveData(String imageUrl, String caption) {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = null;
@@ -77,7 +125,7 @@ class _CreatePost extends State<CreatePost> {
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
-      'Location': GeoPoint(10, 10),
+      'Location': GeoPoint(lat, long),
       'Comment': comments,
       'Likes': num,
       'createdAt': Timestamp.now(),
@@ -87,6 +135,9 @@ class _CreatePost extends State<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context).settings.arguments as PassingValues;
+    print(args.imagefile);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -102,11 +153,12 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
-                  imageuploader(caption, location_pic);
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeFeed()),
-                      (Route<dynamic> route) => false);
+                  //imageuploader(caption);
+                  //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
+
+                  imageuploader(caption, args.imagefile);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/homefeed', (route) => false);
                 }),
           )
         ],
@@ -122,8 +174,7 @@ class _CreatePost extends State<CreatePost> {
                   height: 80.0,
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: FileImage(widget.imageFile))),
+                          fit: BoxFit.cover, image: FileImage(args.imagefile))),
                 ),
               ),
               Expanded(
@@ -147,19 +198,35 @@ class _CreatePost extends State<CreatePost> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: TextField(
-              onChanged: ((location_picx) {
-                setState(() {
-                  location_pic = location_picx;
-                });
-              }),
+              onChanged: ((location_picx) {}),
+              readOnly: true,
               decoration: InputDecoration(
-                hintText: 'Add location',
-                prefixIcon: Icon(
-                  Icons.add_location_sharp,
-                  color: Colors.red,
-                ),
+                hintText: '$locationname',
+                prefixIcon: IconButton(
+                    icon: Icon(Icons.add_location),
+                    onPressed: () => {getCurrentLocation()}),
               ),
             ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+            child: ElevatedButton(
+                child: Row(
+                  children: <Widget>[
+                    Icon(Icons.add_location),
+                    SizedBox(width: 5),
+                    Text('Press button to see current location and Maps'),
+                  ],
+                ),
+                onPressed: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Mappage()),
+                      )
+                    }),
           ),
         ],
       ),
@@ -175,4 +242,10 @@ class _CreatePost extends State<CreatePost> {
     super.initState();
     _setCurrentScreen();
   }
+}
+
+class PassingValues {
+  final File imagefile;
+
+  PassingValues(this.imagefile);
 }

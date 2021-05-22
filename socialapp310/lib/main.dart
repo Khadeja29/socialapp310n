@@ -16,14 +16,13 @@ import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
-import 'package:socialapp310/routes/walkthrough.dart';
-import 'package:socialapp310/routes/welcome.dart';
-import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
+import 'package:socialapp310/routes/walkthrough.dart';
+import 'package:socialapp310/routes/welcome.dart';
+
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 import 'package:socialapp310/routes/settings/password.dart';
-
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,22 +73,61 @@ class AppBase extends StatelessWidget {
       ),
       routes: {
         '/searchlocation': (context) => SearchLocation(
-          analytics: analytics,
-          observer: observer,
-        ),
-        '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
-        '/login': (context) => Login(analytics: analytics, observer: observer,),
-        '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
-        '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
-        '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
-        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
-        '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
-        '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
-        '/search' : (context) => Search(analytics: analytics, observer: observer,),
-        '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
-        '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
-        '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
-        '/creatpost' :  (context) => Uploadpic(analytics: analytics, observer: observer,),
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/welcome': (context) => Welcome(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/login': (context) => Login(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signup': (context) => SignUp(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/walkthrough': (context) => WalkThrough(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signupfinish': (context) => FinishSignupPage(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/notifications': (context) => ActivityScreen(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/homefeed': (context) => HomeFeed(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/profile': (context) => ProfileScreen(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/search': (context) => Search(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/editprofile': (context) => EditProfilePage(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signupfinishgoogle': (context) => FinishSignupPageGoogle(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/uploadpic': (context) => Uploadpic(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/creatpost': (context) => CreatePost(
+              analytics: analytics,
+              observer: observer,
+            ),
       },
     );
   }

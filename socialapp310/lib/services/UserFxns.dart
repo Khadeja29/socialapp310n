@@ -8,6 +8,7 @@ class UserFxns{
   static final CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
 
   static Future<bool> isUserNameUnique(String Username) async{
+    Username = Username.toLowerCase();
     User currentUser = _auth.currentUser;
     bool unique = true;
     print(Username);
@@ -43,6 +44,7 @@ class UserFxns{
   }
   static Future<void> SignUpNormal(BuildContext context, String email,String password,String Bio, String FullName,
        String Username ,String ProfilePicture) async {
+    Username = Username.toLowerCase();
     var isNewUser = false;
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
@@ -76,6 +78,7 @@ class UserFxns{
         .catchError((error) => print("Error: $error"));
   }
   static Future<void> UpdateUsername(String username) async {
+    username = username.toLowerCase();
     User currentUser = _auth.currentUser;
     var result = await FirebaseFirestore.instance
         .collection('user')
@@ -138,6 +141,7 @@ class UserFxns{
     }
   }
   static Future<void> AddUserInfo(String Bio, String FullName, bool isPrivate, bool isDeactivated,String Username, String ProfilePic) async {
+    Username = Username.toLowerCase();
     User currentUser = _auth.currentUser;
     usersCollection
         .doc(currentUser.uid)
@@ -184,6 +188,7 @@ class UserFxns{
   }
 
   static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {
+    UserName = UserName.toLowerCase();
     User currentUser = _auth.currentUser;
     var result = await FirebaseFirestore.instance
         .collection('user')

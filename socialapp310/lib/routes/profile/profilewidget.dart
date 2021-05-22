@@ -126,6 +126,7 @@ Widget profileAvatar({
             child: Hero(//change this link from hardcode to normal
               tag: '${ProfilePicLink}',
               child: CircleAvatar(
+                backgroundColor: Colors.grey,
                 backgroundImage: NetworkImage(ProfilePicLink),//AssetImage(profuser.imageUrlAvatar),
                 radius: 90,
               ),
