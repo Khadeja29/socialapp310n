@@ -3,7 +3,7 @@ import 'package:socialapp310/models/user.dart';
 import 'package:socialapp310/widget/chat_body_widget.dart';
 import 'package:socialapp310/widget/chat_header_widget.dart';
 import 'package:socialapp310/api/firebase_api.dart';
-
+import 'package:socialapp310/users.dart';
 
 
 class ChatsPage extends StatelessWidget {

@@ -2,12 +2,12 @@ import 'package:socialapp310/models/message.dart';
 import 'package:socialapp310/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialapp310/utils.dart';
-
 import '../data.dart';
+import 'package:socialapp310/users.dart';
 
 class FirebaseApi {
   static Stream<List<User>> getUsers() => FirebaseFirestore.instance
-      .collection('users')
+      .collection('user')
       .orderBy(UserField.lastMessageTime, descending: true)
       .snapshots()
       .transform(Utils.transformer(User.fromJson));
