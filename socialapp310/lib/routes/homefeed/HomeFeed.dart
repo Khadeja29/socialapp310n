@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/chats_page.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/welcome.dart';
@@ -10,6 +11,8 @@ import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
+
+
 
 class HomeFeed extends StatefulWidget {
   const HomeFeed({Key key, this.analytics, this.observer}): super (key: key);
@@ -78,6 +81,9 @@ class _TestPostState extends State<HomeFeed> {
               color: Colors.white,
             ),
             onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatsPage()));
               // do something
             },
           )

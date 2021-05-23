@@ -46,6 +46,9 @@ dependencies:
   geoflutterfire:
   google_maps_flutter: ^2.0.5
   geolocator: ^7.0.3
+  #firebase_messaging: "^10.0.0"
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

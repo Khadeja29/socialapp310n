@@ -43,7 +43,10 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+<<<<<<< HEAD
 
+=======
+>>>>>>> e665f1a03dc8c0993f4cbd1d08f6e81b482728f2
     }
     signingConfigs {
         prepro {

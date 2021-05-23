@@ -3,6 +3,9 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
 import '../../models/post.dart';
 import 'package:flutter/gestures.dart';
+import 'package:socialapp310/routes/comments.dart';
+import 'package:socialapp310/routes/editpost.dart';
+
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -86,6 +89,81 @@ class _PostCardState extends State<PostCard> {
                         ),
                       ],
                     ),
+                  ),
+                  PopupMenuButton(
+                    onSelected: (result) {
+                      if (result == 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EditPost()),
+                        );
+                      }
+
+                    },
+
+                    iconSize: 50,
+                    tooltip: 'Menu',
+                    color: AppColors.peachpink,
+                    child:Icon(
+                      Icons.more_vert,
+                      size: 28.0,
+                      color: AppColors.darkpurple,
+                    ),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+
+                          child:
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 20.0),
+                                child: Text('EDIT',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: -0.7,
+                                        fontFamily: 'OpenSansCondensed-Bold'
+                                    )),
+                              ),
+                              SizedBox(width: 15,),
+                              Icon(
+                                Icons.edit,
+                                color: AppColors.darkpurple,
+                              ),
+
+
+                            ],
+                          ),
+                        value: 0,
+                      ),
+                      PopupMenuItem(
+                          child:
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 20.0),
+                                child: Text('DELETE',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: -0.7,
+                                        fontFamily: 'OpenSansCondensed-Bold'
+                                    )),
+                              ),
+                              SizedBox(width: 15,),
+                              Icon(
+                                Icons.delete,
+                                color: AppColors.darkpurple,
+                              ),
+
+                            ],
+                          ))
+                    ],
+
                   )
                 ],
               ),
@@ -182,7 +260,10 @@ class _PostCardState extends State<PostCard> {
                         IconButton(
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,
-                          onPressed: () {},
+                          onPressed: () {
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CommentScreen()),);},
                           icon: Icon(
                             Icons.chat_bubble_outline,
                             size: 30.0,
