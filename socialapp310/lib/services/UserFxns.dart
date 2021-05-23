@@ -6,7 +6,8 @@ class UserFxns{
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
-  static final String currentUserid = _auth.currentUser.uid;
+
+
   static Future<bool> isUserNameUnique(String Username) async{
     Username = Username.toLowerCase();
     User currentUser = _auth.currentUser;
@@ -32,6 +33,10 @@ class UserFxns{
     return unique;
   }
 
+  static Future<String> CurrentUserID() async{
+    User currentUser = _auth.currentUser;
+    return currentUser.uid;
+  }
   static Future<bool> UserExistsinFireStore(String uid) async{
 
     print(uid);

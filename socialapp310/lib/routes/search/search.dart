@@ -3,7 +3,9 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -247,7 +249,11 @@ class _SearchState extends State<Search> {
 
             title: Text(user.username),
             subtitle: Text(user.fullName),
-            onTap: () =>_showMyDialog("Todo: Path to this user's page should be added")
+            onTap: () => {
+              Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: user.UID, index: 1),
+              ),)
+            }
           ),
         ),
       );
@@ -302,7 +308,10 @@ class _SearchState extends State<Search> {
         else if (snapshot.hasData) {
         List<User1> searchResults = [];
         snapshot.data.docs.forEach((doc) {
-          User1 user = User1(username: doc['Username'],
+
+          User1 user = User1(
+            UID: doc.id,
+            username: doc['Username'],
             email: doc['Email'],
             fullName: doc['FullName'],
             isPrivate: doc['IsPrivate'],
@@ -398,4 +407,9 @@ class UserResult extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text("User Result");
   }
+}
+
+class PassingUID {
+  final String UID;
+  PassingUID(this.UID);
 }
