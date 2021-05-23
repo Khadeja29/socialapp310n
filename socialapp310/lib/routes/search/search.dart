@@ -32,7 +32,7 @@ class _SearchState extends State<Search> {
   Future<QuerySnapshot> searchResultsFuture, searchResultsCaptionFuture,
       searchResultsLocationFuture;
   String query = '', queryY = '';
-  int choiceIdx;
+  int choiceIdx = 0;
 
 
   _SearchState();
@@ -168,7 +168,7 @@ class _SearchState extends State<Search> {
           child: Scaffold(
             appBar: buildSearchField(),
             body: TabBarView(children: [
-               userSearchDisplay(),
+              userSearchDisplay(),
               locationSearchDisplay(),
               postsSearchDisplay(),
             ]),
@@ -211,13 +211,13 @@ class _SearchState extends State<Search> {
                 width: 60,
                 height: 60,
               ),
-            title: Text(user.username),
-            subtitle: Text(user.fullName),
-            onTap: () => {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: user.UID, index: 1),
-              ),)
-            }
+              title: Text(user.username),
+              subtitle: Text(user.fullName),
+              onTap: () => {
+                Navigator.push(context, MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: user.UID, index: 1),
+                ),)
+              }
           ),
         ),
       );
@@ -263,32 +263,32 @@ class _SearchState extends State<Search> {
     }
     else {
       return FutureBuilder(
-      future: searchResultsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text(
-              'There was an error :('
-          );
-        }
-        else if (snapshot.hasData) {
-        List<User1> searchResults = [];
-        snapshot.data.docs.forEach((doc) {
-          User1 user = User1(
-            UID: doc.id,
-            username: doc['Username'],
-            email: doc['Email'],
-            fullName: doc['FullName'],
-            isPrivate: doc['IsPrivate'],
-            isDeactivated: doc['isDeactivated'],
-            bio: doc['Bio'],
-            ProfilePic: doc['ProfilePic']);
+          future: searchResultsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(
+                  'There was an error :('
+              );
+            }
+            else if (snapshot.hasData) {
+              List<User1> searchResults = [];
+              snapshot.data.docs.forEach((doc) {
+                User1 user = User1(
+                    UID: doc.id,
+                    username: doc['Username'],
+                    email: doc['Email'],
+                    fullName: doc['FullName'],
+                    isPrivate: doc['IsPrivate'],
+                    isDeactivated: doc['isDeactivated'],
+                    bio: doc['Bio'],
+                    ProfilePic: doc['ProfilePic']);
 
-          if(user.email != currentFB.email){
-            searchResults.add(user);
-          }else{
-            print(user.email);
-          }
-        });
+                if(user.email != currentFB.email){
+                  searchResults.add(user);
+                }else{
+                  print(user.email);
+                }
+              });
               int len = 0;
 
               if (searchResults != null)
@@ -300,14 +300,14 @@ class _SearchState extends State<Search> {
                   itemBuilder: (context, index) {
                     //final choiceIdx = choice.index;
                     if (searchResults[index]
-                          .username != null) {
-                        final product = searchResults[index];
-                        print("now");
+                        .username != null) {
+                      final product = searchResults[index];
+                      print("now");
 
-                        return buildProductUser(
-                            product); // buildProductUser(product);
-                      } else
-                        return Text("no username");
+                      return buildProductUser(
+                          product); // buildProductUser(product);
+                    } else
+                      return Text("no username");
                   },
                 );
               } else
@@ -328,10 +328,11 @@ class _SearchState extends State<Search> {
   }
 
   Widget locationSearchDisplay() {
+    return Text("hello location");
   }
 
   Widget postsSearchDisplay() {
-    print(choiceIdx);
+   print(choiceIdx);
     if (searchResultsCaptionFuture == null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -407,16 +408,19 @@ class _SearchState extends State<Search> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(0),
-                                child:
+                              child: InkWell(
+                                onTap:(){ _showMyDialog("To do: path to this post should be added");},
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(0),
+                                  child:
                                   Image.network(
                                     searchResultsPosts
                                         .elementAt(index)
                                         .ImageUrlPost,
                                     fit: BoxFit.cover,
-                                    ),
-
+                                  ),
+                                  
+                                ),
                               ),
                             );
                           } else
