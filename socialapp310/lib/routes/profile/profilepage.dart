@@ -17,7 +17,6 @@ final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
 final usersRef = FirebaseFirestore.instance.collection('user');
 
-
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
   final FirebaseAnalytics analytics;
@@ -39,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String UID;
   User currentUser = FirebaseAuth.instance.currentUser;
   String username;
-  bool isFollowing;
+  bool isFollowing = true;
   int followerCount;
   int followingCount;
   //Analytics
@@ -173,11 +172,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (_selectedIndex == 0) {
         Navigator.pushReplacementNamed(context, '/homefeed');
       }
-        else if (_selectedIndex == 1) {
+      else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
         Navigator.pushReplacementNamed(context,'/uploadpic');}
-        else if (_selectedIndex == 3) {
+      else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {
         Navigator.pushReplacementNamed(context, '/profile');
@@ -342,14 +341,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     Navigator.push(context, MaterialPageRoute<void>(
                                       builder: (BuildContext context) =>  userList(
 
-                                          analytics: AppBase.analytics,
-                                          observer: AppBase.observer,
-                                          userID: widget.UID,
+                                        analytics: AppBase.analytics,
+                                        observer: AppBase.observer,
+                                        userID: widget.UID == null ? currentUser.uid : widget.UID,
                                         userName: data['Username'],
-                                          navBarIndex: currentindex(),
-                                          currentUserId: currentUser.uid,
-                                          followersCount: followerCount,
-                                          followingCount: followingCount, selectedTab: 0,
+                                        navBarIndex: currentindex(),
+                                        currentUserId: currentUser.uid,
+                                        followersCount: followerCount,
+                                        followingCount: followingCount, selectedTab: 0,
+                                        updateFollowersCount: (count) {
+                                          setState(() => followerCount = count);
+                                        },
+                                        updateFollowingCount: (count) {
+                                          setState(() => followingCount = count);
+                                        },
+
 
                                       ),
                                     ),)
@@ -362,12 +368,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       builder: (BuildContext context) =>  userList(
                                         analytics: AppBase.analytics,
                                         observer: AppBase.observer,
-                                        userID: widget.UID,
+                                        userID: widget.UID == null ? currentUser.uid : widget.UID,
                                         userName: data['Username'],
+                                        navBarIndex: currentindex(),
                                         currentUserId: currentUser.uid,
                                         followersCount: followerCount,
                                         followingCount: followingCount,
                                         selectedTab: 1,
+                                        updateFollowersCount: (count) {
+                                          setState(() => followerCount = count);
+                                        },
+                                        updateFollowingCount: (count) {
+                                          setState(() => followingCount = count);
+                                        },
                                       ),
                                     ),)
                                   },

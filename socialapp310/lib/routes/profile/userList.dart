@@ -15,12 +15,12 @@ class userList extends StatefulWidget {
   final String userName;
   final int followersCount;
   final int followingCount;
-  final int selectedTab; // 0 - Followers / 1 - Following
+  int selectedTab; // 0 - Followers / 1 - Following
   final String currentUserId;
   final Function updateFollowersCount;
   final Function updateFollowingCount;
 
-  const userList({
+  userList({
     Key key,
     this.analytics,
     this.observer,
@@ -46,18 +46,19 @@ class _userListState extends State<userList>{
   List<bool> _userFollowingState = [];
   int _followingCount;
   int _followersCount;
+  Future<DocumentSnapshot> _listFuture1;
+  Future<DocumentSnapshot> _listFuture2;
 
-
-  getFollowers() async {
+  Future<DocumentSnapshot> getFollowers() async {
     List<User1> userFollowers = [];
     List<bool> userFollowersState = [];
-
+    DocumentSnapshot docsnap;
     QuerySnapshot snapshot = await followersRef
         .doc(widget.userID)
         .collection('userFollowers')
         .get();
-    snapshot.docs.forEach((doc) async {
-      DocumentSnapshot docsnap =
+    for(var doc in snapshot.docs) {
+      docsnap =
       await usersRef
           .doc(doc.id)
           .get();
@@ -74,29 +75,33 @@ class _userListState extends State<userList>{
 
       userFollowers.add(user);
       userFollowersState.add(true);
+      print("xyz");
     }
-    );
+
     setState(() {
       _followersCount = snapshot.docs.length;
       _userFollowersState = userFollowersState;
       _userFollowers = userFollowers;
     });
+    print(docsnap);
+    return docsnap;
   }
-  getFollowing() async {
+  Future<DocumentSnapshot> getFollowing() async {
     List<User1> userFollowing = [];
     List<bool> userFollowingState = [];
+    DocumentSnapshot docsnap;
     QuerySnapshot snapshot = await followingRef
         .doc(widget.userID)
         .collection('userFollowing')
         .get();
-    snapshot.docs.forEach((doc) async {
+    for(var doc in snapshot.docs) {
 
-      DocumentSnapshot docsnap =
+      docsnap =
       await usersRef
           .doc(doc.id)
           .get();
 
-      User1 user = await User1(
+      User1 user = User1(
           UID: docsnap.id,
           username: docsnap['Username'],
           email: docsnap['Email'],
@@ -107,13 +112,15 @@ class _userListState extends State<userList>{
           ProfilePic: docsnap['ProfilePic']);
       userFollowing.add(user);
       userFollowingState.add(true);
-    });
-    print("UserFollowing");
+    }
+
     setState(() {
+      print("here8");
       _followingCount = snapshot.docs.length;
       _userFollowingState = userFollowingState;
       _userFollowing = userFollowing;
     });
+    return docsnap;
   }
 
   _buildFollowingButton(User1 user, int index) {
@@ -354,8 +361,9 @@ class _userListState extends State<userList>{
   void initState() {
 
     super.initState();
-    _setupAll();
-    _setCurrentScreen();
+
+    _listFuture1 = getFollowing();
+    _listFuture2 = getFollowers();
     setState(() {
       _followersCount = widget.followersCount;
       _followingCount = widget.followingCount;
@@ -364,14 +372,12 @@ class _userListState extends State<userList>{
 
   }
 
+
   _setupAll() async {
     setState(() {
       _isLoading = true;
     });
-    print("here2");
-    await getFollowers();
-    await getFollowing();
-    print("here1");
+
     setState(() {
       _isLoading = false;
     });
@@ -395,6 +401,7 @@ class _userListState extends State<userList>{
   //MAIN BUILDER WIDGET
   @override
   Widget build(BuildContext context) {
+
     return DefaultTabController(
       initialIndex: widget.selectedTab,
       length: 2,
@@ -407,6 +414,11 @@ class _userListState extends State<userList>{
               ],
             ),
             bottom: TabBar(
+              onTap: (int x) {setState(() {
+                print(x);
+                _userFollowers = _userFollowers;
+                _userFollowing = _userFollowing;
+              });},
               tabs: [
                 Tab(
                   text:
@@ -418,27 +430,57 @@ class _userListState extends State<userList>{
                 ),
               ],
             )),
-        body: !_isLoading
+        body: true
             ? TabBarView(
-          children: [
-            ListView.builder(
-              itemCount: _userFollowers.length,
-              itemBuilder: (BuildContext context, int index) {
-                print(_userFollowers);
-                User1 follower = _userFollowers[index];
-                return _buildFollower(follower, index);
+          children: <Widget>[
+            FutureBuilder(
+              future: _listFuture2,
+              builder:(BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if(snapshot.connectionState == ConnectionState.done)
+                {
+
+                  return ListView.builder(
+                    itemCount: _userFollowers.length,
+                    itemBuilder: (BuildContext context, int index) {
+
+                      widget.selectedTab = 0;
+                      User1 following = _userFollowers[index];
+                      return _buildFollower(following, index);
+                    },
+                  );
+                }
+                else {
+                  return (Center(
+                      child: CircularProgressIndicator(
+                          valueColor: new AlwaysStoppedAnimation<Color>(
+                              AppColors.primarypurple))));
+
+                }
               },
             ),
-            RefreshIndicator(
-              onRefresh: ,
-              child: ListView.builder(
-                itemCount: _userFollowing.length,
-                itemBuilder: (BuildContext context, int index) {
-                  print(_userFollowing);
-                  User1 following = _userFollowing[index];
-                  return _buildFollowing(following, index);
-                },
-              ),
+
+            FutureBuilder(
+              future: _listFuture1,
+              builder:(BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if(snapshot.connectionState == ConnectionState.done)
+                {
+                  return ListView.builder(
+                    itemCount: _userFollowing.length,
+                    itemBuilder: (BuildContext context, int index) {
+
+                      User1 following = _userFollowing[index];
+                      return _buildFollowing(following, index);
+                    },
+                  );
+                }
+                else {
+                  return (Center(
+                      child: CircularProgressIndicator(
+                          valueColor: new AlwaysStoppedAnimation<Color>(
+                              AppColors.primarypurple))));
+
+                }
+              },
             ),
           ],
         )
