@@ -122,13 +122,25 @@ class _CreatePost extends State<CreatePost> {
     });
   }
 
-  void _saveData(String imageUrl, String caption) {
+  Future<bool> checkUser()  async {
+    bool privatesc;
+    final firestoreInstance = FirebaseFirestore.instance;
+    var firebaseUser =  FBauth.FirebaseAuth.instance.currentUser;
+    var private = await firestoreInstance.collection("user").doc(firebaseUser.uid).get().then((value){
+      privatesc=value.data()["IsPrivate"];
+    });
+    return privatesc;
+  }
+  // void newfunction ()async{
+  //   print(await checkUser());
+  // }
+  Future<void> _saveData(String imageUrl, String caption) async {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = 0;
     List<String> comments=[];
     print("test");
-
+    bool isprivate = await checkUser();
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
@@ -137,6 +149,7 @@ class _CreatePost extends State<CreatePost> {
       'Likes': num,
       'createdAt': Timestamp.now(),
       'PostUser': id_user,
+      'IsPrivate': isprivate,
     });
   }
 
