@@ -141,6 +141,10 @@ class _CreatePost extends State<CreatePost> {
     List<String> comments=[];
     print("test");
     bool isprivate = await checkUser();
+    if (lat==null||long==null){
+      lat=0;
+      long=0;
+    }
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
