@@ -1,4 +1,4 @@
-import 'package:socialapp310/models/location.dart';
+/*import 'package:socialapp310/models/location.dart';
 import 'package:socialapp310/models/post.dart';
 
 class User {
@@ -272,3 +272,4 @@ User profuser = User(
     ),
   ],
 );
+*/

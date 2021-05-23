@@ -84,7 +84,7 @@ class _TestPostState extends State<HomeFeed> {
         ],
       ),
       body: ListView(
-        children: posts.map((post) => PostCard(post: post)).toList(),
+        //children: posts.map((post) => PostCard(post: post)).toList(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,

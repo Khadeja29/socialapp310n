@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+/*import 'package:flutter/cupertino.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
 import '../../models/post.dart';
@@ -295,3 +295,4 @@ class DetailScreenLink extends StatelessWidget {
     );
   }
 }
+*/
