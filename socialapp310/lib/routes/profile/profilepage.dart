@@ -1,17 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/welcome.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
+
+final followersRef = FirebaseFirestore.instance.collection('followers');
+final followingRef = FirebaseFirestore.instance.collection('following');
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
+
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -21,30 +28,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Variables
   String postOrientation = "grid";
   int _selectedIndex = 4;
-
-
-  //BottomNavBar
-  void _onItemTapped(int index) {
-    setState(() {
-      print(index);
-      _selectedIndex = index;//TODO: if index 0 nothing happens, if index 1 push search page, if index 2 push create page,
-      if (_selectedIndex == 0) {
-        Navigator.pushReplacementNamed(context, '/homefeed');
-      } else if (_selectedIndex == 1) {
-        Navigator.pushReplacementNamed(context, '/search');
-      } else if (_selectedIndex == 3) {
-        Navigator.pushReplacementNamed(context, '/notifications');
-      } else if (_selectedIndex == 4) {
-        Navigator.pushReplacementNamed(context, '/profile');
-      } //TODO: if index 3 push notif page, if index 4 push profile page
-    });
-  }
-  Future<void> _setCurrentScreen() async {
-    await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
-    _setLogEvent();
-    print("SCS : Profile Page succeeded");
-  }
-
+  String UID = UserFxns.currentUserid;
+  bool isFollowing;
+  int followerCount;
+  int followingCount;
   //Analytics
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
@@ -60,7 +47,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     super.initState();
     _setCurrentScreen();
+    checkIfFollowing();
+    getFollowers();
+    getFollowing();
+  }
+  checkIfFollowing() async {
+    DocumentSnapshot doc = await followersRef
+        .doc(UID)
+        .collection('userFollowers')
+        .doc(UserFxns.currentUserid)
+        .get();
+    setState(() {
+      isFollowing = doc.exists;
+    });
+  }
 
+  getFollowers() async {
+    QuerySnapshot snapshot = await followersRef
+        .doc(UID)
+        .collection('userFollowers')
+        .get();
+    setState(() {
+      followerCount = snapshot.docs.length;
+      //print(followerCount);
+    });
+  }
+
+  getFollowing() async {
+    QuerySnapshot snapshot = await followingRef
+        .doc(UID)
+        .collection('userFollowing')
+        .get();
+    setState(() {
+      followingCount = snapshot.docs.length;
+    });
+  }
+
+
+  //BottomNavBar
+  void _onItemTapped(int index) {
+    setState(() {
+      print(index);
+      _selectedIndex = index;//TODO: if index 0 nothing happens, if index 1 push search page, if index 2 push create page,
+      if (_selectedIndex == 0) {
+        Navigator.pushReplacementNamed(context, '/homefeed');
+      }
+      else if (_selectedIndex == 1) {
+        Navigator.pushReplacementNamed(context, '/search');
+      } else if (_selectedIndex == 2) {
+        Navigator.pushReplacementNamed(context,'/uploadpic');}
+      else if (_selectedIndex == 3) {
+        Navigator.pushReplacementNamed(context, '/notifications');
+      } else if (_selectedIndex == 4) {
+        Navigator.pushReplacementNamed(context, '/profile');
+      } //TODO: if index 3 push notif page, if index 4 push profile page
+    });
+  }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Profile Page');
+    _setLogEvent();
+    print("SCS : Profile Page succeeded");
   }
 
   //Get user functions //TODO:replicated use from UserFnx try to remove
@@ -99,9 +145,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Container buildButton({String text, Function function}) {
+    return Container(
+      padding: EdgeInsets.only(top: 2.0),
+      child: FlatButton(
+        onPressed: function,
+        child: Container(
+          width: 200.0,
+          height: 27.0,
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isFollowing ? Colors.black : Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isFollowing ? Colors.white : AppColors.peachpink,
+            border: Border.all(
+              color: isFollowing ? Colors.grey : AppColors.peachpink,
+            ),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+      ),
+    );
+  }
   //Follow/unfollow button and Edit Profile Buttton
   buildProfileButton() {
-    return Text("profile button");
+    // viewing your own profile - should show edit profile button
+    bool isProfileOwner = (UserFxns.currentUserid == UID);
+    if (isProfileOwner) {
+      return buildButton(
+        text: "Edit Profile",
+        function: () {
+          Navigator.pushNamed(context, "/editprofile");
+        },
+      );
+    } else if (isFollowing) {
+      return buildButton(
+        text: "Unfollow",
+        function: (){},
+      );
+    } else if (!isFollowing) {
+      return buildButton(
+        text: "Follow",
+        function: (){},
+      );
+    }
   }
 
   //Main Header Widget: Avatar,following,follower,Post count,Bio,Username,Name
@@ -109,14 +201,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return FutureBuilder(
       future: getUserInfo(),
       builder: (context, snapshot) {
-        Map<String, dynamic> data = snapshot.data.data();
-        if (!snapshot.hasData) {
+
+        if (!(snapshot.connectionState == ConnectionState.done)) {
           return (Center(
               child: CircularProgressIndicator(
                   valueColor: new AlwaysStoppedAnimation<Color>(
                       AppColors.primarypurple))));
         }
         else{
+          Map<String, dynamic> data = snapshot.data.data();
           return Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
@@ -134,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) {
-                          return DetailScreen(
+                          return DetailScreenLink(
                             ImageUrlPost: data["ProfilePic"],
                           );
                         }));
@@ -148,9 +241,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              buildCountColumn("posts", 0),
-                              buildCountColumn("followers", 0),
-                              buildCountColumn("following", 0),
+                              GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, '/userList');
+                                  },
+                                  child: buildCountColumn("posts", 0)),
+                              buildCountColumn("followers", followerCount),
+                              buildCountColumn("following", followingCount),
                             ],
                           ),
                           Row(
@@ -219,21 +316,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => setPostOrientation("grid"),
           icon: Icon(Icons.grid_on),
           color: postOrientation == 'grid'
-              ? Theme.of(context).primaryColor
+              ? AppColors.peachpink
               : Colors.grey,
         ),
         IconButton(
-          onPressed: () => setPostOrientation("grid"),
+          onPressed: () => setPostOrientation("locations"),
           icon: Icon(Icons.add_location),
           color: postOrientation == 'locations'
-              ? Theme.of(context).primaryColor
+              ? AppColors.peachpink
               : Colors.grey,
         ),
         IconButton(
           onPressed: () => setPostOrientation("list"),
           icon: Icon(Icons.list),
           color: postOrientation == 'list'
-              ? Theme.of(context).primaryColor
+              ? AppColors.peachpink
               : Colors.grey,
         ),
       ],
@@ -245,10 +342,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:  AppBar(
-        backgroundColor: AppColors.primarypurple,
+        backgroundColor: AppColors.darkpurple,
         title: Center(
             child: Text('Profile')),
-    ),
+      ),
       body: ListView(
         children: <Widget>[
           //Header Widget Called
@@ -266,14 +363,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: FutureBuilder(
           future: getUserInfo(),
           builder: (context, snapshot) {
-            Map<String, dynamic> data = snapshot.data.data();
-            if (!snapshot.hasData) {
+
+            if (!(snapshot.connectionState == ConnectionState.done)) {
               return (Center(
                   child: CircularProgressIndicator(
                       valueColor: new AlwaysStoppedAnimation<Color>(
                           AppColors.primarypurple))));
             }
             else{
+              Map<String, dynamic> data = snapshot.data.data();
               return ListView(
                 children: <Widget>[
                   UserAccountsDrawerHeader(
@@ -281,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     accountEmail: Text(data["Email"]),//TODO: add email to the firestore database
                     currentAccountPicture: GestureDetector(
                       child: Hero(
-                        tag: '${data["ProfilePic"]}1',
+                        tag: '${data["ProfilePic"]} ',
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(data["ProfilePic"]),
                           radius: 90,
@@ -333,7 +431,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-
                   InkWell(
                     onTap: () {
                       Authentication.signOutWithGoogle(context: context);
@@ -351,15 +448,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               );
             }
-            },
-
+          },
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        iconSize: 30,
+        backgroundColor: AppColors.darkpurple,
+        selectedItemColor: AppColors.peachpink,
+        unselectedItemColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Create"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_border_outlined),
+              label: "Notifications"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
-
 }
-
-
-
-

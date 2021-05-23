@@ -134,7 +134,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return FutureBuilder<DocumentSnapshot>(
       future:_listFuture,
       builder:

@@ -12,7 +12,7 @@ import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
-import 'package:socialapp310/routes/unknownwelcome.dart';
+import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 
@@ -77,6 +77,7 @@ class AppBase extends StatelessWidget {
         '/search' : (context) => Search(analytics: analytics, observer: observer,),
         '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
         '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
+        '/userList' : (context) => userList(analytics: analytics, observer: observer,),
       },
     );
   }
