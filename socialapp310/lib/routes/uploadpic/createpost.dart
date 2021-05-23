@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -24,15 +25,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geocoder/geocoder.dart';
 
+import 'package:socialapp310/main.dart';
+
 class CreatePost extends StatefulWidget {
   final File imageFile;
-  CreatePost({Key key, this.analytics, this.observer, this.imageFile})
+  double lat;
+  double long;
+  String locationname='Press the button to get current location';
+  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _CreatePost createState() => _CreatePost(imageFile);
+  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname);
 }
 
 //Location Functions come here
@@ -40,15 +46,14 @@ class _CreatePost extends State<CreatePost> {
   File imageFile;
   var location_pic;
   var caption;
-
-  _CreatePost(this.imageFile);
-
-  var locationMessage = '';
-  var locationname = 'Press the button to get current location';
+  var locationMessage;
+  String locationname;
   String latitude;
   String longitude;
-  var lat;
-  var long;
+  double lat;
+  double long;
+
+  _CreatePost(this.imageFile,this.lat,this.long,this.locationname);
 
   // function for getting the current location
   // but before that you need to add this permission!
@@ -93,12 +98,12 @@ class _CreatePost extends State<CreatePost> {
     caption = TextEditingController();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    location_pic?.dispose();
-    caption?.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   location_pic?.dispose();
+  //   caption?.dispose();
+  // }
 
   void imageuploader(String caption, File inputimageFile) {
     String imagename = DateTime.now().millisecondsSinceEpoch.toString();
@@ -120,8 +125,10 @@ class _CreatePost extends State<CreatePost> {
   void _saveData(String imageUrl, String caption) {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
-    int num = null;
-    List<String> comments;
+    int num = 0;
+    List<String> comments=[];
+    print("test");
+
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
@@ -135,8 +142,8 @@ class _CreatePost extends State<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context).settings.arguments as PassingValues;
-    print(args.imagefile);
+    //final widget = ModalRoute.of(context).settings.arguments as PassingValues;
+    //print(widget.imagefile);
 
     return Scaffold(
       appBar: AppBar(
@@ -156,7 +163,7 @@ class _CreatePost extends State<CreatePost> {
                   //imageuploader(caption);
                   //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
 
-                  imageuploader(caption, args.imagefile);
+                  imageuploader(caption, widget.imageFile);
                   Navigator.pushNamedAndRemoveUntil(
                       context, '/homefeed', (route) => false);
                 }),
@@ -174,7 +181,7 @@ class _CreatePost extends State<CreatePost> {
                   height: 80.0,
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                          fit: BoxFit.cover, image: FileImage(args.imagefile))),
+                          fit: BoxFit.cover, image: FileImage(widget.imageFile))),
                 ),
               ),
               Expanded(
@@ -228,6 +235,23 @@ class _CreatePost extends State<CreatePost> {
                       )
                     }),
           ),
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+            child: ElevatedButton(
+                child: Row(
+                  children: <Widget>[
+                    Icon(Icons.add_location),
+                    SizedBox(width: 5),
+                    Text('Press button to search location'),
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute<void>(
+                       builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
+                      ),);
+                }
+                ),
+          ),
         ],
       ),
     );
@@ -244,8 +268,8 @@ class _CreatePost extends State<CreatePost> {
   }
 }
 
-class PassingValues {
-  final File imagefile;
-
-  PassingValues(this.imagefile);
-}
+// class PassingValues {
+//   final File imagefile;
+//
+//   PassingValues(this.imagefile);
+// }

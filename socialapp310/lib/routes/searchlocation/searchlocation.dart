@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -8,21 +8,31 @@ import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
+import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geocoder/geocoder.dart';
 
 class SearchLocation extends StatefulWidget {
-  const SearchLocation({Key key, this.analytics, this.observer})
+  const SearchLocation({Key key, this.analytics, this.observer,this.imageFile})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
-
+  final File imageFile;
   @override
-  _SearchLocationState createState() => _SearchLocationState();
+  _SearchLocationState createState() => _SearchLocationState(imageFile);
 }
 
 class _SearchLocationState extends State<SearchLocation> {
+  double lat=0;
+  double long=0;
+  String locationname;
+  String locationMessage;
+  File imageFile;
+  _SearchLocationState(this.imageFile);
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Search Location Page');
     _setLogEvent();
@@ -44,6 +54,21 @@ class _SearchLocationState extends State<SearchLocation> {
   String hintText = 'Search Location';
   ValueChanged<String> onChanged;
 
+  Future<void> locationfinder(String address) async {
+    var locations =  await locationFromAddress(address);
+    print(locations);
+    lat=(locations[0].latitude);
+    long=(locations[0].longitude);
+    final coordinates = new Coordinates(lat, long);
+    var addresses =
+    await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var first = addresses.first;
+    print("${first.featureName} : ${first.addressLine}");
+    locationname = ("${first.featureName} : ${first.addressLine}");
+    Navigator.push(context, MaterialPageRoute<void>(
+      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
+    ),);
+  }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');
     // print(placeName);
@@ -67,6 +92,7 @@ class _SearchLocationState extends State<SearchLocation> {
     //await Future.delayed(Duration(seconds: 1));
     yield await findPlace(place);
   }
+
 
   @override
   void initState() {
@@ -185,18 +211,22 @@ class _SearchLocationState extends State<SearchLocation> {
                             title:
                                 Text(snapshot.data["predictions"][index]["description"]),
                             leading: Icon(Icons.add_location_alt),
+                            onTap:() {
+                              print(snapshot.data["predictions"][index]["description"]);
+                              locationfinder(snapshot.data["predictions"][index]["description"]);
+                            },
                           ),
                           Divider(color: Colors.black)
                         ],
                       ),
-                      // ItemCard(
-                      // product: snapshot.data[index],
-                      // press: () => Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) =>
-                      //           SingleProduct(id: products[index].productId),
-                      //     )),
+                      //ItemCard(
+                       //product: snapshot.data[index],
+                       //press: () => Navigator.push(
+                         // context,
+                           //MaterialPageRoute(
+                             //builder: (context) =>
+                                // SingleProduct(id: products[index].productId),
+                           //)),
                     ),
                   ),
                 );
