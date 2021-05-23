@@ -83,8 +83,8 @@ class _CreatePost extends State<CreatePost> {
   }
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context).settings.arguments as PassingValues;
-    print(args.imagefile);
+    //final args = ModalRoute.of(context).settings.arguments as PassingValues;
+    //print(args.imagefile);
 
     return Scaffold(
       appBar: AppBar(
@@ -100,7 +100,7 @@ class _CreatePost extends State<CreatePost> {
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
 
-                  imageuploader(caption,location_pic,args.imagefile);
+                  imageuploader(caption,location_pic,widget.imageFile);
                   Navigator.pushNamedAndRemoveUntil(context, '/homefeed', (route) => false);
 
                 }),
@@ -119,7 +119,7 @@ class _CreatePost extends State<CreatePost> {
                   decoration: BoxDecoration(
                       image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: FileImage(args.imagefile)
+                          image: FileImage(widget.imageFile)
                       )
                   ),
                 ),

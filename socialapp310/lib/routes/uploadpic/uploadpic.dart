@@ -19,6 +19,8 @@ import 'dart:math';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
+import '../../main.dart';
+
 class Uploadpic extends StatefulWidget {
   const Uploadpic({Key key, this.analytics, this.observer}): super (key: key);
   final FirebaseAnalytics analytics;
@@ -174,7 +176,9 @@ class _Uploadpic extends State<Uploadpic> {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 onPressed: () => {
-                  Navigator.pushNamed(context, '/creatpost', arguments: PassingValues(imageFile))
+                Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, imageFile:imageFile ),
+                ),)
 
                 },
               ),

@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
+import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/services/UserFxns.dart';
@@ -13,13 +15,16 @@ import 'package:socialapp310/utils/color.dart';
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
+final usersRef = FirebaseFirestore.instance.collection('user');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
+
   final String UID;
   final int index;
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -29,10 +34,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Variables
   String postOrientation = "grid";
   int _selectedIndex = 4;
+
   String UID;
   User currentUser = FirebaseAuth.instance.currentUser;
   String username;
-  bool isFollowing;
+  bool isFollowing = true;
   int followerCount;
   int followingCount;
   //Analytics
@@ -44,11 +50,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
     );
   }
+
   Future<DocumentSnapshot> _listFuture;
+
   //init State
   void initState() {
 
     super.initState();
+
     if(widget.UID != null)
     {
       UID = widget.UID;
@@ -56,11 +65,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     else {
       UID = currentUser.uid;
     }
+
     _setCurrentScreen();
     checkIfFollowing();
     getFollowers();
     getFollowing();
+
     _listFuture = getUserInfo();
+
   }
   checkIfFollowing() async {
     DocumentSnapshot doc = await followersRef
@@ -72,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isFollowing = doc.exists;
     });
   }
+
   int currentindex() {
     if(widget.index != null)
     {return widget.index;}
@@ -85,9 +98,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     setState(() {
       followerCount = snapshot.docs.length;
-      print(followerCount);
+      //print(followerCount);
     });
   }
+
 
   getFollowing() async {
     QuerySnapshot snapshot = await followingRef
@@ -158,11 +172,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (_selectedIndex == 0) {
         Navigator.pushReplacementNamed(context, '/homefeed');
       }
-        else if (_selectedIndex == 1) {
+      else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
         Navigator.pushReplacementNamed(context,'/uploadpic');}
-        else if (_selectedIndex == 3) {
+      else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {
         Navigator.pushReplacementNamed(context, '/profile');
@@ -251,6 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Follow/unfollow button and Edit Profile Buttton
   buildProfileButton() {
     // viewing your own profile - should show edit profile button
+
     bool isProfileOwner = (currentUser.uid == UID);
     if (isProfileOwner) {
       return buildButton(
@@ -263,11 +278,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return buildButton(
         text: "Unfollow",
         function: (){handleUnfollowUser();},
+
       );
     } else if (!isFollowing) {
       return buildButton(
         text: "Follow",
         function: (){handleFollowUser();},
+
       );
     }
   }
@@ -277,7 +294,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return FutureBuilder(
       future: _listFuture,
       builder: (context, snapshot) {
-
+        print(snapshot.connectionState);
         if (!(snapshot.connectionState == ConnectionState.done)) {
           return (Center(
               child: CircularProgressIndicator(
@@ -318,8 +335,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
                               buildCountColumn("posts", 0),
-                              buildCountColumn("followers", followerCount),
-                              buildCountColumn("following", followingCount),
+
+                              GestureDetector(
+                                  onTap: () => {
+                                    Navigator.push(context, MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>  userList(
+
+                                        analytics: AppBase.analytics,
+                                        observer: AppBase.observer,
+                                        userID: widget.UID == null ? currentUser.uid : widget.UID,
+                                        userName: data['Username'],
+                                        navBarIndex: currentindex(),
+                                        currentUserId: currentUser.uid,
+                                        followersCount: followerCount,
+                                        followingCount: followingCount, selectedTab: 0,
+                                        updateFollowersCount: (count) {
+                                          setState(() => followerCount = count);
+                                        },
+                                        updateFollowingCount: (count) {
+                                          setState(() => followingCount = count);
+                                        },
+
+
+                                      ),
+                                    ),)
+                                  },
+                                  child: buildCountColumn("followers", followerCount)
+                              ),
+                              GestureDetector(
+                                  onTap: () => {
+                                    Navigator.push(context, MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>  userList(
+                                        analytics: AppBase.analytics,
+                                        observer: AppBase.observer,
+                                        userID: widget.UID == null ? currentUser.uid : widget.UID,
+                                        userName: data['Username'],
+                                        navBarIndex: currentindex(),
+                                        currentUserId: currentUser.uid,
+                                        followersCount: followerCount,
+                                        followingCount: followingCount,
+                                        selectedTab: 1,
+                                        updateFollowersCount: (count) {
+                                          setState(() => followerCount = count);
+                                        },
+                                        updateFollowingCount: (count) {
+                                          setState(() => followingCount = count);
+                                        },
+                                      ),
+                                    ),)
+                                  },
+                                  child: buildCountColumn("following", followingCount)
+                              ),
                             ],
                           ),
                           Row(
@@ -415,13 +481,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
     return Scaffold(
-      appBar:  AppBar(
-        backgroundColor: AppColors.darkpurple,
-        title:  Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(child: Text('Profile')),
-        )
+      appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: AppColors.darkpurple,
+          title:  Padding(
+            padding: const EdgeInsets.all(8.0),
+            child:  Text('Profile'),
+          )
       ),
+
       body: ListView(
         children: <Widget>[
           //Header Widget Called

@@ -307,6 +307,7 @@ class _SearchState extends State<Search> {
         }
         else if (snapshot.hasData) {
         List<User1> searchResults = [];
+        //print(snapshot.data.docs[0]['Username']);
         snapshot.data.docs.forEach((doc) {
 
           User1 user = User1(
