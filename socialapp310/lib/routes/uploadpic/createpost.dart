@@ -18,6 +18,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 class CreatePost extends StatefulWidget {
   final File imageFile;
@@ -50,11 +52,11 @@ class _CreatePost extends State<CreatePost> {
     caption?.dispose();
   }
 
-  void imageuploader(String caption, String Location_pic){
+  void imageuploader(String caption, String Location_pic,File imagefile){
     String imagename = DateTime.now().millisecondsSinceEpoch.toString();
     final Reference storageReference = FirebaseStorage.instance.ref()
         .child(imagename);
-    final UploadTask uploadTask =  storageReference.putFile(imageFile);
+    final UploadTask uploadTask =  storageReference.putFile(imagefile);
     uploadTask.then((TaskSnapshot taskSnapshot) {
       taskSnapshot.ref.getDownloadURL().then((imageUrl){
         //save info to firestore
@@ -81,6 +83,9 @@ class _CreatePost extends State<CreatePost> {
   }
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context).settings.arguments as PassingValues;
+    print(args.imagefile);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('New Post',
@@ -94,8 +99,10 @@ class _CreatePost extends State<CreatePost> {
                 child: Text('Share',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
-                  imageuploader(caption,location_pic);
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
+
+                  imageuploader(caption,location_pic,args.imagefile);
+                  Navigator.pushNamedAndRemoveUntil(context, '/homefeed', (route) => false);
+
                 }),
           )
         ],
@@ -112,7 +119,7 @@ class _CreatePost extends State<CreatePost> {
                   decoration: BoxDecoration(
                       image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: FileImage(widget.imageFile)
+                          image: FileImage(args.imagefile)
                       )
                   ),
                 ),
@@ -168,3 +175,10 @@ class _CreatePost extends State<CreatePost> {
     _setCurrentScreen();
   }
 }
+
+
+class PassingValues {
+  final File imagefile;
+  PassingValues(this.imagefile);
+}
+

@@ -5,19 +5,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
+import 'package:socialapp310/routes/profile/userList.dart';
+import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
+final usersRef = FirebaseFirestore.instance.collection('user');
+
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key key, this.analytics, this.observer}): super (key: key);
+  ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
+  final String UID;
+  final int index;
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -28,7 +35,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Variables
   String postOrientation = "grid";
   int _selectedIndex = 4;
-  String UID = UserFxns.currentUserid;
+
+  String UID;
+  User currentUser = FirebaseAuth.instance.currentUser;
+  String username;
   bool isFollowing;
   int followerCount;
   int followingCount;
@@ -42,27 +52,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<DocumentSnapshot> _listFuture;
+
   //init State
   void initState() {
 
     super.initState();
+
+    if(widget.UID != null)
+    {
+      UID = widget.UID;
+    }
+    else {
+      UID = currentUser.uid;
+    }
+
     _setCurrentScreen();
     checkIfFollowing();
     getFollowers();
     getFollowing();
+
+    _listFuture = getUserInfo();
+
   }
   checkIfFollowing() async {
     DocumentSnapshot doc = await followersRef
         .doc(UID)
         .collection('userFollowers')
-        .doc(UserFxns.currentUserid)
+        .doc(currentUser.uid)
         .get();
     setState(() {
       isFollowing = doc.exists;
     });
   }
 
+  int currentindex() {
+    if(widget.index != null)
+    {return widget.index;}
+    else {return 4;}
+  }
   getFollowers() async {
+    print(UID);
     QuerySnapshot snapshot = await followersRef
         .doc(UID)
         .collection('userFollowers')
@@ -73,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+
   getFollowing() async {
     QuerySnapshot snapshot = await followingRef
         .doc(UID)
@@ -80,10 +111,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     setState(() {
       followingCount = snapshot.docs.length;
+      print(followingCount);
     });
   }
 
+  handleUnfollowUser() {
+    setState(() {
+      isFollowing = false;
+      followerCount--;
+    });
+    // remove follower
+    followersRef
+        .doc(widget.UID)
+        .collection('userFollowers')
+        .doc(currentUser.uid)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // remove following
+    followingRef
+        .doc(currentUser.uid)
+        .collection('userFollowing')
+        .doc(widget.UID)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
 
+  }
+
+  handleFollowUser() {
+    setState(() {
+      isFollowing = true;
+      followerCount++;
+    });
+    // Make auth user follower of THAT user (update THEIR followers collection)
+    followersRef
+        .doc(widget.UID)
+        .collection('userFollowers')
+        .doc(currentUser.uid)
+        .set({});
+    // Put THAT user on YOUR following collection (update your following collection)
+    followingRef
+        .doc(currentUser.uid)
+        .collection('userFollowing')
+        .doc(widget.UID)
+        .set({});
+    // add activity feed item for that user to notify about new follower (us)
+
+  }
   //BottomNavBar
   void _onItemTapped(int index) {
     setState(() {
@@ -92,11 +173,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (_selectedIndex == 0) {
         Navigator.pushReplacementNamed(context, '/homefeed');
       }
-      else if (_selectedIndex == 1) {
+        else if (_selectedIndex == 1) {
         Navigator.pushReplacementNamed(context, '/search');
       } else if (_selectedIndex == 2) {
         Navigator.pushReplacementNamed(context,'/uploadpic');}
-      else if (_selectedIndex == 3) {
+        else if (_selectedIndex == 3) {
         Navigator.pushReplacementNamed(context, '/notifications');
       } else if (_selectedIndex == 4) {
         Navigator.pushReplacementNamed(context, '/profile');
@@ -114,9 +195,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<DocumentSnapshot> getUserInfo() {
 
     FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
+    print("this is where");
+    //final args = ModalRoute.of(context).settings.arguments as PassingUID;
+    //UID = args.UID;
+    if(widget.UID != null)
+    {
+      UID = widget.UID;
+    }
+    else {
+      UID = currentUser.uid;
+    }
     CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
     return usersCollection
-        .doc(currentFB.uid)
+        .doc(UID)
         .get();
   }
 
@@ -175,7 +266,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Follow/unfollow button and Edit Profile Buttton
   buildProfileButton() {
     // viewing your own profile - should show edit profile button
-    bool isProfileOwner = (UserFxns.currentUserid == UID);
+
+    bool isProfileOwner = (currentUser.uid == UID);
     if (isProfileOwner) {
       return buildButton(
         text: "Edit Profile",
@@ -186,12 +278,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } else if (isFollowing) {
       return buildButton(
         text: "Unfollow",
-        function: (){},
+        function: (){handleUnfollowUser();},
+
       );
     } else if (!isFollowing) {
       return buildButton(
         text: "Follow",
-        function: (){},
+        function: (){handleFollowUser();},
+
       );
     }
   }
@@ -199,9 +293,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Main Header Widget: Avatar,following,follower,Post count,Bio,Username,Name
   buildProfileHeader() {
     return FutureBuilder(
-      future: getUserInfo(),
+      future: _listFuture,
       builder: (context, snapshot) {
-
+        print(snapshot.connectionState);
         if (!(snapshot.connectionState == ConnectionState.done)) {
           return (Center(
               child: CircularProgressIndicator(
@@ -241,13 +335,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
+                              buildCountColumn("posts", 0),
+
                               GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, '/userList');
+                                  onTap: () => {
+                                    Navigator.push(context, MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>  userList(
+
+                                          analytics: AppBase.analytics,
+                                          observer: AppBase.observer,
+                                          userID: widget.UID,
+                                        userName: data['Username'],
+                                          navBarIndex: currentindex(),
+                                          currentUserId: currentUser.uid,
+                                          followersCount: followerCount,
+                                          followingCount: followingCount, selectedTab: 0,
+
+                                      ),
+                                    ),)
                                   },
-                                  child: buildCountColumn("posts", 0)),
-                              buildCountColumn("followers", followerCount),
-                              buildCountColumn("following", followingCount),
+                                  child: buildCountColumn("followers", followerCount)
+                              ),
+                              GestureDetector(
+                                  onTap: () => {
+                                    Navigator.push(context, MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>  userList(
+                                        analytics: AppBase.analytics,
+                                        observer: AppBase.observer,
+                                        userID: widget.UID,
+                                        userName: data['Username'],
+                                        currentUserId: currentUser.uid,
+                                        followersCount: followerCount,
+                                        followingCount: followingCount,
+                                        selectedTab: 1,
+                                      ),
+                                    ),)
+                                  },
+                                  child: buildCountColumn("following", followingCount)
+                              ),
                             ],
                           ),
                           Row(
@@ -340,12 +465,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Main Page function
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
-      appBar:  AppBar(
-        backgroundColor: AppColors.darkpurple,
-        title: Center(
-            child: Text('Profile')),
+      appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: AppColors.darkpurple,
+          title:  Padding(
+            padding: const EdgeInsets.all(8.0),
+            child:  Text('Profile'),
+          )
       ),
+
       body: ListView(
         children: <Widget>[
           //Header Widget Called
@@ -359,9 +490,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       // DRAWER
-      endDrawer: Drawer(
+      endDrawer: widget.UID == null ? Drawer(
         child: FutureBuilder(
-          future: getUserInfo(),
+          future: _listFuture,
           builder: (context, snapshot) {
 
             if (!(snapshot.connectionState == ConnectionState.done)) {
@@ -450,7 +581,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
           },
         ),
-      ),
+      ) : null,
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         backgroundColor: AppColors.darkpurple,
@@ -469,7 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: "Notifications"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: currentindex(),
         onTap: _onItemTapped,
       ),
     );

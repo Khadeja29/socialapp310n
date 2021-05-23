@@ -216,32 +216,35 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: _isSigningIn
-          ? CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-      )
-          : OutlinedButton(
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.white),
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(40),
+    return Container(
+      height: 60.0,
+      width: 400.0,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 6.0),
+        child: _isSigningIn
+            ? CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+        )
+            : OutlinedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.white),
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
             ),
           ),
-        ),
-        onPressed: () async {
-          setState(() {
-            _isSigningIn = true;
-          });
+          onPressed: () async {
+            setState(() {
+              _isSigningIn = true;
+            });
 
-          User user =
-          await Authentication.signInWithGoogle(context: context);
+            User user =
+            await Authentication.signInWithGoogle(context: context);
 
-          setState(() {
-            _isSigningIn = false;
-          });
+            setState(() {
+              _isSigningIn = false;
+            });
 
           if (user != null) {
             //TODO: take user id and check if it exists in firestore
@@ -253,27 +256,27 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
             else {Navigator.of(context).pushNamedAndRemoveUntil('/signupfinishgoogle', (route) => false);}
           }
 
-          setState(() {
-            _isSigningIn = false;
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            setState(() {
+              _isSigningIn = false;
+            });
+          },
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Image(
                 image: AssetImage("assets/images/googlelogo.png"),
-                height: 35.0,
+                height: 20.0,
+                width: 20,
+                  fit:BoxFit.contain,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: Text(
                   'Sign in with Google',
                   style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black54,
+                    fontSize: 16,
+                    color: AppColors.darkpurple,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
