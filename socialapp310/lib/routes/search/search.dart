@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -13,6 +15,7 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
+import 'package:http/http.dart' as http;
 
 final usersRef = FirebaseFirestore.instance.collection('user');
 final postsRef = FirebaseFirestore.instance.collection('Post');
@@ -59,6 +62,10 @@ class _SearchState extends State<Search> {
         .get();
     Future<QuerySnapshot> posts = postsRef
         .orderBy("Caption")
+        .where("Caption", isNotEqualTo: "")
+        .get();
+    Future<QuerySnapshot> locations = postsRef
+        .orderBy("Location")
         .where("Caption", isNotEqualTo: "")
         .get();
     setState(() {
@@ -328,8 +335,135 @@ class _SearchState extends State<Search> {
   }
 
   Widget locationSearchDisplay() {
-    return Text("hello location");
-  }
+    print(choiceIdx);
+    if (searchResultsCaptionFuture == null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              child: Image(
+                image: AssetImage('assets/images/logo_woof.png'),
+                height: 200,
+                width: 200,
+              ),
+            ),
+          ),
+          //Text("No users were found",),
+        ],
+      );
+    } else {
+      return FutureBuilder(
+          future: searchResultsCaptionFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(
+                  'There was an error :('
+              );
+            }
+            else if (snapshot.hasData) {
+              List<Post> searchResultsPosts = [];
+              snapshot.data.docs.forEach((doc) {
+                String cap = doc['Caption'];
+                print("here");
+                print(queryY);
+                if(cap.contains(queryY) || cap.contains(queryY.toLowerCase()) ||  cap.contains(queryY.toUpperCase())){
+                  print("cont" + cap);
+                  Post post = Post(
+                    userId: doc['PostUser'],
+                    ImageUrlPost: doc['Image'],
+                    caption: doc['Caption'],
+                    likes: doc['Likes'],
+                    comment: doc['Comment'],
+                    location: doc['Location'],
+                    createdAt: doc['createdAt'],);
+
+                  if (post.userId != currentFB.uid) {
+                    //TODO: add isPublic attribute to post class
+                    searchResultsPosts.add(post);
+                  } else {
+                    print(post.userId);
+                  }
+                }
+              });
+              int pNum = 0;
+
+              if (searchResultsPosts != null)
+                pNum = searchResultsPosts.length;
+              if (pNum > 0) {
+                return SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      StaggeredGridView.countBuilder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        crossAxisCount: 3,
+                        itemCount: pNum,
+                        staggeredTileBuilder: (index) =>
+                            StaggeredTile.count(1, 1),
+                        itemBuilder: (context, index) {
+                          if (searchResultsPosts
+                              .elementAt(index)
+                              .caption != null) {
+                            return Container(
+                              padding: EdgeInsets.all(1),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: InkWell(
+                                onTap:(){ _showMyDialog("To do: path to this post should be added");},
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(0),
+                                  child: Image.network(
+                                    searchResultsPosts
+                                        .elementAt(index)
+                                        .ImageUrlPost,
+                                    fit: BoxFit.cover,
+
+                                  ),
+                                  /*Text( (searchResultsPosts
+                                            .elementAt(index).caption.length < 15) ? searchResultsPosts
+                                            .elementAt(index).caption.substring(0,searchResultsPosts
+                                            .elementAt(index).caption.length-1 )+"..." : searchResultsPosts
+                                            .elementAt(index).caption.substring(0, 3)+"...",
+                                        textAlign: TextAlign.left,)*/
+                                ),
+                              ),
+                            );
+                          } else
+                            return Container();
+                        },
+                        crossAxisSpacing: 2,
+                        mainAxisSpacing: 2,
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      child:
+                      Text("No Posts were found!"),
+                    ),
+                  ],
+                );
+              }
+            } else {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(child: CircularProgressIndicator(),
+                    height: 20,
+                    width: 20,),
+                ],
+              );
+            }
+          }
+      );
+    }  }
 
   Widget postsSearchDisplay() {
    print(choiceIdx);
@@ -404,7 +538,7 @@ class _SearchState extends State<Search> {
                               .elementAt(index)
                               .caption != null) {
                             return Container(
-                              padding: EdgeInsets.all(0),
+                              padding: EdgeInsets.all(1),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -412,15 +546,20 @@ class _SearchState extends State<Search> {
                                 onTap:(){ _showMyDialog("To do: path to this post should be added");},
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(0),
-                                  child:
-                                  Image.network(
-                                    searchResultsPosts
-                                        .elementAt(index)
-                                        .ImageUrlPost,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  
-                                ),
+                                      child: Image.network(
+                                        searchResultsPosts
+                                            .elementAt(index)
+                                            .ImageUrlPost,
+                                        fit: BoxFit.cover,
+
+                                      ),
+                                        /*Text( (searchResultsPosts
+                                            .elementAt(index).caption.length < 15) ? searchResultsPosts
+                                            .elementAt(index).caption.substring(0,searchResultsPosts
+                                            .elementAt(index).caption.length-1 )+"..." : searchResultsPosts
+                                            .elementAt(index).caption.substring(0, 3)+"...",
+                                        textAlign: TextAlign.left,)*/
+                                    ),
                               ),
                             );
                           } else
