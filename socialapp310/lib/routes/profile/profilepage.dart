@@ -416,11 +416,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar:  AppBar(
-          backgroundColor: AppColors.darkpurple,
-          title:  Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(child: Text('Profile')),
-          )
+        backgroundColor: AppColors.darkpurple,
+        title:  Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(child: Text('Profile')),
+        )
       ),
       body: ListView(
         children: <Widget>[

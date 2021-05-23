@@ -71,6 +71,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void initState() {
     super.initState();
+
+    // Authentication.signOutWithGoogle(context: context);
+    // FirebaseAuth.instance.signOut().then((value) {
+    //   Navigator.pushReplacementNamed(context, '/welcome');
+    // });
     _setCurrentScreen();
     auth.authStateChanges().listen((User user)  {//firebase user class clashes with the user class we have defined
       if(user == null) {
@@ -83,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
         print(auth.currentUser);
         print('User is signed in');
         signedin = true;
-        }
+      }
     });
     Timer(Duration(seconds: 4), () => checkFirstSeen()); //TODO:ADD CONTEXT TO ONBOARDING SCREENS
 

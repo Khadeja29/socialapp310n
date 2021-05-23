@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:socialapp310/utils/color.dart';
 
-class InstaAppBar extends StatelessWidget implements PreferredSizeWidget {
+class InstaHeader extends StatelessWidget implements PreferredSizeWidget {
   final double height;
   final bool isProfileScreen;
+
   final Widget leading;
   final Widget center;
   final Widget profileStats;
+  final Widget ConnectionButton;
   final Widget bio;
   final Widget tabbar;
   final Widget trailing;
@@ -14,12 +16,13 @@ class InstaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color backgroundColor;
 
 
-  const InstaAppBar({
+  const InstaHeader({
     Key key,
     @required this.height,
     this.leading,
     @required this.center,
     @required this.profileStats,
+    @required this.ConnectionButton,
     @required this.bio,
     @required this.tabbar,
     this.trailing,
@@ -69,6 +72,7 @@ class InstaAppBar extends StatelessWidget implements PreferredSizeWidget {
             ],
           ),
           profileStats,
+          ConnectionButton, //TODO: widget button here visibility logic for other users
           bio,
           tabbar,
         ],

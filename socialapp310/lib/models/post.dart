@@ -3,6 +3,7 @@ import 'package:socialapp310/models/location.dart';
 
 class Post {
   String userId;
+  String username;
   String ImageUrlPost;
   String caption;
   int likes;
@@ -11,7 +12,7 @@ class Post {
   dynamic createdAt;
 
   Post(
-      {
+      {this.username,
         this.userId,
         this.ImageUrlPost,
         this.caption,

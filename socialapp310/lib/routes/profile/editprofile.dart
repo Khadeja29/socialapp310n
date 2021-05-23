@@ -312,8 +312,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             onChanged: (value) {
                               setState(() {
 
-                                  priv = !priv;
-                                  print( priv ^ private);
+                                priv = !priv;
+                                print( priv ^ private);
                               });
                             },
                           ),
@@ -350,7 +350,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 {
                                   UserFxns.UpdateProfilePic(ProfilePic);
                                   UserFxns.UpdateUserInfo( Bio:bio, FullName: fullname ,UserName:username, IsPriv: priv ^ private);
-                                  Navigator.pop(context);
+                                  Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
                                 }
                                 else{
                                   showAlertDialog("Error", "UserName is taken");

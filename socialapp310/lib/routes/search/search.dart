@@ -3,8 +3,10 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/models/user1.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -29,8 +31,8 @@ class _SearchState extends State<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture, searchResultsCaptionFuture,
       searchResultsLocationFuture;
+  String query = '', queryY = '';
   int choiceIdx;
-  String query = '';
 
 
   _SearchState();
@@ -55,25 +57,18 @@ class _SearchState extends State<Search> {
         .orderBy("Username")
         .where("Username", isGreaterThanOrEqualTo: query.toLowerCase())
         .get();
-    setState(() {
-      searchResultsFuture = users;
-    });
-  }
-
-  handleCaptionSearch(String query) {
     Future<QuerySnapshot> posts = postsRef
         .orderBy("Caption")
-        .where("Caption", isEqualTo: '%$query%')
+        .where("Caption", isNotEqualTo: "")
         .get();
     setState(() {
       searchResultsCaptionFuture = posts;
+      searchResultsFuture = users;
+      queryY = query;
     });
   }
 
 
-  clearSearch() {
-    searchController.clear();
-  }
 
   @override
   void initState() {
@@ -125,7 +120,6 @@ class _SearchState extends State<Search> {
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: new Tab(
                       text: choice.title,
-
                       //icon: Icon(choice.icon),
                     ),
                   );
@@ -135,57 +129,6 @@ class _SearchState extends State<Search> {
           ),
         ),
       ),
-    );
-  }
-
-  Container buildNoContent() {
-    final Orientation orientation = MediaQuery
-        .of(context)
-        .orientation;
-    return Container(
-      child: Center(
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            Icon(
-              Icons.search,
-            ),
-            Text(
-              "Find Users",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w600,
-                fontSize: 60.0,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  buildSearchResults() {
-    return FutureBuilder(
-      future: searchResultsFuture,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return SizedBox(
-            child: CircularProgressIndicator(),
-            height: 20.0,
-            width: 20.0,
-          );
-        }
-        List<Text> searchResults = [];
-        snapshot.data.docs.forEach((doc) {
-          //FBauth.User user = FBauth.User;
-          searchResults.add(Text(doc['Username']));
-        });
-        return ListView(
-          children: searchResults,
-        );
-      },
     );
   }
 
@@ -225,7 +168,7 @@ class _SearchState extends State<Search> {
           child: Scaffold(
             appBar: buildSearchField(),
             body: TabBarView(children: [
-              userSearchDisplay(),
+               userSearchDisplay(),
               locationSearchDisplay(),
               postsSearchDisplay(),
             ]),
@@ -268,12 +211,13 @@ class _SearchState extends State<Search> {
                 width: 60,
                 height: 60,
               ),
-
-              title: Text(user.username),
-              subtitle: Text(user.fullName),
-              onTap: () =>
-                  _showMyDialog(
-                      "Todo: Path to this user's page should be added")
+            title: Text(user.username),
+            subtitle: Text(user.fullName),
+            onTap: () => {
+              Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: user.UID, index: 1),
+              ),)
+            }
           ),
         ),
       );
@@ -319,30 +263,32 @@ class _SearchState extends State<Search> {
     }
     else {
       return FutureBuilder(
-          future: searchResultsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text(
-                  'There was an error :('
-              );
-            }
-            else if (snapshot.hasData) {
-              List<User1> searchResults = [];
-              snapshot.data.docs.forEach((doc) {
-                User1 user = User1(username: doc['Username'],
-                    email: doc['Email'],
-                    fullName: doc['FullName'],
-                    isPrivate: doc['IsPrivate'],
-                    isDeactivated: doc['isDeactivated'],
-                    bio: doc['Bio'],
-                    ProfilePic: doc['ProfilePic']);
+      future: searchResultsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text(
+              'There was an error :('
+          );
+        }
+        else if (snapshot.hasData) {
+        List<User1> searchResults = [];
+        snapshot.data.docs.forEach((doc) {
+          User1 user = User1(
+            UID: doc.id,
+            username: doc['Username'],
+            email: doc['Email'],
+            fullName: doc['FullName'],
+            isPrivate: doc['IsPrivate'],
+            isDeactivated: doc['isDeactivated'],
+            bio: doc['Bio'],
+            ProfilePic: doc['ProfilePic']);
 
-                if (user.email != currentFB.email) {
-                  searchResults.add(user);
-                } else {
-                  print(user.email);
-                }
-              });
+          if(user.email != currentFB.email){
+            searchResults.add(user);
+          }else{
+            print(user.email);
+          }
+        });
               int len = 0;
 
               if (searchResults != null)
@@ -353,21 +299,28 @@ class _SearchState extends State<Search> {
                   // ignore: missing_return
                   itemBuilder: (context, index) {
                     //final choiceIdx = choice.index;
-                    if (choiceIdx == 0) {
-                      if (searchResults[index]
+                    if (searchResults[index]
                           .username != null) {
                         final product = searchResults[index];
+                        print("now");
+
                         return buildProductUser(
                             product); // buildProductUser(product);
                       } else
                         return Text("no username");
-                    }
                   },
                 );
               } else
                 return Text("No users were found!");
             } else {
-              return CircularProgressIndicator();
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(child: CircularProgressIndicator(),
+                    height: 20,
+                    width: 20,),
+                ],
+              );
             }
           }
       );
@@ -375,48 +328,10 @@ class _SearchState extends State<Search> {
   }
 
   Widget locationSearchDisplay() {
-    return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          /*StaggeredGridView.countBuilder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            crossAxisCount: 3,
-            itemCount: searchResultsFuture.length,
-            staggeredTileBuilder: (index) => StaggeredTile.count(1, 1),
-            itemBuilder: (context, index) {
-              if (searchResultsFuture
-                  .elementAt(index)
-                  .loc
-                  .loc_name
-                  .toLowerCase()
-                  .contains(query.toLowerCase())) {
-                return Container(
-                  padding: EdgeInsets.all(0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image(
-                      fit: BoxFit.cover,
-                      image:
-                      AssetImage(searchResultsFuture.elementAt(index).ImageUrlPost),
-                    ),
-                  ),
-                );
-              } else
-                return Container();
-            },
-            crossAxisSpacing: 2,
-            mainAxisSpacing: 2,
-          ),*/
-        ],
-      ),
-    );
   }
 
   Widget postsSearchDisplay() {
+    print(choiceIdx);
     if (searchResultsCaptionFuture == null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -446,20 +361,26 @@ class _SearchState extends State<Search> {
             else if (snapshot.hasData) {
               List<Post> searchResultsPosts = [];
               snapshot.data.docs.forEach((doc) {
-                Post post = Post(
-                  userId: doc['PostUser'],
-                  ImageUrlPost: doc['Image'],
-                  caption: doc['Caption'],
-                  likes: doc['Likes'],
-                  comment: doc['Comment'],
-                  location: doc['Location'],
-                  createdAt: doc['createdAt'],);
+                String cap = doc['Caption'];
+                print("here");
+                print(queryY);
+                if(cap.contains(queryY) || cap.contains(queryY.toLowerCase()) ||  cap.contains(queryY.toUpperCase())){
+                  print("cont" + cap);
+                  Post post = Post(
+                    userId: doc['PostUser'],
+                    ImageUrlPost: doc['Image'],
+                    caption: doc['Caption'],
+                    likes: doc['Likes'],
+                    comment: doc['Comment'],
+                    location: doc['Location'],
+                    createdAt: doc['createdAt'],);
 
-                if (post.userId != currentFB.uid) {
-                  //TODO: add isPublic attribute to post class
-                  searchResultsPosts.add(post);
-                } else {
-                  print(post.userId);
+                  if (post.userId != currentFB.uid) {
+                    //TODO: add isPublic attribute to post class
+                    searchResultsPosts.add(post);
+                  } else {
+                    print(post.userId);
+                  }
                 }
               });
               int pNum = 0;
@@ -488,13 +409,14 @@ class _SearchState extends State<Search> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(0),
-                                child: Image(
-                                  fit: BoxFit.cover,
-                                  image:
-                                  AssetImage(searchResultsPosts
-                                      .elementAt(index)
-                                      .ImageUrlPost),
-                                ),
+                                child:
+                                  Image.network(
+                                    searchResultsPosts
+                                        .elementAt(index)
+                                        .ImageUrlPost,
+                                    fit: BoxFit.cover,
+                                    ),
+
                               ),
                             );
                           } else
@@ -507,10 +429,25 @@ class _SearchState extends State<Search> {
                   ),
                 );
               } else {
-                return Text("No Posts were found!");
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      child:
+                      Text("No Posts were found!"),
+                    ),
+                  ],
+                );
               }
             } else {
-              return CircularProgressIndicator();
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(child: CircularProgressIndicator(),
+                    height: 20,
+                    width: 20,),
+                ],
+              );
             }
           }
       );
@@ -522,4 +459,9 @@ class UserResult extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text("User Result");
   }
+}
+
+class PassingUID {
+  final String UID;
+  PassingUID(this.UID);
 }

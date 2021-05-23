@@ -179,8 +179,6 @@ class _CreatePost extends State<CreatePost> {
 
 class PassingValues {
   final File imagefile;
-
-
   PassingValues(this.imagefile);
 }
 

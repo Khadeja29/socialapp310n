@@ -1,4 +1,4 @@
-/*import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
 import '../../models/post.dart';
@@ -31,7 +31,7 @@ class _PostCardState extends State<PostCard> {
                   Expanded(
                     flex: 1,
                     child: CircleAvatar(
-                      backgroundImage: AssetImage(widget.post.ImageUrlAvatar),
+                      backgroundImage: AssetImage('assets/images/logo_woof.png'),//widget.post.ImageUrlAvatar),
                       radius: 30,
                     ),
                   ),
@@ -70,7 +70,7 @@ class _PostCardState extends State<PostCard> {
                             ),
                             RichText(
                               text: TextSpan(
-                                text: "${widget.post.loc.loc_name}",//loc => lat and long
+                                text: "${widget.post.location}",//loc => lat and long
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () => print(
                                       'Click on location'), //TODO: Push user profile
@@ -143,7 +143,7 @@ class _PostCardState extends State<PostCard> {
                             width: 10,
                           ),
                           Text(
-                            "${widget.post.comments} comments",
+                            "${widget.post.comment} comments",
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
@@ -294,5 +294,5 @@ class DetailScreenLink extends StatelessWidget {
       },
     );
   }
+
 }
-*/
