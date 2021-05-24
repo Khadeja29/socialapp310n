@@ -33,7 +33,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "edu.sabanciuniv.socialapp310"
-        minSdkVersion 21
+        minSdkVersion 28
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -62,7 +62,13 @@ android {
         }
         debug{
             signingConfig signingConfigs.lecture
+<<<<<<< HEAD
             //signingConfig signingConfigs.prepro
+=======
+
+            //signingConfig signingConfigs.prepro
+
+>>>>>>> 1059cd234dd9295e0d09a1a97dd214864521e92c
         }
     }
 }

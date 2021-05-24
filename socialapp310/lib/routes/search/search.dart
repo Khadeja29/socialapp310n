@@ -60,14 +60,15 @@ class _SearchState extends State<Search> {
         .orderBy("Username")
         .where("Username", isGreaterThanOrEqualTo: query.toLowerCase())
         .get();
+    print("hello");
     Future<QuerySnapshot> posts = postsRef
         .orderBy("Caption")
         .where("Caption", isNotEqualTo: "")
         .get();
-    Future<QuerySnapshot> locations = postsRef
+    /*Future<QuerySnapshot> locations = postsRef
         .orderBy("Location")
         .where("Caption", isNotEqualTo: "")
-        .get();
+        .get();*/
     setState(() {
       searchResultsCaptionFuture = posts;
       searchResultsFuture = users;
