@@ -2,7 +2,6 @@ import 'package:socialapp310/models/location.dart';
 
 class Post {
   String username;
-
   location loc;
   String ImageUrlAvatar;
   String ImageUrlPost;

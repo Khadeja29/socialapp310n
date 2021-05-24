@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -19,25 +20,40 @@ class SettingsUI extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Setting UI",
-      home: FinishSignupPage(),
+      home: FinishSignupPageGoogle(),
     );
   }
 }
 
-class FinishSignupPage extends StatefulWidget {
-  const FinishSignupPage({Key key, this.analytics, this.observer}): super (key: key);
+class FinishSignupPageGoogle extends StatefulWidget {
+  const FinishSignupPageGoogle({Key key, this.analytics, this.observer}): super (key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   @override
   _FinishSignupPageState createState() => _FinishSignupPageState();
 }
 
-class _FinishSignupPageState extends State<FinishSignupPage> {
+class _FinishSignupPageState extends State<FinishSignupPageGoogle> {
   File imageFile;
   bool switchValue = false;
   String bio = "";
-  String ProfilePic = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
+  String username;
   bool private = false;
+  String ProfilePic = "https://firebasestorage.googleapis.com/v0/b/woof310-885a0.appspot.com/o/cutegolden.jpg?alt=media&token=4e466439-58b1-45af-97a6-e08adef0121b";
+  final _formKey = GlobalKey<FormState>();
+  void onChangedSwitchValue(bool value) {
+    setState(() {
+      switchValue = value;
+    });
+  }
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
+    print("SCS : Finished SignUp Page succeeded");
+  }
+  void initState() {
+    super.initState();
+    _setCurrentScreen();
+  }
   _getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.gallery,
@@ -74,42 +90,20 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
       Fluttertoast.showToast(msg: error.toString(),);//TODO: remove this package
     });
   }
-  final _formKey = GlobalKey<FormState>();
-  void onChangedSwitchValue(bool value) {
-    setState(() {
-      switchValue = value;
-    });
-  }
-  Future<void> _setCurrentScreen() async {
-    await widget.analytics.setCurrentScreen(screenName: 'Splash Page');
-    print("SCS : Finished SignUp Page succeeded");
-  }
-  void initState() {
-    super.initState();
-    _setCurrentScreen();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.darkpurple,
         elevation: 1,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppColors.lightgrey,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: Container(
-          width: 280,
-          child: Text(
-            'Complete Sign Up',
-            style: kAppBarTitleTextStyle,
-            textAlign: TextAlign.center,
+        title: Center(
+          child: Container(
+            width: 280,
+            child: Text(
+              'Complete Sign Up',
+              style: kAppBarTitleTextStyle,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
@@ -187,7 +181,63 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
                   height: 35,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(0.0),
+                  child: Expanded(
+                    flex: 1,
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        fillColor: AppColors.lightgrey,
+                        filled: true,
+                        hintText: 'Username',
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.primarypurple,width: 1.5),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        errorStyle: TextStyle(
+                          color: AppColors.peachpink,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.peachpink),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.peachpink,width: 2),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        //labelText: 'username',
+                        labelStyle: kLabelLightTextStyle,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.darkpurple),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                      ),
+                      keyboardType: TextInputType.text,
+                      obscureText: false,
+                      enableSuggestions: false,
+                      autocorrect: false,
+
+                      validator: (value) {
+                        if(value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        if(value.length > 8) {
+                          return 'Username has to be less than or equal to 8 characters';
+                        }
+                        return null;
+                      },
+                      onSaved: (String value) {
+                        username = value;//TODO: make if username
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(0.0),
                   child: Expanded(
                     flex: 1,
                     child: TextFormField(
@@ -278,9 +328,9 @@ class _FinishSignupPageState extends State<FinishSignupPage> {
                         if(_formKey.currentState.validate()) {
 
                           _formKey.currentState.save();
-                          await UserFxns.UpdateProfilePic(ProfilePic);
-                          await UserFxns.UpdateBio(bio);
-                          await UserFxns.UpdatePrivacy(private);
+                          FirebaseAuth auth = FirebaseAuth.instance;
+                          User currentUser = auth.currentUser;
+                          await UserFxns.AddUserInfo(bio, currentUser.displayName, private, false, username, ProfilePic);
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               "/homefeed", (route) => false);
                         }

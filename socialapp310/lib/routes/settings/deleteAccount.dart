@@ -1,45 +1,83 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/utils/dimension.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
+import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 
-class Login extends StatefulWidget {
-  const Login({Key key, this.analytics, this.observer}) : super(key: key);
+import '../welcome.dart';
+
+class DeleteAccount extends StatefulWidget {
+  const DeleteAccount({Key key, this.analytics, this.observer})
+      : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
+
   @override
-  _LoginState createState() => _LoginState();
+  _DeleteAccountState createState() => _DeleteAccountState();
 }
 
-class _LoginState extends State<Login> {
+class _DeleteAccountState extends State<DeleteAccount> {
   final _formKey = GlobalKey<FormState>();
   String email;
   String password;
   bool remember = false;
-
+  bool validuser = false;
+  bool validpassword = false;
   FirebaseAuth auth = FirebaseAuth.instance;
-  Future<void> _setCurrentScreen() async {
-    await widget.analytics.setCurrentScreen(screenName: 'Log in Page');
-    _setLogEvent();
-    print("SCS : Log in Page succeeded");
-  }
 
-  Future<void> _setLogEvent() async {
-    await widget.analytics
-        .logEvent(name: 'Login_Page_Success', parameters: <String, dynamic>{
-      'name': 'Log in Page',
-    });
+  Future<void> _setCurrentScreen() async {
+    await widget.analytics.setCurrentScreen(screenName: 'Delete Account Page');
+    print("SCS : Delete Account Page succeeded");
   }
 
   void initState() {
     super.initState();
     _setCurrentScreen();
+  }
+
+  Future<void> deleteUserAccount() async {
+    FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+    EmailAuthCredential credential =
+        EmailAuthProvider.credential(email: email, password: password);
+    CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('user');
+
+    try {
+      await currentFB.reauthenticateWithCredential(credential).then((value) {
+        FirebaseAuth.instance.currentUser.delete().then((val) {
+          usersCollection.doc(currentFB.uid).delete().then((res) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text('Deleting account!')));
+            // Navigator.pushReplacementNamed(context, '/welcome');
+          });
+        });
+      });
+
+     await Authentication.signOutWithGoogle(context: context);
+      FBauth.FirebaseAuth.instance.signOut().then((value) {
+        Navigator.pushReplacementNamed(context, '/welcome');
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        print('The user must reauthenticate before this operation can be executed.');
+      }
+    }
+
+    await currentFB.reauthenticateWithCredential(credential).then((value) {
+      FirebaseAuth.instance.currentUser.delete().then((res) {
+        usersCollection.doc(currentFB.uid).delete().then((res) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Deleting account!')));
+          Navigator.pushReplacementNamed(context, '/welcome');
+        });
+      });
+    });
   }
 
   Future<void> showAlertDialog(String title, String message) async {
@@ -82,7 +120,7 @@ class _LoginState extends State<Login> {
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
           title: Text(
-            'Sign In',
+            'Delete Account',
             style: kAppBarTitleTextStyle,
           ),
           backgroundColor: AppColors.darkpurple,
@@ -270,18 +308,19 @@ class _LoginState extends State<Login> {
                                     ),
                                     onPressed: () async {
                                       if (_formKey.currentState.validate()) {
-                                        try {
-                                          await UserFxns.loginUser(
-                                              email, password);
-                                          await UserFxns.UpdateDeactivation(
-                                              false);
+                                        await deleteUserAccount();
+                                        if (validpassword && validuser) {
                                           Navigator.of(context)
                                               .pushNamedAndRemoveUntil(
                                                   "/homefeed",
                                                   (Route<dynamic> route) =>
                                                       false);
-                                        } catch (e) {
-                                          showAlertDialog("Error", e.code);
+                                        } else if (!validuser) {
+                                          showAlertDialog(
+                                              "Error", "User Does not exist");
+                                        } else if (!validpassword) {
+                                          showAlertDialog(
+                                              "Error", "Password is wrong");
                                         }
                                       }
                                     },
@@ -289,7 +328,7 @@ class _LoginState extends State<Login> {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12.0),
                                       child: Text(
-                                        'Login',
+                                        'Confirm',
                                         style: kButtonDarkTextStyle,
                                       ),
                                     ),
@@ -298,39 +337,6 @@ class _LoginState extends State<Login> {
                               )),
                         ],
                       ),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: remember,
-                            activeColor: AppColors.darkgrey,
-                            onChanged: (value) {
-                              setState(() {
-                                remember = value;
-                              });
-                            },
-                          ),
-                          Text("Remember me"),
-                          Spacer()
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don’t have an account? ",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          GestureDetector(
-                            onTap: () =>
-                                Navigator.pushNamed(context, "/signup"),
-                            child: Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                  fontSize: 16, color: AppColors.darkgrey),
-                            ),
-                          ),
-                        ],
-                      )
                     ],
                   ),
                 ),

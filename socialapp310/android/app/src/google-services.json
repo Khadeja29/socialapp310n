@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "519827229009-fqhj4c83ibrj9l4ibufq5k2acn0uoao0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.sabanciuniv.socialapp310",
+            "certificate_hash": "85124799753b063ced2d0afb5b3760f90e973f2f"
+          }
+        },
+        {
           "client_id": "519827229009-n8kl39fjijtukqfj7h5un65m5kgck184.apps.googleusercontent.com",
           "client_type": 3
         }

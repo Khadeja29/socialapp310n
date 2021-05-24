@@ -24,6 +24,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_storage: ^8.1.0
   firebase_core: "^1.1.0"
   firebase_analytics: "^8.0.3"
   firebase_auth: "^1.1.3"
@@ -37,9 +38,29 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  #firebase_messaging: "^10.0.0"
-  cloud_firestore:
+  flutter_local_notifications: ^5.0.0+2
+  #firebase_messaging: "^9.1.4"
+  stacked: ^1.5.7+1
+  stacked_services:
+  auto_route:
+  get_it:
+  injectable:
 
+  cool_alert:
+  geoflutterfire:
+  google_maps_flutter: ^2.0.5
+  geolocator: ^7.0.3
+  google_place:
+  flutter_search_bar:
+  image_picker:
+  path_provider:
+  fluttertoast: ^8.0.7
+  geocoding: ^2.0.0
+  location: ^4.1.1
+  url_launcher: ^6.0.4
+  geocoder: ^0.2.1
+
+  flutter_signin_button: ^2.0.0
 
 dev_dependencies:
   flutter_test:
