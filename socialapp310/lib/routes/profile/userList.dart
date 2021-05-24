@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 
 class userList extends StatefulWidget {
@@ -75,7 +76,7 @@ class _userListState extends State<userList>{
 
       userFollowers.add(user);
       userFollowersState.add(true);
-      print("xyz");
+
     }
 
     setState(() {
@@ -83,7 +84,7 @@ class _userListState extends State<userList>{
       _userFollowersState = userFollowersState;
       _userFollowers = userFollowers;
     });
-    print(docsnap);
+
     return docsnap;
   }
   Future<DocumentSnapshot> getFollowing() async {
@@ -115,7 +116,7 @@ class _userListState extends State<userList>{
     }
 
     setState(() {
-      print("here8");
+
       _followingCount = snapshot.docs.length;
       _userFollowingState = userFollowingState;
       _userFollowing = userFollowing;
@@ -125,8 +126,8 @@ class _userListState extends State<userList>{
 
   _buildFollowingButton(User1 user, int index) {
     return FlatButton(
-      color: _userFollowingState[index] ? Colors.transparent : Colors.blue,
-      onPressed: () {
+      color: _userFollowingState[index] ? Colors.transparent : Colors.deepOrange[400],
+      onPressed: () async {
         if (_userFollowingState[index] == true) {
           followersRef
               .doc(user.UID)
@@ -143,6 +144,17 @@ class _userListState extends State<userList>{
               .doc(widget.currentUserId)
               .collection('userFollowing')
               .doc(user.UID)
+              .get()
+              .then((doc) {
+            if (doc.exists) {
+              doc.reference.delete();
+            }
+          });
+
+          activityFeedRef
+              .doc(user.UID)
+              .collection('feedItems')
+              .doc(widget.currentUserId)
               .get()
               .then((doc) {
             if (doc.exists) {
@@ -168,7 +180,23 @@ class _userListState extends State<userList>{
               .collection('userFollowing')
               .doc(user.UID)
               .set({});
+          String username = await UserFxns.getUserName();
+          String userProfileImg = await UserFxns.getProfilePic();
+          var timestamp = DateTime.now();
           // add activity feed item for that user to notify about new follower (us)
+
+          activityFeedRef
+              .doc(user.UID)
+              .collection('feedItems')
+              .doc(widget.currentUserId)
+              .set({
+            "type": "follow",
+            "ownerId": user.UID,
+            "username": username,
+            "userId": widget.currentUserId,
+            "userProfileImg": userProfileImg,
+            "timestamp": timestamp,
+          });
 
           setState(() {
             _userFollowingState[index] = true;
@@ -182,7 +210,7 @@ class _userListState extends State<userList>{
         style: TextStyle(
             color: _userFollowingState[index]
                 ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor),
+                : Colors.white),
       ),
     );
   }
@@ -415,7 +443,7 @@ class _userListState extends State<userList>{
             ),
             bottom: TabBar(
               onTap: (int x) {setState(() {
-                print(x);
+
                 _userFollowers = _userFollowers;
                 _userFollowing = _userFollowing;
               });},

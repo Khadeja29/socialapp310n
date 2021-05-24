@@ -16,6 +16,7 @@ import 'package:socialapp310/utils/color.dart';
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
 final usersRef = FirebaseFirestore.instance.collection('user');
+final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
@@ -91,14 +92,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     else {return 4;}
   }
   getFollowers() async {
-    print(UID);
+
     QuerySnapshot snapshot = await followersRef
         .doc(UID)
         .collection('userFollowers')
         .get();
     setState(() {
       followerCount = snapshot.docs.length;
-      //print(followerCount);
+
     });
   }
 
@@ -110,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     setState(() {
       followingCount = snapshot.docs.length;
-      print(followingCount);
+
     });
   }
 
@@ -142,9 +143,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     });
 
+    activityFeedRef
+        .doc(widget.UID)
+        .collection('feedItems')
+        .doc(currentUser.uid)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+
   }
 
-  handleFollowUser() {
+  handleFollowUser() async {
     setState(() {
       isFollowing = true;
       followerCount++;
@@ -163,11 +175,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .set({});
     // add activity feed item for that user to notify about new follower (us)
 
+    String username = await UserFxns.getUserName();
+    String userProfileImg = await UserFxns.getProfilePic();
+    var timestamp = DateTime.now();
+    activityFeedRef
+        .doc(widget.UID)
+        .collection('feedItems')
+        .doc(currentUser.uid)
+        .set({
+      "type": "follow",
+      "ownerId": widget.UID,
+      "username": username,//todo: pass username from previous page
+      "userId": currentUser.uid,
+      "userProfileImg": userProfileImg,
+      "timestamp": timestamp,
+    });
+
   }
   //BottomNavBar
   void _onItemTapped(int index) {
     setState(() {
-      print(index);
+
       _selectedIndex = index;//TODO: if index 0 nothing happens, if index 1 push search page, if index 2 push create page,
       if (_selectedIndex == 0) {
         Navigator.pushReplacementNamed(context, '/homefeed');
@@ -194,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<DocumentSnapshot> getUserInfo() {
 
     FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
-    print("this is where");
+
     //final args = ModalRoute.of(context).settings.arguments as PassingUID;
     //UID = args.UID;
     if(widget.UID != null)
@@ -294,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return FutureBuilder(
       future: _listFuture,
       builder: (context, snapshot) {
-        print(snapshot.connectionState);
+
         if (!(snapshot.connectionState == ConnectionState.done)) {
           return (Center(
               child: CircularProgressIndicator(
