@@ -258,7 +258,7 @@ class _CreatePost extends State<CreatePost> {
                 child: Row(
                   children: <Widget>[
                     Icon(Icons.add_location),
-                    SizedBox(width: 5),
+                    SizedBox(width: 50),
                     Text('Press button to search location'),
                   ],
                 ),
