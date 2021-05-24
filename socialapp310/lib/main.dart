@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/finishsignupgoogle.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/routes/finishsignup.dart';
@@ -142,6 +143,10 @@ class AppBase extends StatelessWidget {
               analytics: analytics,
               observer: observer,
             ),
+        '/favourites': (context) => Favourites(
+          analytics: analytics,
+          observer: observer,
+        ),
       },
     );
   }

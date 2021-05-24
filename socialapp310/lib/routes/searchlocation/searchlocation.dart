@@ -82,133 +82,115 @@ class _SearchLocationState extends State<SearchLocation> {
     final styleHint = TextStyle(color: Colors.black54);
     final style = text == "" ? styleHint : styleActive;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Search Location',
-          style: kAppBarTitleTextStyle,
-        ),
-        backgroundColor: AppColors.darkpurple,
-        centerTitle: true,
-        // elevation: 0.0,
-      ),
-      body:
-          // StreamBuilder(
-          // stream: _stream,
-          // // initialData: [],
-          // builder: (context, snapshot) {
-          //   if (snapshot.hasError) {
-          //     return Text('There was an error :(');
-          //   } else if (snapshot.hasData || snapshot.data == null) {
-          //     res != null ? print(res) : null;
-          //     print(snapshot.data);
-          //     // if(snapshot.data != null)
-          //     // print(snapshot.data.length);
-          //     return
-          (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-              Widget>[
-        SizedBox(
-          height: 20,
-        ),
-        Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Container(
-                height: 42,
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                  border: Border.all(color: Colors.black26),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: TextFormField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.search, color: style.color),
-                    suffixIcon: text.isNotEmpty
-                        ? GestureDetector(
-                            child: Icon(Icons.close, color: style.color),
-                            onTap: () {
-                              controller.clear();
-                              onChanged('');
-                              FocusScope.of(context).requestFocus(FocusNode());
-                            },
-                          )
-                        : null,
-                    hintText: hintText,
-                    hintStyle: style,
-                    border: InputBorder.none,
-                  ),
-                  style: style,
-                  onSaved: (String value) {
-                    query = value;
-                  },
-                ),
-              ),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.primarypurple,
-                ),
-                onPressed: () async {
-                  _formKey.currentState.save();
-                  findPlace(query);
-                  setState(() {
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Text(
-                    'Search',
-                    style: kButtonDarkTextStyle,
-                  ),
-                ),
-              ),
-            ],
+        appBar: AppBar(
+          title: Text(
+            'Search Location',
+            style: kAppBarTitleTextStyle,
           ),
-        ),
-        FutureBuilder(
-            future: findPlace(query),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('There was an error :(');
-              } else if (snapshot.hasData || snapshot.data == null) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(),
-                    child: ListView.builder(
-                      itemCount:
-                          snapshot.data == null ? 0 : snapshot.data["predictions"].length,
-                      itemBuilder: (context, index) => Column(
-                        children: [
-                          ListTile(
-                            title:
-                                Text(snapshot.data["predictions"][index]["description"]),
-                            leading: Icon(Icons.add_location_alt),
-                          ),
-                          Divider(color: Colors.black)
-                        ],
-                      ),
-                      // ItemCard(
-                      // product: snapshot.data[index],
-                      // press: () => Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) =>
-                      //           SingleProduct(id: products[index].productId),
-                      //     )),
-                    ),
-                  ),
-                );
-              } else {
-                // print(snapshot.data);
-                return (Center(
-                    child: CircularProgressIndicator(
-                        valueColor: new AlwaysStoppedAnimation<Color>(
-                            AppColors.darkpurple))));
-              }
-            })
-      ])),
+          backgroundColor: AppColors.darkpurple,
+          centerTitle: true,
+        )
+    )
+    ,
+    body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+    Widget>[
+    SizedBox(
+    height: 20,
+    ),
+    Form(
+    key: _formKey,
+    child: Column(
+    children: [
+    Container(
+    height: 42,
+    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(12),
+    color: Colors.white,
+    border: Border.all(color: Colors.black26),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 8),
+    child: TextFormField(
+    controller: controller,
+    decoration: InputDecoration(
+    icon: Icon(Icons.search, color: style.color),
+    suffixIcon: text.isNotEmpty
+    ? GestureDetector(
+    child: Icon(Icons.close, color: style.color),
+    onTap: () {
+    controller.clear();
+    onChanged('');
+    FocusScope.of(context).requestFocus(FocusNode());
+    },
+    )
+        : null,
+    hintText: hintText,
+    hintStyle: style,
+    border: InputBorder.none,
+    ),
+    style: style,
+    onSaved: (String value) {
+    query = value;
+    },
+    ),
+    ),
+    OutlinedButton(
+    style: OutlinedButton.styleFrom(
+    backgroundColor: AppColors.primarypurple,
+    ),
+    onPressed: () async {
+    _formKey.currentState.save();
+    findPlace(query);
+    setState(() {
+    });
+    },
+    child: Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12.0),
+    child: Text(
+    'Search',
+    style: kButtonDarkTextStyle,
+    ),
+    ),
+    ),
+    ],
+    ),
+    ),
+    FutureBuilder(
+    future: findPlace(query),
+    builder: (context, snapshot) {
+    if (snapshot.hasError) {
+    return Text('There was an error :(');
+    } else if (snapshot.hasData || snapshot.data == null) {
+    return Expanded(
+    child: Padding(
+    padding: const EdgeInsets.symmetric(),
+    child: ListView.builder(
+    itemCount:
+    snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+    itemBuilder: (context, index) => Column(
+    children: [
+    ListTile(
+    title:
+    Text(snapshot.data["predictions"][index]["description"]),
+    leading: Icon(Icons.add_location_alt),
+    ),
+    Divider(color: Colors.black)
+    ],
+    ),
+    ),
+    ),
+    );
+    } else {
+    // print(snapshot.data);
+    return (Center(
+    child: CircularProgressIndicator(
+    valueColor: new AlwaysStoppedAnimation<Color>(
+    AppColors.darkpurple))));
+    }
+    })
+    ]
+    )
+    ,
     );
   }
 }

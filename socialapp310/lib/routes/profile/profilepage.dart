@@ -491,7 +491,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/favourites');
+                    },
                     child: ListTile(
                       title: Text('Favourites'),
                       leading: Icon(Icons.bookmark),
