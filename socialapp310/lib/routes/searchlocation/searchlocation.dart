@@ -137,10 +137,11 @@ class _SearchLocationState extends State<SearchLocation> {
         ),
         Form(
           key: _formKey,
-          child: Column(
+          child: Row(
             children: [
               Container(
-                height: 42,
+                height: 46,
+                width: 250,
                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -172,21 +173,24 @@ class _SearchLocationState extends State<SearchLocation> {
                   },
                 ),
               ),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.primarypurple,
-                ),
-                onPressed: () async {
-                  _formKey.currentState.save();
-                  findPlace(query);
-                  setState(() {
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Text(
-                    'Search',
-                    style: kButtonDarkTextStyle,
+              Padding(
+                padding: const EdgeInsets.only(top:15),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.darkpurple,
+                  ),
+                  onPressed: () async {
+                    _formKey.currentState.save();
+                    findPlace(query);
+                    setState(() {
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text(
+                      'Search',
+                      style: kButtonDarkTextStyle,
+                    ),
                   ),
                 ),
               ),
