@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
@@ -550,7 +549,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image(
-              image: AssetImage("assets/Dog/cutegolden.jpg"),
+              image: AssetImage("assets/images/noposts.jpg"),
             ),
             Padding(
               padding: EdgeInsets.only(top: 20.0),
@@ -566,7 +565,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       );
-    } else if (postOrientation == "grid") {
+    }
+    else if (postOrientation == "grid") {
       List<GridTile> gridTiles = [];
       _PostsToBuild.forEach((post) {
         gridTiles.add(GridTile(child: PostTile(post)));
@@ -581,9 +581,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         physics: NeverScrollableScrollPhysics(),
         children: gridTiles,
       );
-    } else if (postOrientation == "list") {
+    }
+    else if (postOrientation == "list") {
       return Column(
-        children: [],
+        children: [
+
+        ],
       );
     }
     else if (postOrientation == "locations") {
@@ -593,6 +596,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
   }
+
   //Main Page function
   @override
   Widget build(BuildContext context) {
