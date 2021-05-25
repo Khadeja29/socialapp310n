@@ -20,6 +20,7 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController textEditingController = TextEditingController();
 
   ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     getGroupChatId();
@@ -100,7 +101,7 @@ class _ChatPageState extends State<ChatPage> {
     String msg = textEditingController.text.trim();
 
     /// Upload images to firebase and returns a URL
-    if (msg?.isEmpty ?? false) {
+    //if (msg?.isEmpty ?? false) {
       print('thisiscalled $msg');
       var ref = FirebaseFirestore.instance
           .collection('messages')
@@ -120,10 +121,10 @@ class _ChatPageState extends State<ChatPage> {
 
       scrollController.animateTo(0.0,
           duration: Duration(milliseconds: 100), curve: Curves.bounceInOut);
-    } else {
-      print('Please enter some text to send');
-    }
-  }
+    } //else {
+     // print('Please enter some text to send');
+    //}
+
 
   buildItem(doc) {
     return Padding(
@@ -139,7 +140,7 @@ class _ChatPageState extends State<ChatPage> {
                 ? Colors.grey
                 : Colors.greenAccent),
             borderRadius: BorderRadius.circular(8.0)),
-        child: (doc['tyoe'] == 'text')
+        child: (doc['type'] == 'text')
             ? Text('${doc['content']}')
             : Image.network(doc['content']),
       ),
