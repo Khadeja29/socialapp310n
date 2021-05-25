@@ -17,23 +17,7 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 
-AppBar header(context,
-    {bool isAppTitle = false, String titleText, removeBackButton = false}) {
-  return AppBar(
-    automaticallyImplyLeading: removeBackButton ? false : true,
-    title: Text(
-      isAppTitle ? "FlutterShare" : titleText,
-      style: TextStyle(
-        color: Colors.white,
-        fontFamily: isAppTitle ? "Signatra" : "",
-        fontSize: isAppTitle ? 50.0 : 22.0,
-      ),
-      overflow: TextOverflow.ellipsis,
-    ),
-    centerTitle: true,
-    backgroundColor: Theme.of(context).accentColor,
-  );
-}
+
 
 
 class PostScreen extends StatefulWidget {
@@ -52,10 +36,31 @@ class _PostScreenState extends State<PostScreen> {
 
   User currentUser = FirebaseAuth.instance.currentUser;
   var _locationString = "Something Else";
+  String Username = "";
+  String userProfileImg = "";
 
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
+
+
+  AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
+    return AppBar(
+      automaticallyImplyLeading: removeBackButton ? false : true,
+      title: Text(
+        isAppTitle ? "FlutterShare" : "@$titleText",
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: isAppTitle ? "Signatra" : "",
+          fontSize: isAppTitle ? 50.0 : 22.0,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+      centerTitle: true,
+      backgroundColor: AppColors.peachpink,
+    );
+  }
+
   buildPostHeader(String userId)  {
     return FutureBuilder(
       future: _listFuture2,
@@ -209,14 +214,6 @@ class _PostScreenState extends State<PostScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
-                  // GestureDetector(
-                  //   onTap: (){handleLikePost(userId);}, //todo like handler
-                  //   child: Icon(
-                  //     isLiked ? Icons.favorite : Icons.favorite_border,//todo how to get isliked(the map of user ids to bool values)
-                  //     size: 28.0,
-                  //     color: Colors.pink,
-                  //   ),
-                  // ),
                   IconButton(icon: isLiked ? Icon(Icons.favorite,color: Colors.pink,) : Icon(Icons.favorite_border_outlined   ,color: Colors.pink,)
                       , onPressed: (){handleLikePost(userId);}),
                   Padding(padding: EdgeInsets.only(right: 20.0)),
@@ -235,7 +232,7 @@ class _PostScreenState extends State<PostScreen> {
                   Container(
                     margin: EdgeInsets.only(left: 20.0),
                     child: Text(
-                      "${likeCount} likes",//todo save number of likes in post
+                      "${likeCount} likes",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -266,14 +263,29 @@ class _PostScreenState extends State<PostScreen> {
   }
 
 
+
   handleLikePost(String userId) {
 
-    bool _isLiked = _Likesmap[currentUser.uid] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
+
+    bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
       getpostRef
           .doc(widget.postId)
           .update({'LikesMap.${currentUser.uid}': false});
       //removeLikeFromActivityFeed();
+      if(widget.userId != currentUser.uid)
+      {
+        activityFeedRef
+            .doc(widget.userId)
+            .collection('feedItems')
+            .doc(widget.postId)
+            .get()
+            .then((doc) {
+          if (doc.exists) {
+            doc.reference.delete();
+          }
+        });
+      }
       setState(() {
         likeCount -= 1;
         isLiked = false;
@@ -283,7 +295,21 @@ class _PostScreenState extends State<PostScreen> {
       getpostRef
           .doc(widget.postId)
           .update({'LikesMap.${currentUser.uid}': true});
-      //addLikeToActivityFeed();
+      if(widget.userId != currentUser.uid)
+      {
+        activityFeedRef
+            .doc(widget.userId)
+            .collection('feedItems')
+            .doc(widget.postId)
+            .set({
+          "type": "like",
+          "ownerId": widget.userId,
+          "username": Username,
+          "userId": currentUser.uid,
+          "userProfileImg": userProfileImg,
+          "timestamp": Timestamp.now(),
+        });
+      }
       setState(() {
         likeCount += 1;
         isLiked = true;
@@ -333,7 +359,14 @@ class _PostScreenState extends State<PostScreen> {
     return result;
   }
   Future<DocumentSnapshot> getUser() async {
-    return usersRef.doc(widget.userId).get();
+    var result = await usersRef.doc(widget.userId).get();
+    var gotUsername = result.data()['Username'];
+    var gotProfilePic = result.data()['ProfilePic'];
+    setState(() {
+      Username = gotUsername;
+      userProfileImg = gotProfilePic;
+    });
+    return result;
   }
   setLocation(GeoPoint location1) async {
     final coordinates = new Coordinates(location1.latitude, location1.longitude);
@@ -370,7 +403,7 @@ class _PostScreenState extends State<PostScreen> {
         print("here");
         return Center(
           child: Scaffold(
-            appBar: header(context, titleText: post.caption),
+            appBar: header(context, titleText: Username),
             body: ListView(
               children: <Widget>[
                 buildPostHeader(widget.userId),
