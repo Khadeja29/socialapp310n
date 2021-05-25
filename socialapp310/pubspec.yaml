@@ -46,6 +46,14 @@ dependencies:
   geoflutterfire:
   google_maps_flutter: ^2.0.5
   geolocator: ^7.0.3
+  geocoding: ^2.0.0
+  location: ^4.1.1
+  url_launcher: ^6.0.4
+  geocoder: ^0.2.1
+  google_maps_webservice: ^0.0.19
+  cool_alert:
+  flutter_search_bar:
+  google_place:
 dev_dependencies:
   flutter_test:
     sdk: flutter
