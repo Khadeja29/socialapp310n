@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
@@ -34,156 +35,206 @@ AppBar header(context,
   );
 }
 
-buildPostHeader(String userId, String location)  {
-  return FutureBuilder(
-    future: usersRef.doc(userId).get(),
-    builder: (context, docsnap) {
-      if (!docsnap.hasData) {
-        return Center(
-            child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(
-                    AppColors.primarypurple)));
-      }
-      Map<String, dynamic> data = docsnap.data.data();
 
-      User currentUser = FirebaseAuth.instance.currentUser;
-      bool isPostOwner = currentUser.uid == userId;
-      return ListTile(
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(data["ProfilePic"]),
-          backgroundColor: Colors.grey,
-        ),
-        title: GestureDetector(
-          onTap: () => {},//todo on tap of user profile image do something
-          child: Text(
-            data["Username"],
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        subtitle: Text("Location goes here"),//todo convert location to string
-        trailing: isPostOwner
-            ? IconButton(
-          onPressed: () => {},//todo delete post logic
-          icon: Icon(Icons.more_vert),
-        )
-            : Text(''),
-      );
-    },
-  );
-}
 
-buildPostImage(String imageURL) {
-  return GestureDetector(
-    onDoubleTap: (){},//to do, handle like here
-    child: Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        Container(//todo fix sizing issues
-          padding:  EdgeInsets.all(0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(0),
-            child: Image(
-              fit: BoxFit.cover,
-              image:
-              NetworkImage(imageURL),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
-buildPostFooter(String userId, String caption) {
-  bool isLiked = false;
-  return FutureBuilder(
-    future: usersRef.doc(userId).get(),
-    builder: (context, docsnap) {
-      if (!docsnap.hasData) {
-        return Center(
-            child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(
-                    AppColors.primarypurple)));
-      }
-      Map<String, dynamic> data = docsnap.data.data();
-      return Column(
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
-            GestureDetector(
-              onTap: (){}, //todo like handler
-              child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,//todo how to get isliked(the map of user ids to bool values)
-                size: 28.0,
-                color: Colors.pink,
-              ),
-            ),
-            Padding(padding: EdgeInsets.only(right: 20.0)),
-            GestureDetector(
-              onTap: () {},//todo push comment page
-              child: Icon(
-                Icons.chat,
-                size: 28.0,
-                color: Colors.blue[900],
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: Text(
-                "0 likes",//todo save number of likes in post
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: Text(
-                "${data["Username"]}",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(child: Text(caption))
-          ],
-        ),
-      ],
-    );}
-  );
-}
-
-class PostScreen extends StatelessWidget {
+class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
 
   PostScreen({this.userId, this.postId});
 
   @override
+  _PostScreenState createState() => _PostScreenState();
+}
+
+class _PostScreenState extends State<PostScreen> {
+  buildPostHeader(String userId, String location)  {
+    return FutureBuilder(
+      future: usersRef.doc(userId).get(),
+      builder: (context, docsnap) {
+        if (!docsnap.hasData) {
+          return Center(
+              child: CircularProgressIndicator(
+                  valueColor: new AlwaysStoppedAnimation<Color>(
+                      AppColors.primarypurple)));
+        }
+        Map<String, dynamic> data = docsnap.data.data();
+
+        User currentUser = FirebaseAuth.instance.currentUser;
+        bool isPostOwner = currentUser.uid == userId;
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(data["ProfilePic"]),
+            backgroundColor: Colors.grey,
+          ),
+          title: GestureDetector(
+            onTap: () => {},//todo on tap of username do something
+            child: Text(
+              data["Username"],
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          subtitle: Text("Location goes here"),//todo convert location to string
+          trailing: isPostOwner
+              ? IconButton(
+            onPressed: () => {},//todo delete post logic
+            icon: Icon(Icons.more_vert),
+          )
+              : Text(''),
+        );
+      },
+    );
+  }
+
+  buildPostImage(String imageURL) {
+    return GestureDetector(
+      onDoubleTap: (){},//to do, handle like here
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Container(//todo fix sizing issues
+            padding:  EdgeInsets.all(0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(0),
+              child: Image(
+                fit: BoxFit.cover,
+                image:
+                NetworkImage(imageURL),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  buildPostFooter(String userId, String caption, int likes) {
+    bool isLiked = false;
+    return FutureBuilder(
+        future: usersRef.doc(userId).get(),
+        builder: (context, docsnap) {
+          if (!docsnap.hasData) {
+            return Center(
+                child: CircularProgressIndicator(
+                    valueColor: new AlwaysStoppedAnimation<Color>(
+                        AppColors.primarypurple)));
+          }
+          Map<String, dynamic> data = docsnap.data.data();
+          return Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
+                  GestureDetector(
+                    onTap: (){}, //todo like handler
+                    child: Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,//todo how to get isliked(the map of user ids to bool values)
+                      size: 28.0,
+                      color: Colors.pink,
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.only(right: 20.0)),
+                  GestureDetector(
+                    onTap: () {},//todo push comment page
+                    child: Icon(
+                      Icons.chat,
+                      size: 28.0,
+                      color: Colors.blue[900],
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Text(
+                      "${likes} likes",//todo save number of likes in post
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Text(
+                      "${data["Username"]}",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Text(caption))
+                ],
+              ),
+            ],
+          );}
+    );
+  }
+
+  handleLikePost(String userId, Map<String,bool> likes, String postid) {
+    bool _isLiked = likes[userId] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
+
+    if (_isLiked) {
+      getpostRef
+          .doc(postid)
+          .update({'likes.$userId': false});
+      //removeLikeFromActivityFeed();
+      setState(() {
+        // likeCount -= 1;
+        // isLiked = false;
+        // likes[currentUserId] = false;
+      });
+    } else if (!_isLiked) {
+      getpostRef
+          .doc(postid)
+          .update({'likes.$userId': true});
+      //addLikeToActivityFeed();
+      setState(() {
+        // likeCount += 1;
+        // isLiked = true;
+        // likes[currentUserId] = true;
+        // showHeart = true;
+      });
+      // Timer(Duration(milliseconds: 500), () {
+      //   setState(() {
+      //     showHeart = false;
+      //   });
+      // });
+    }
+  }
+  Future<DocumentSnapshot> _listFuture1;
+  void initState() {
+    super.initState();
+    _listFuture1 = getPost();
+
+  }
+  Future<DocumentSnapshot> getPost() async{
+    return getpostRef
+        .doc(widget.postId)
+        .get();
+
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getpostRef
-          .doc(postId)
-          .get(),
+      future:  _listFuture1,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -198,8 +249,9 @@ class PostScreen extends StatelessWidget {
             createdAt: snapshot.data["createdAt"],
             isPrivate: snapshot.data["IsPrivate"],
             location: snapshot.data["Location"],
-            UserID: userId,
-            PostID: postId
+            LikesMap : snapshot.data['LikesMap'],
+            UserID: widget.userId,
+            PostID: widget.postId
         );
 
         return Center(
@@ -207,9 +259,9 @@ class PostScreen extends StatelessWidget {
             appBar: header(context, titleText: post.caption),
             body: ListView(
               children: [
-                buildPostHeader(userId, "Some String"),
+                buildPostHeader(widget.userId, "Some String"),
                 buildPostImage(post.imageURL),
-                buildPostFooter(userId, post.caption)
+                buildPostFooter(widget.userId, post.caption, post.likes)
               ],
             ),
           ),
