@@ -5,18 +5,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
+import 'package:socialapp310/models/Post1.dart';
+
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
 final usersRef = FirebaseFirestore.instance.collection('user');
 final activityFeedRef = FirebaseFirestore.instance.collection('feed');
-final getpostRef = FirebaseFirestore.instance.collection('Posts');
+final getpostRef = FirebaseFirestore.instance.collection('Post');
+
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
@@ -35,13 +39,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Variables
   String postOrientation = "grid";
   int _selectedIndex = 4;
-
+  List<Post1> _PostsToBuild = [];
   String UID;
   User currentUser = FirebaseAuth.instance.currentUser;
   String username;
   bool isFollowing = true;
   int followerCount;
   int followingCount;
+  int PostCount;
+  bool isLoading = true;
   //Analytics
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
@@ -71,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     checkIfFollowing();
     getFollowers();
     getFollowing();
-
+    GetPosts();
     _listFuture = getUserInfo();
 
   }
@@ -85,7 +91,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isFollowing = doc.exists;
     });
   }
+  GetPosts() async {
+    setState(() {
+      isLoading = true;
+    });
+    List<Post1> PostsToBuild = [];
+    QuerySnapshot snapshot = await getpostRef
+        .where("PostUser" , isEqualTo: UID)
+        .orderBy("createdAt", descending: true)
+        .get();
+    for( var doc in snapshot.docs){
+      Post1 post = Post1(
+        caption: doc["Caption"],
+        imageURL: doc["Image"],
+        likes: doc["Likes"],
+        createdAt: doc["createdAt"],
+        isPrivate: doc["IsPrivate"],
+        location: doc["Location"],
+        UserID: doc["PostUser"],
+        PostID: doc.id
+      );
+      PostsToBuild.add(post);
+    }
+    setState(() {
+      PostCount = snapshot.docs.length;
+      _PostsToBuild = PostsToBuild;
+      isLoading = false;
+    });
 
+  }
 
   int currentindex() {
     if(widget.index != null)
@@ -360,7 +394,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              buildCountColumn("posts", 0),
+                              buildCountColumn("posts", PostCount),
 
                               GestureDetector(
                                   onTap: () => {
@@ -501,6 +535,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  buildProfilePosts() {
+    if (isLoading) {
+      return Container(
+        child: Center(
+          child: CircularProgressIndicator(
+                  valueColor: new AlwaysStoppedAnimation<Color>(
+                  AppColors.primarypurple)),
+        ),
+      );
+    } else if (_PostsToBuild.isEmpty) {
+      return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image(
+              image: AssetImage("assets/Dog/cutegolden.jpg"),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: Text(
+                "No Posts",
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 40.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (postOrientation == "grid") {
+      List<GridTile> gridTiles = [];
+      _PostsToBuild.forEach((post) {
+        gridTiles.add(GridTile(child: PostTile(post)));
+      });
+
+      return GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 1.5,
+        crossAxisSpacing: 1.5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTiles,
+      );
+    } else if (postOrientation == "list") {
+      return Column(
+        children: [],
+      );
+    }
+    else if (postOrientation == "locations") {
+      return Column(
+        children: [],
+      );
+    }
+
+  }
   //Main Page function
   @override
   Widget build(BuildContext context) {
@@ -526,6 +618,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Divider(
             height: 0.0,
           ),
+          buildProfilePosts(),
         ],
       ),
       // DRAWER
@@ -645,3 +738,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+class PostTile extends StatelessWidget {
+  final Post1 post;
+
+  PostTile(this.post);
+
+  showPost(context) {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => PostScreen(
+    //       postId: post.PostID,
+    //       userId: post.UserID,
+    //     ),
+    //   ),
+    // );
+   }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => showPost(context),
+      child: Container(
+        padding:  EdgeInsets.all(0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(0),
+          child: Image(
+            fit: BoxFit.cover,
+            image:
+            NetworkImage(post.imageURL),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
