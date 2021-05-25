@@ -20,8 +20,6 @@ import 'package:socialapp310/routes/profile/profilepage.dart';
 
 
 
-
-
 class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
@@ -35,9 +33,12 @@ class PostScreen extends StatefulWidget {
 
 
 class _PostScreenState extends State<PostScreen> {
+
   User currentUser = FirebaseAuth.instance.currentUser;
   var _locationString = "Something Else";
   String Username = "";
+  String userProfileImg = "";
+
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
@@ -92,9 +93,27 @@ class _PostScreenState extends State<PostScreen> {
           ),
           subtitle: Text("$_locationString"),//todo convert location to string
           trailing: isPostOwner
-              ? IconButton(
-            onPressed: () => {},//todo delete post logic
-            icon: Icon(Icons.more_vert),
+              ? DropdownButton<String>(
+            elevation: 0,
+            icon:Icon(
+               Icons.more_vert,//todo how to get isliked(the map of user ids to bool values)
+              color: Colors.black,
+            ),
+            items: <String>['Edit', 'Delete'].map((String value) {
+              return new DropdownMenuItem<String>(
+                value: value,
+                child:  Text(value),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value == "Edit")
+              {}
+              else if (value == "Delete")
+              {
+                handleDeletePost(context);
+              }
+
+            },
           )
               : Text(''),
         );
@@ -102,6 +121,54 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
+
+
+  handleDeletePost(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("Remove this post?"),
+            children: <Widget>[
+              SimpleDialogOption(
+                  onPressed: () async {
+                    print("not yet");
+                    await deletePost();
+                    print("deleted");
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer)
+                    ),);
+                  },
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel')),
+            ],
+          );
+        });
+  }
+
+  deletePost() async {
+    // delete post itself
+    getpostRef
+        .doc(widget.postId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+
+    });
+    // delete uploaded image for thep ost
+    // TODO:then delete all activity feed notifications
+
+
+    // TODO:then delete all comments
+
+  }
 
   buildPostImage(String imageURL) {
     return GestureDetector(
@@ -146,14 +213,6 @@ class _PostScreenState extends State<PostScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
-                  // GestureDetector(
-                  //   onTap: (){handleLikePost(userId);}, //todo like handler
-                  //   child: Icon(
-                  //     isLiked ? Icons.favorite : Icons.favorite_border,//todo how to get isliked(the map of user ids to bool values)
-                  //     size: 28.0,
-                  //     color: Colors.pink,
-                  //   ),
-                  // ),
                   IconButton(icon: isLiked ? Icon(Icons.favorite,color: Colors.pink,) : Icon(Icons.favorite_border_outlined   ,color: Colors.pink,)
                       , onPressed: (){handleLikePost(userId);}),
                   Padding(padding: EdgeInsets.only(right: 20.0)),
@@ -172,7 +231,7 @@ class _PostScreenState extends State<PostScreen> {
                   Container(
                     margin: EdgeInsets.only(left: 20.0),
                     child: Text(
-                      "${likeCount} likes",//todo save number of likes in post
+                      "${likeCount} likes",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -202,15 +261,30 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
+
+
   handleLikePost(String userId) {
 
-    bool _isLiked = _Likesmap[currentUser.uid] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
 
+    bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
       getpostRef
           .doc(widget.postId)
           .update({'LikesMap.${currentUser.uid}': false});
       //removeLikeFromActivityFeed();
+      if(widget.userId != currentUser.uid)
+      {
+        activityFeedRef
+            .doc(widget.userId)
+            .collection('feedItems')
+            .doc(widget.postId)
+            .get()
+            .then((doc) {
+          if (doc.exists) {
+            doc.reference.delete();
+          }
+        });
+      }
       setState(() {
         likeCount -= 1;
         isLiked = false;
@@ -220,7 +294,21 @@ class _PostScreenState extends State<PostScreen> {
       getpostRef
           .doc(widget.postId)
           .update({'LikesMap.${currentUser.uid}': true});
-      //addLikeToActivityFeed();
+      if(widget.userId != currentUser.uid)
+      {
+        activityFeedRef
+            .doc(widget.userId)
+            .collection('feedItems')
+            .doc(widget.postId)
+            .set({
+          "type": "like",
+          "ownerId": widget.userId,
+          "username": Username,
+          "userId": currentUser.uid,
+          "userProfileImg": userProfileImg,
+          "timestamp": Timestamp.now(),
+        });
+      }
       setState(() {
         likeCount += 1;
         isLiked = true;
@@ -251,7 +339,7 @@ class _PostScreenState extends State<PostScreen> {
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
     setState(() {
-      isLiked = result.data()['LikesMap'][currentUser.uid] == true;
+      isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
       if (result.data()['LikesMap'] == null) {
         likeCount = 0;
       }
@@ -272,8 +360,10 @@ class _PostScreenState extends State<PostScreen> {
   Future<DocumentSnapshot> getUser() async {
     var result = await usersRef.doc(widget.userId).get();
     var gotUsername = result.data()['Username'];
+    var gotProfilePic = result.data()['ProfilePic'];
     setState(() {
       Username = gotUsername;
+      userProfileImg = gotProfilePic;
     });
     return result;
   }
