@@ -50,8 +50,9 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
 
+  User currentUser = FirebaseAuth.instance.currentUser;
+  var _locationString = "Something Else";
 
-  String _locationString;
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
@@ -104,7 +105,7 @@ class _PostScreenState extends State<PostScreen> {
               {}
               else if (value == "Delete")
               {
-                //print('here');
+                handleDeletePost(context);
               }
 
             },
@@ -125,9 +126,13 @@ class _PostScreenState extends State<PostScreen> {
             title: Text("Remove this post?"),
             children: <Widget>[
               SimpleDialogOption(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    //deletePost(); //TODO: Add delete logic
+                  onPressed: () async {
+                    print("not yet");
+                    await deletePost();
+                    print("deleted");
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer)
+                    ),);
                   },
                   child: Text(
                     'Delete',
@@ -141,23 +146,24 @@ class _PostScreenState extends State<PostScreen> {
         });
   }
 
-  // deletePost() async {
-  //   // delete post itself
-  //   getpostRef
-  //       .doc() //currentpost if
-  //       .get()
-  //       .then((doc) {
-  //     if (doc.exists) {
-  //       doc.reference.delete();
-  //     }
-  //   });
-  //   // delete uploaded image for thep ost
-  //
-  //   // then delete all activity feed notifications
-  //
-  //   // then delete all comments
-  //
-  // }
+  deletePost() async {
+    // delete post itself
+    getpostRef
+        .doc(widget.postId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+
+    });
+    // delete uploaded image for thep ost
+    // TODO:then delete all activity feed notifications
+
+
+    // TODO:then delete all comments
+
+  }
 
   buildPostImage(String imageURL) {
     return GestureDetector(
@@ -261,28 +267,26 @@ class _PostScreenState extends State<PostScreen> {
 
   handleLikePost(String userId) {
 
-    bool _isLiked = _Likesmap[userId] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
-
-
+    bool _isLiked = _Likesmap[currentUser.uid] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
     if (_isLiked) {
       getpostRef
           .doc(widget.postId)
-          .update({'LikesMap.$userId': false});
+          .update({'LikesMap.${currentUser.uid}': false});
       //removeLikeFromActivityFeed();
       setState(() {
         likeCount -= 1;
         isLiked = false;
-        _Likesmap[userId] = false;
+        _Likesmap[currentUser.uid] = false;
       });
     } else if (!_isLiked) {
       getpostRef
           .doc(widget.postId)
-          .update({'LikesMap.$userId': true});
+          .update({'LikesMap.${currentUser.uid}': true});
       //addLikeToActivityFeed();
       setState(() {
         likeCount += 1;
         isLiked = true;
-        _Likesmap[userId] = true;
+        _Likesmap[currentUser.uid] = true;
         // showHeart = true;
       });
       // Timer(Duration(milliseconds: 500), () {
@@ -309,7 +313,7 @@ class _PostScreenState extends State<PostScreen> {
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
     setState(() {
-      isLiked = result.data()['LikesMap'][widget.userId] == true ? true : false;
+      isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
       if (result.data()['LikesMap'] == null) {
         likeCount = 0;
       }
