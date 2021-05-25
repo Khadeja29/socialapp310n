@@ -9,12 +9,14 @@ import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/welcome.dart';
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
 final usersRef = FirebaseFirestore.instance.collection('user');
 final activityFeedRef = FirebaseFirestore.instance.collection('feed');
+final getpostRef = FirebaseFirestore.instance.collection('Posts');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
@@ -84,6 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+
   int currentindex() {
     if(widget.index != null)
     {return widget.index;}
@@ -101,7 +104,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-
   getFollowing() async {
     QuerySnapshot snapshot = await followingRef
         .doc(UID)
@@ -112,7 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     });
   }
-
   handleUnfollowUser() {
     setState(() {
       isFollowing = false;
@@ -153,7 +154,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
   }
-
   handleFollowUser() async {
     setState(() {
       isFollowing = true;
