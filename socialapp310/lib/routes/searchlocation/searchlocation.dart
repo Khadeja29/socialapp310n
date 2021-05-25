@@ -59,12 +59,13 @@ class _SearchLocationState extends State<SearchLocation> {
     print(locations);
     lat=(locations[0].latitude);
     long=(locations[0].longitude);
-    final coordinates = new Coordinates(lat, long);
-    var addresses =
-    await Geocoder.local.findAddressesFromCoordinates(coordinates);
-    var first = addresses.first;
-    print("${first.featureName} : ${first.addressLine}");
-    locationname = ("${first.featureName} : ${first.addressLine}");
+     final coordinates = new Coordinates(lat, long);
+     var addresses =
+     await Geocoder.local.findAddressesFromCoordinates(coordinates);
+     var first = addresses.first;
+     print("${first.featureName} : ${first.addressLine}");
+    // locationname = ("${first.featureName} : ${first.addressLine}");
+    locationname=address;
     Navigator.push(context, MaterialPageRoute<void>(
       builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
     ),);
