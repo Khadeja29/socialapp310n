@@ -543,7 +543,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   AppColors.primarypurple)),
         ),
       );
-    } else if (_PostsToBuild.isEmpty) {
+    } else if (_PostsToBuild.isEmpty && postOrientation!="locations") {
       return Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
