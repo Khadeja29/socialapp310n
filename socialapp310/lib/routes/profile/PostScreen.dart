@@ -17,23 +17,7 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 
-AppBar header(context,
-    {bool isAppTitle = false, String titleText, removeBackButton = false}) {
-  return AppBar(
-    automaticallyImplyLeading: removeBackButton ? false : true,
-    title: Text(
-      isAppTitle ? "FlutterShare" : titleText,
-      style: TextStyle(
-        color: Colors.white,
-        fontFamily: isAppTitle ? "Signatra" : "",
-        fontSize: isAppTitle ? 50.0 : 22.0,
-      ),
-      overflow: TextOverflow.ellipsis,
-    ),
-    centerTitle: true,
-    backgroundColor: Theme.of(context).accentColor,
-  );
-}
+
 
 
 
@@ -53,9 +37,29 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   User currentUser = FirebaseAuth.instance.currentUser;
   var _locationString = "Something Else";
+  String Username = "";
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
+
+
+  AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
+    return AppBar(
+      automaticallyImplyLeading: removeBackButton ? false : true,
+      title: Text(
+        isAppTitle ? "FlutterShare" : "@$titleText",
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: isAppTitle ? "Signatra" : "",
+          fontSize: isAppTitle ? 50.0 : 22.0,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+      centerTitle: true,
+      backgroundColor: AppColors.peachpink,
+    );
+  }
+
   buildPostHeader(String userId)  {
     return FutureBuilder(
       future: _listFuture2,
@@ -200,7 +204,7 @@ class _PostScreenState extends State<PostScreen> {
 
   handleLikePost(String userId) {
 
-    bool _isLiked = _Likesmap[userId] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
+    bool _isLiked = _Likesmap[currentUser.uid] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
 
     if (_isLiked) {
       getpostRef
@@ -210,7 +214,7 @@ class _PostScreenState extends State<PostScreen> {
       setState(() {
         likeCount -= 1;
         isLiked = false;
-        _Likesmap[userId] = false;
+        _Likesmap[currentUser.uid] = false;
       });
     } else if (!_isLiked) {
       getpostRef
@@ -220,7 +224,7 @@ class _PostScreenState extends State<PostScreen> {
       setState(() {
         likeCount += 1;
         isLiked = true;
-        _Likesmap[userId] = true;
+        _Likesmap[currentUser.uid] = true;
         // showHeart = true;
       });
       // Timer(Duration(milliseconds: 500), () {
@@ -247,7 +251,7 @@ class _PostScreenState extends State<PostScreen> {
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
     setState(() {
-      isLiked = result.data()['LikesMap'][widget.userId] == true ? true : false;
+      isLiked = result.data()['LikesMap'][currentUser.uid] == true;
       if (result.data()['LikesMap'] == null) {
         likeCount = 0;
       }
@@ -266,7 +270,12 @@ class _PostScreenState extends State<PostScreen> {
     return result;
   }
   Future<DocumentSnapshot> getUser() async {
-    return usersRef.doc(widget.userId).get();
+    var result = await usersRef.doc(widget.userId).get();
+    var gotUsername = result.data()['Username'];
+    setState(() {
+      Username = gotUsername;
+    });
+    return result;
   }
   setLocation(GeoPoint location1) async {
     final coordinates = new Coordinates(location1.latitude, location1.longitude);
@@ -303,7 +312,7 @@ class _PostScreenState extends State<PostScreen> {
         print("here");
         return Center(
           child: Scaffold(
-            appBar: header(context, titleText: post.caption),
+            appBar: header(context, titleText: Username),
             body: ListView(
               children: <Widget>[
                 buildPostHeader(widget.userId),
