@@ -36,8 +36,6 @@ AppBar header(context,
 }
 
 
-
-
 class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
@@ -49,6 +47,8 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+
+  String _value;
   buildPostHeader(String userId, String location)  {
     return FutureBuilder(
       future: usersRef.doc(userId).get(),
@@ -80,15 +80,84 @@ class _PostScreenState extends State<PostScreen> {
           ),
           subtitle: Text("Location goes here"),//todo convert location to string
           trailing: isPostOwner
-              ? IconButton(
-            onPressed: () => {},//todo delete post logic
-            icon: Icon(Icons.more_vert),
+              ? DropdownButton<String>(
+            elevation: 0,
+            icon:Icon(
+               Icons.more_vert,//todo how to get isliked(the map of user ids to bool values)
+              color: Colors.black,
+            ),
+            items: <String>['Edit', 'Delete'].map((String value) {
+              return new DropdownMenuItem<String>(
+                value: value,
+                child:  Text(value),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value == "Edit")
+              {}
+              else if (value == "Delete")
+              {
+                //print('here');
+              }
+
+            },
           )
               : Text(''),
         );
       },
     );
   }
+
+
+  handleDeletePost(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("Remove this post?"),
+            children: <Widget>[
+              SimpleDialogOption(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    //deletePost(); //TODO: Add delete logic
+                  },
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel')),
+            ],
+          );
+        });
+  }
+
+  deletePost() async {
+    // delete post itself
+    getpostRef
+        .doc(
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // delete uploaded image for thep ost
+
+    // then delete all activity feed notifications
+
+    // then delete all comments
+
+  }
+
+
+
+
+
+
+
+
 
   buildPostImage(String imageURL) {
     return GestureDetector(
@@ -187,7 +256,7 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  handleLikePost(String userId, Map<String,bool> likes, String postid) {
+  handleLikePost(String userId, Map<String,dynamic> likes, String postid) {
     bool _isLiked = likes[userId] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
 
     if (_isLiked) {
