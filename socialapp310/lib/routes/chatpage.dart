@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 
 class ChatPage extends StatefulWidget {
   final docs;
@@ -28,9 +29,12 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   getGroupChatId() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    //SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
-    userID = sharedPreferences.getString('Username');
+    FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+    userID = currentFB.uid;
+
+   // userID = sharedPreferences.getString('Username');
 
     String anotherUserId = widget.docs['Username'];
 
@@ -103,6 +107,7 @@ class _ChatPageState extends State<ChatPage> {
     /// Upload images to firebase and returns a URL
     //if (msg?.isEmpty ?? false) {
       print('thisiscalled $msg');
+      print('username = $userID');
       var ref = FirebaseFirestore.instance
           .collection('messages')
           .doc(groupChatId)

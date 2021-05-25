@@ -74,7 +74,7 @@ class _ChatsPageState extends State<ChatsPage> {
       child: Card(
         color: AppColors.peachpink,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(3.0),
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: 10,
@@ -100,7 +100,7 @@ class _ChatsPageState extends State<ChatsPage> {
                           ]
                       ),
                   child: CircleAvatar(
-                    radius: 35,
+                    radius: 25,
                     backgroundImage: NetworkImage(doc['ProfilePic']),
                   ),
                 ),
