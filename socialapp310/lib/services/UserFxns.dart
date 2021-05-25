@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 
 class UserFxns{
 
@@ -212,6 +213,16 @@ class UserFxns{
         .update({'Bio': Bio, 'FullName': FullName, 'Username':UserName, 'IsPrivate':IsPriv})
         .then((value) => print("Successful Edit User"))
         .catchError((error) => print("Error: $error"));
+
+    QuerySnapshot snapshot = await getpostRef
+        .where("PostUser" , isEqualTo: currentUser.uid)
+        .get();
+    
+    for(var doc in snapshot.docs){
+      await getpostRef
+          .doc(doc.id)
+          .update({'IsPrivate': IsPriv});
+    }
   }
 
 }
