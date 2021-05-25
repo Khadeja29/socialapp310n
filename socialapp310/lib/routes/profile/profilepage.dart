@@ -12,6 +12,7 @@ import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
+import 'package:socialapp310/routes/profile/PostScreen.dart';
 
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
@@ -739,15 +740,15 @@ class PostTile extends StatelessWidget {
   PostTile(this.post);
 
   showPost(context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => PostScreen(
-    //       postId: post.PostID,
-    //       userId: post.UserID,
-    //     ),
-    //   ),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostScreen(
+          postId: post.PostID,
+          userId: post.UserID,
+        ),
+      ),
+    );
    }
 
   @override
