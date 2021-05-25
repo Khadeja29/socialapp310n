@@ -161,6 +161,7 @@ class _PostScreenState extends State<PostScreen> {
     // TODO:then delete all activity feed notifications
 
 
+
     // TODO:then delete all comments
 
   }
