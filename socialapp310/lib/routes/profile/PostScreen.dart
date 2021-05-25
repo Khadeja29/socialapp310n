@@ -51,7 +51,7 @@ class PostScreen extends StatefulWidget {
 
 
 class _PostScreenState extends State<PostScreen> {
-
+  User currentUser = FirebaseAuth.instance.currentUser;
   var _locationString = "Something Else";
   bool isLiked = false;
   int likeCount = 0;
@@ -205,7 +205,7 @@ class _PostScreenState extends State<PostScreen> {
     if (_isLiked) {
       getpostRef
           .doc(widget.postId)
-          .update({'LikesMap.$userId': false});
+          .update({'LikesMap.${currentUser.uid}': false});
       //removeLikeFromActivityFeed();
       setState(() {
         likeCount -= 1;
@@ -215,7 +215,7 @@ class _PostScreenState extends State<PostScreen> {
     } else if (!_isLiked) {
       getpostRef
           .doc(widget.postId)
-          .update({'LikesMap.$userId': true});
+          .update({'LikesMap.${currentUser.uid}': true});
       //addLikeToActivityFeed();
       setState(() {
         likeCount += 1;
