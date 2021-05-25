@@ -548,19 +548,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            SizedBox(height: 50,),
             Image(
-              image: AssetImage("assets/images/noposts.jpg"),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: Text(
-                "No Posts",
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontSize: 40.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              image: AssetImage("assets/images/images.png"),
             ),
           ],
         ),
