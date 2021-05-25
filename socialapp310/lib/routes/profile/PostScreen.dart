@@ -38,7 +38,7 @@ class _PostScreenState extends State<PostScreen> {
   var _locationString = "Something Else";
   String Username = "";
   String userProfileImg = "";
-
+  String _gotLoggedinUsername;
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
@@ -299,11 +299,11 @@ class _PostScreenState extends State<PostScreen> {
         activityFeedRef
             .doc(widget.userId)
             .collection('feedItems')
-            .doc(widget.postId)
-            .set({
+            .add({
+          "PostID" : widget.postId,
           "type": "like",
           "ownerId": widget.userId,
-          "username": Username,
+          "username": _gotLoggedinUsername,
           "userId": currentUser.uid,
           "userProfileImg": userProfileImg,
           "timestamp": Timestamp.now(),
@@ -359,10 +359,13 @@ class _PostScreenState extends State<PostScreen> {
   }
   Future<DocumentSnapshot> getUser() async {
     var result = await usersRef.doc(widget.userId).get();
+    var loggedInUser = await usersRef.doc(currentUser.uid).get();
     var gotUsername = result.data()['Username'];
-    var gotProfilePic = result.data()['ProfilePic'];
+    var gotLoggedinUsername = loggedInUser.data()['Username'];
+    var gotProfilePic = loggedInUser.data()['ProfilePic'];
     setState(() {
       Username = gotUsername;
+      _gotLoggedinUsername = gotLoggedinUsername;
       userProfileImg = gotProfilePic;
     });
     return result;
