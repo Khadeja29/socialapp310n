@@ -193,6 +193,16 @@ class UserFxns{
     return result.get("ProfilePic");
   }
 
+  static Future<String> getUserName() async {
+    //Call the user's CollectionReference to add a new user
+    User currentFB =  FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(currentFB.uid)
+        .get();
+    return result.get("Username");
+  }
+
   static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {
     UserName = UserName.toLowerCase();
     User currentUser = _auth.currentUser;

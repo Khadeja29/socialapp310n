@@ -21,8 +21,9 @@ import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
 
 import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
-
+import 'package:socialapp310/routes/uploadpic/Mappage.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
+import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ class AppBase extends StatelessWidget {
       navigatorObservers: <NavigatorObserver>[observer],
       home: SplashScreen(analytics: analytics, observer: observer,),
       routes: {
+        '/searchlocation': (context) => SearchLocation(analytics: analytics, observer: observer,),
         '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
         '/login': (context) => Login(analytics: analytics, observer: observer,),
         '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
