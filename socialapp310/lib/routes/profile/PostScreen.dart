@@ -48,10 +48,17 @@ class PostScreen extends StatefulWidget {
   _PostScreenState createState() => _PostScreenState();
 }
 
+
+
 class _PostScreenState extends State<PostScreen> {
-  buildPostHeader(String userId, String location)  {
+
+  var _locationString = "Something Else";
+  bool isLiked = false;
+  int likeCount = 0;
+  Map<String,dynamic> _Likesmap;
+  buildPostHeader(String userId)  {
     return FutureBuilder(
-      future: usersRef.doc(userId).get(),
+      future: _listFuture2,
       builder: (context, docsnap) {
         if (!docsnap.hasData) {
           return Center(
@@ -63,6 +70,7 @@ class _PostScreenState extends State<PostScreen> {
 
         User currentUser = FirebaseAuth.instance.currentUser;
         bool isPostOwner = currentUser.uid == userId;
+
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: NetworkImage(data["ProfilePic"]),
@@ -78,7 +86,7 @@ class _PostScreenState extends State<PostScreen> {
               ),
             ),
           ),
-          subtitle: Text("Location goes here"),//todo convert location to string
+          subtitle: Text("$_locationString"),//todo convert location to string
           trailing: isPostOwner
               ? IconButton(
             onPressed: () => {},//todo delete post logic
@@ -89,6 +97,7 @@ class _PostScreenState extends State<PostScreen> {
       },
     );
   }
+
 
   buildPostImage(String imageURL) {
     return GestureDetector(
@@ -116,9 +125,9 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   buildPostFooter(String userId, String caption, int likes) {
-    bool isLiked = false;
+
     return FutureBuilder(
-        future: usersRef.doc(userId).get(),
+        future: _listFuture2,
         builder: (context, docsnap) {
           if (!docsnap.hasData) {
             return Center(
@@ -133,14 +142,16 @@ class _PostScreenState extends State<PostScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
-                  GestureDetector(
-                    onTap: (){}, //todo like handler
-                    child: Icon(
-                      isLiked ? Icons.favorite : Icons.favorite_border,//todo how to get isliked(the map of user ids to bool values)
-                      size: 28.0,
-                      color: Colors.pink,
-                    ),
-                  ),
+                  // GestureDetector(
+                  //   onTap: (){handleLikePost(userId);}, //todo like handler
+                  //   child: Icon(
+                  //     isLiked ? Icons.favorite : Icons.favorite_border,//todo how to get isliked(the map of user ids to bool values)
+                  //     size: 28.0,
+                  //     color: Colors.pink,
+                  //   ),
+                  // ),
+                  IconButton(icon: isLiked ? Icon(Icons.favorite,color: Colors.pink,) : Icon(Icons.favorite_border_outlined   ,color: Colors.pink,)
+                      , onPressed: (){handleLikePost(userId);}),
                   Padding(padding: EdgeInsets.only(right: 20.0)),
                   GestureDetector(
                     onTap: () {},//todo push comment page
@@ -157,7 +168,7 @@ class _PostScreenState extends State<PostScreen> {
                   Container(
                     margin: EdgeInsets.only(left: 20.0),
                     child: Text(
-                      "${likes} likes",//todo save number of likes in post
+                      "${likeCount} likes",//todo save number of likes in post
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -187,28 +198,29 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  handleLikePost(String userId, Map<String,bool> likes, String postid) {
-    bool _isLiked = likes[userId] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
+  handleLikePost(String userId) {
+
+    bool _isLiked = _Likesmap[userId] == true;//todo what happened if likes is null ? is likes[userId] null as well or does it crash
 
     if (_isLiked) {
       getpostRef
-          .doc(postid)
-          .update({'likes.$userId': false});
+          .doc(widget.postId)
+          .update({'LikesMap.$userId': false});
       //removeLikeFromActivityFeed();
       setState(() {
-        // likeCount -= 1;
-        // isLiked = false;
-        // likes[currentUserId] = false;
+        likeCount -= 1;
+        isLiked = false;
+        _Likesmap[userId] = false;
       });
     } else if (!_isLiked) {
       getpostRef
-          .doc(postid)
-          .update({'likes.$userId': true});
+          .doc(widget.postId)
+          .update({'LikesMap.$userId': true});
       //addLikeToActivityFeed();
       setState(() {
-        // likeCount += 1;
-        // isLiked = true;
-        // likes[currentUserId] = true;
+        likeCount += 1;
+        isLiked = true;
+        _Likesmap[userId] = true;
         // showHeart = true;
       });
       // Timer(Duration(milliseconds: 500), () {
@@ -219,15 +231,50 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
   Future<DocumentSnapshot> _listFuture1;
+  Future<DocumentSnapshot> _listFuture2;
   void initState() {
     super.initState();
     _listFuture1 = getPost();
+    _listFuture2 = getUser();
 
   }
   Future<DocumentSnapshot> getPost() async{
-    return getpostRef
-        .doc(widget.postId)
-        .get();
+
+    var result = await getpostRef
+                .doc(widget.postId)
+                .get();
+    var parseLocation = result.data()['Location'];
+    var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
+    setLocation(location1);
+    setState(() {
+      isLiked = result.data()['LikesMap'][widget.userId] == true ? true : false;
+      if (result.data()['LikesMap'] == null) {
+        likeCount = 0;
+      }
+      else{
+        int count = 0;
+        result.data()['LikesMap'].values.forEach((val) {
+          if (val == true) {
+            count += 1;
+          }
+        });
+        likeCount = count;
+      }
+
+      _Likesmap = result.data()['LikesMap'];
+    });
+    return result;
+  }
+  Future<DocumentSnapshot> getUser() async {
+    return usersRef.doc(widget.userId).get();
+  }
+  setLocation(GeoPoint location1) async {
+    final coordinates = new Coordinates(location1.latitude, location1.longitude);
+    var locationString = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    setState(() {
+      _locationString = locationString.first.addressLine;
+
+    });
 
   }
 
@@ -253,13 +300,13 @@ class _PostScreenState extends State<PostScreen> {
             UserID: widget.userId,
             PostID: widget.postId
         );
-
+        print("here");
         return Center(
           child: Scaffold(
             appBar: header(context, titleText: post.caption),
             body: ListView(
-              children: [
-                buildPostHeader(widget.userId, "Some String"),
+              children: <Widget>[
+                buildPostHeader(widget.userId),
                 buildPostImage(post.imageURL),
                 buildPostFooter(widget.userId, post.caption, post.likes)
               ],
