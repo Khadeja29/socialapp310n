@@ -8,9 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
-import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/welcome.dart';
-import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
