@@ -164,8 +164,16 @@ class _PostScreenState extends State<PostScreen> {
     });
     // delete uploaded image for thep ost
     // TODO:then delete all activity feed notifications
-
-
+      activityFeedRef
+          .doc(currentUser.uid)
+          .collection('feedItems')
+          .doc(widget.postId)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        }
+      });
 
     // TODO:then delete all comments
 
@@ -265,7 +273,6 @@ class _PostScreenState extends State<PostScreen> {
 
 
   handleLikePost(String userId) {
-
 
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
