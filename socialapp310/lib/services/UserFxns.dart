@@ -7,7 +7,6 @@ class UserFxns{
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
 
-
   static Future<bool> isUserNameUnique(String Username) async{
     Username = Username.toLowerCase();
     User currentUser = _auth.currentUser;
@@ -48,7 +47,9 @@ class UserFxns{
     return result.exists;
   }
   static Future<void> SignUpNormal(BuildContext context, String email,String password,String Bio, String FullName,
+
        String Username ,String ProfilePicture) async {
+
     Username = Username.toLowerCase();
     var isNewUser = false;
     try {
@@ -190,6 +191,16 @@ class UserFxns{
         .doc(currentFB.uid)
         .get();
     return result.get("ProfilePic");
+  }
+
+  static Future<String> getUserName() async {
+    //Call the user's CollectionReference to add a new user
+    User currentFB =  FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(currentFB.uid)
+        .get();
+    return result.get("Username");
   }
 
   static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {

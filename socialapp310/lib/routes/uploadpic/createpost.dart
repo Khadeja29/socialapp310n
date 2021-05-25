@@ -69,7 +69,7 @@ class _CreatePost extends State<CreatePost> {
 
     final coordinates = new Coordinates(lat, long);
     var addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     print("${first.featureName} : ${first.addressLine}");
     setState(() {
@@ -108,7 +108,7 @@ class _CreatePost extends State<CreatePost> {
   void imageuploader(String caption, File inputimageFile) {
     String imagename = DateTime.now().millisecondsSinceEpoch.toString();
     final Reference storageReference =
-        FirebaseStorage.instance.ref().child(imagename);
+    FirebaseStorage.instance.ref().child(imagename);
     final UploadTask uploadTask = storageReference.putFile(inputimageFile);
     uploadTask.then((TaskSnapshot taskSnapshot) {
       taskSnapshot.ref.getDownloadURL().then((imageUrl) {
@@ -246,11 +246,11 @@ class _CreatePost extends State<CreatePost> {
                   ],
                 ),
                 onPressed: () => {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Mappage()),
-                      )
-                    }),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Mappage()),
+                  )
+                }),
           ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
@@ -258,16 +258,16 @@ class _CreatePost extends State<CreatePost> {
                 child: Row(
                   children: <Widget>[
                     Icon(Icons.add_location),
-                    SizedBox(width: 50),
+                    SizedBox(width: 5),
                     Text('Press button to search location'),
                   ],
                 ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute<void>(
-                       builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
-                      ),);
+                    builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
+                  ),);
                 }
-                ),
+            ),
           ),
         ],
       ),
@@ -283,11 +283,6 @@ class _CreatePost extends State<CreatePost> {
     super.initState();
     _setCurrentScreen();
   }
-}
-
-class PassingValues {
-  final File imagefile;
-  PassingValues(this.imagefile);
 }
 
 // class PassingValues {
