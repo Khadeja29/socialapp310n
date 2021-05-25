@@ -145,7 +145,7 @@ class _CreatePost extends State<CreatePost> {
       lat=0;
       long=0;
     }
-    FirebaseFirestore.instance.collection('Post').doc(id_user).collection("userposts").add({
+    FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
       'Location': GeoPoint(lat, long),
