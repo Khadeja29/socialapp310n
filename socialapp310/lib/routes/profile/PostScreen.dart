@@ -302,13 +302,12 @@ class _PostScreenState extends State<PostScreen> {
       getpostRef
           .doc(widget.postId)
           .update({'LikesMap.${currentUser.uid}': true});
-      if(widget.userId != currentUser.uid)
-      {
+      if(widget.userId != currentUser.uid) {
         activityFeedRef
             .doc(widget.userId)
             .collection('feedItems')
-            .add({
-          "PostID" : widget.postId,
+            .doc(widget.postId)
+            .set({
           "type": "like",
           "ownerId": widget.userId,
           "username": _gotLoggedinUsername,
@@ -317,6 +316,7 @@ class _PostScreenState extends State<PostScreen> {
           "timestamp": Timestamp.now(),
         });
       }
+
       setState(() {
         likeCount += 1;
         isLiked = true;
