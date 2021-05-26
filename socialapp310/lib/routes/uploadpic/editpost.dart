@@ -28,23 +28,24 @@ import 'package:geocoder/geocoder.dart';
 
 import 'package:socialapp310/main.dart';
 
-class CreatePost extends StatefulWidget {
+class editpost extends StatefulWidget {
   final File imageFile;
+  String imageUrl;
   double lat;
   double long;
   String locationname='Press the button to get current location';
   String placeid;
-  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid})
+  editpost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname,placeid);
+  _editpost createState() => _editpost(imageFile,lat,long,locationname,placeid);
 }
 
 //Location Functions come here
-class _CreatePost extends State<CreatePost> {
+class _editpost extends State<editpost> {
   File imageFile;
   var location_pic;
   var caption;
@@ -56,7 +57,7 @@ class _CreatePost extends State<CreatePost> {
   double lat;
   double long;
 
-  _CreatePost(this.imageFile,this.lat,this.long,this.locationname,this.placeid);
+  _editpost(this.imageFile,this.lat,this.long,this.locationname,this.placeid);
 
   // function for getting the current location
   // but before that you need to add this permission!
@@ -72,7 +73,7 @@ class _CreatePost extends State<CreatePost> {
 
     final coordinates = new Coordinates(lat, long);
     var addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     print("${first.featureName} : ${first.addressLine}");
     setState(() {
@@ -108,22 +109,23 @@ class _CreatePost extends State<CreatePost> {
   //   caption?.dispose();
   // }
 
-  void imageuploader(String caption, File inputimageFile) {
-    String imagename = DateTime.now().millisecondsSinceEpoch.toString();
-    final Reference storageReference =
-        FirebaseStorage.instance.ref().child(imagename);
-    final UploadTask uploadTask = storageReference.putFile(inputimageFile);
-    uploadTask.then((TaskSnapshot taskSnapshot) {
-      taskSnapshot.ref.getDownloadURL().then((imageUrl) {
-        //save info to firestore
-        _saveData(imageUrl, caption);
-      });
-    }).catchError((error) {
-      Fluttertoast.showToast(
-        msg: error.toString(),
-      );
-    });
-  }
+
+  // void imageuploader(String caption, File inputimageFile) {
+  //   String imagename = DateTime.now().millisecondsSinceEpoch.toString();
+  //   final Reference storageReference =
+  //   FirebaseStorage.instance.ref().child(imagename);
+  //   final UploadTask uploadTask = storageReference.putFile(inputimageFile);
+  //   uploadTask.then((TaskSnapshot taskSnapshot) {
+  //     taskSnapshot.ref.getDownloadURL().then((imageUrl) {
+  //       //save info to firestore
+  //       _saveData(imageUrl, caption);
+  //     });
+  //   }).catchError((error) {
+  //     Fluttertoast.showToast(
+  //       msg: error.toString(),
+  //     );
+  //   });
+  // }
 
   Future<bool> checkUser()  async {
     bool privatesc;
@@ -137,7 +139,7 @@ class _CreatePost extends State<CreatePost> {
   // void newfunction ()async{
   //   print(await checkUser());
   // }
-  Future<void> _saveData(String imageUrl, String caption) async {
+  Future<void> _saveData(String imageUrl) async {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = 0;
@@ -148,18 +150,16 @@ class _CreatePost extends State<CreatePost> {
       lat=0;
       long=0;
     }
-    FirebaseFirestore.instance.collection('Post').add({
+    FirebaseFirestore.instance.collection('Post').doc('').update({
       'Image': imageUrl,
       'Caption': caption,
       'Location': GeoPoint(lat, long),
-      'Comment': comments,
-      'Likes': num,
       'createdAt': Timestamp.now(),
       'PostUser': id_user,
       'IsPrivate': isprivate,
       'locationID': placeid,
     });
-    FirebaseFirestore.instance.collection('Locations').doc('placeid').set({
+    FirebaseFirestore.instance.collection('Locations').doc('placeid').update({
       'address':locationname,
       'coordinates':GeoPoint(lat,long),
     });
@@ -173,7 +173,7 @@ class _CreatePost extends State<CreatePost> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'New Post',
+          'Edit Post',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: AppColors.darkpurple,
@@ -188,7 +188,7 @@ class _CreatePost extends State<CreatePost> {
                   //imageuploader(caption);
                   //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
 
-                  imageuploader(caption, widget.imageFile);
+                  _saveData(caption);
                   Navigator.pushNamedAndRemoveUntil(
                       context, '/homefeed', (route) => false);
                 }),
@@ -213,7 +213,9 @@ class _CreatePost extends State<CreatePost> {
                     height: 80.0,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            fit: BoxFit.cover, image: FileImage(widget.imageFile))),
+                            fit: BoxFit.cover, image: NetworkImage(widget.imageUrl)
+                        )
+                    ),
                   ),
                 ),
                 Expanded(
@@ -222,10 +224,10 @@ class _CreatePost extends State<CreatePost> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                        hintText: 'Write a caption...',
-                        hintStyle: TextStyle(
-                          color: Colors.white,
-                        )
+                          hintText: 'Write a caption...',
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                          )
                       ),
                       onChanged: ((value) {
                         setState(() {
@@ -249,7 +251,7 @@ class _CreatePost extends State<CreatePost> {
                   ),
                   prefixIcon: IconButton(
                       icon: Icon(Icons.location_on_outlined,
-                      color: Colors.red,
+                        color: Colors.red,
                       ),
                       onPressed: () => {getCurrentLocation()}),
                 ),
