@@ -17,9 +17,6 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 
-
-
-
 class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
@@ -29,8 +26,6 @@ class PostScreen extends StatefulWidget {
   @override
   _PostScreenState createState() => _PostScreenState();
 }
-
-
 
 class _PostScreenState extends State<PostScreen> {
 
@@ -43,6 +38,7 @@ class _PostScreenState extends State<PostScreen> {
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
   bool _Bookmarked = false;
+  bool _isFlagged = false;
 
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
@@ -52,12 +48,12 @@ class _PostScreenState extends State<PostScreen> {
         style: TextStyle(
           color: Colors.white,
           fontFamily: isAppTitle ? "Signatra" : "",
-          fontSize: isAppTitle ? 50.0 : 22.0,
+          fontSize: isAppTitle ? 22.0 : 22.0,
         ),
         overflow: TextOverflow.ellipsis,
       ),
       centerTitle: true,
-      backgroundColor: AppColors.peachpink,
+      backgroundColor: AppColors.darkpurple,
     );
   }
 
@@ -77,52 +73,81 @@ class _PostScreenState extends State<PostScreen> {
         bool isPostOwner = currentUser.uid == userId;
 
         return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(data["ProfilePic"]),
-            backgroundColor: Colors.grey,
+          leading: Container(
+            width: 50,
+            height: 60,
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(data["ProfilePic"]),
+              backgroundColor: Colors.grey,
+            ),
           ),
           title: GestureDetector(
-            onTap: () => {},//todo on tap of username do something
-            child: Text(
-              data["Username"],
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            onTap: () => {},//TODO: on tap of username do something
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(5, 2, 0, 6),
+              child: Text(
+                data["Username"],
+                style: TextStyle(
+                  color: AppColors.darkpurple,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
-          subtitle: Text("$_locationString"),//todo convert location to string
+          subtitle: Row(
+            children: [
+               Icon(
+                Icons.location_pin,
+                color: Colors.red,
+                 size: 18,
+              ),
+              SizedBox(width: 2),
+              Expanded(
+                child: Text(
+                  "$_locationString",
+                  style: TextStyle(
+                  color: Colors.blue[800],
+                ),
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
           trailing: isPostOwner
-              ? DropdownButton<String>(
-            elevation: 0,
-            icon:Icon(
-               Icons.more_vert,//todo how to get isliked(the map of user ids to bool values)
-              color: Colors.black,
-            ),
+                ? DropdownButton<String>(
+                       elevation: 0,
+                        iconSize: 25,
+                        icon:Icon(
+                          Icons.more_vert,
+                           color: Colors.blueGrey,
+                        ),
             items: <String>['Edit', 'Delete'].map((String value) {
-              return new DropdownMenuItem<String>(
-                value: value,
-                child:  Text(value),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value == "Edit")
-              {}
-              else if (value == "Delete")
-              {
-                handleDeletePost(context);
-              }
+                return new DropdownMenuItem<String>(
+                  value: value,
+                  child:  Text(value),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value == "Edit")
+                {
+                  //TODO: Edit post
+                }
+                else if (value == "Delete")
+                {
+                  handleDeletePost(context);
+                }
 
-            },
-          )
-              : Text(''),
+              },
+            )
+                : Text(''),
+
         );
       },
     );
   }
-
-
-
   handleDeletePost(BuildContext parentContext) {
     return showDialog(
         context: parentContext,
@@ -150,7 +175,6 @@ class _PostScreenState extends State<PostScreen> {
           );
         });
   }
-
   deletePost() async {
     // delete post itself
     getpostRef
@@ -177,33 +201,27 @@ class _PostScreenState extends State<PostScreen> {
            .doc(notif.id)
            .delete();
     }
-
     // TODO:then delete all comments
 
   }
 
   buildPostImage(String imageURL) {
-    return GestureDetector(
-      onDoubleTap: (){},//to do, handle like here
-      child: Container(//todo fix sizing issues
-        padding:  EdgeInsets.all(0),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8,5,5,8),
+      child: Container(
+        height: (MediaQuery.of(context).size.width)-70,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(0),
-          child: Image(
-            fit: BoxFit.cover,
-            image:
-            NetworkImage(imageURL),
+          image: DecorationImage(
+            image: NetworkImage(imageURL),
+            fit: BoxFit.fill,
           ),
         ),
       ),
     );
   }
 
-  buildPostFooter(String userId, String caption, int likes , String imageURL) {
 
+  buildPostFooter(String userId, String caption, int likes , String imageURL) {
     return FutureBuilder(
         future: _listFuture2,
         builder: (context, docsnap) {
@@ -214,23 +232,54 @@ class _PostScreenState extends State<PostScreen> {
                         AppColors.primarypurple)));
           }
           Map<String, dynamic> data = docsnap.data.data();
+          bool isPostOwner = currentUser.uid == userId;
           return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
-                  IconButton(icon: isLiked ? Icon(Icons.favorite,color: Colors.pink,) : Icon(Icons.favorite_border_outlined   ,color: Colors.pink,)
-                      , onPressed: (){handleLikePost(userId);}),
-                  Padding(padding: EdgeInsets.only(right: 20.0)),
+                  Padding(
+                      padding: EdgeInsets.only(top: 40.0, left: 2.0)
+                  ),
+                  IconButton(
+                      icon: isLiked ? Icon(
+                        Icons.favorite,
+                        color: Colors.pink,
+                        size: 28,)
+                          : Icon(
+                        Icons.favorite_border_outlined,
+                        color: Colors.pink,
+                        size:28,
+                      )
+                      , onPressed: (){
+                        handleLikePost(userId);
+                      }),
+                  Padding(
+                      padding: EdgeInsets.only(top: 40.0, left: 5.0)
+                  ),
                   GestureDetector(
                     onTap: () {},//todo push comment page
                     child: Icon(
-                      Icons.chat,
-                      size: 28.0,
-                      color: Colors.blue[900],
+                      Icons.chat_bubble_outline_sharp,
+                      size: 26.0,
+                      color: Colors.grey[600],
                     ),
                   ),
+                  SizedBox(width: 260),
+                  !isPostOwner?GestureDetector(
+                      onTap: () {}, //TODO:add reshare functions
+                      child: (!_isFlagged) ? Icon(
+                        Icons.assistant_photo_outlined,
+                        size: 28.0,
+                        color: Colors.blueGrey[900],
+                      ) :  Icon(
+                        Icons.assistant_photo,
+                        size: 28.0,
+                        color: Colors.blueGrey[900],
+                      )
+                  ): SizedBox(width:5,),
+
                   GestureDetector(
                     onTap: () {handleBookmark(imageURL); },//todo add to favorites
                     child: _Bookmarked ? Icon(
@@ -243,43 +292,55 @@ class _PostScreenState extends State<PostScreen> {
                       color: Colors.blue[900],
                     )
                   ),
+                  //TODO: add reshare button
+
                 ],
               ),
               Row(
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(left: 20.0),
+                    margin: EdgeInsets.only(left: 15.0),
                     child: Text(
                       "${likeCount} likes",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 5),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(left: 20.0),
+                    margin: EdgeInsets.only(left: 15.0),
                     child: Text(
                       "${data["Username"]}",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
                   ),
-                  Expanded(child: Text(caption))
+                  SizedBox(width:5,),
+                  Expanded(child: Text(
+                      caption,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                    ),
+                  )
+                  )
                 ],
               ),
             ],
           );}
     );
   }
-
   handleBookmark(String imageURL) async {
   var results = await favoriteRef
                 .where("PostId", isEqualTo: widget.postId)
@@ -309,7 +370,6 @@ class _PostScreenState extends State<PostScreen> {
   }
   handleLikePost(String userId) async {
 
-
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
       getpostRef
@@ -325,11 +385,6 @@ class _PostScreenState extends State<PostScreen> {
             .get();
         for(var notif in toDelete.docs)
         {
-          // activityFeedRef
-          //     .doc(widget.userId)
-          //     .collection('feedItems')
-          //     .doc(notif.id)
-          //     .delete();
           if(notif.data()["userId"] == currentUser.uid)
           {
             activityFeedRef
@@ -351,8 +406,7 @@ class _PostScreenState extends State<PostScreen> {
       getpostRef
           .doc(widget.postId)
           .update({'LikesMap.${currentUser.uid}': true});
-      if(widget.userId != currentUser.uid)
-      {
+      if(widget.userId != currentUser.uid) {
         activityFeedRef
             .doc(widget.userId)
             .collection('feedItems')
@@ -366,6 +420,7 @@ class _PostScreenState extends State<PostScreen> {
           "timestamp": Timestamp.now(),
         });
       }
+
       setState(() {
         likeCount += 1;
         isLiked = true;
@@ -379,6 +434,7 @@ class _PostScreenState extends State<PostScreen> {
       // });
     }
   }
+
   Future<DocumentSnapshot> _listFuture1;
   Future<DocumentSnapshot> _listFuture2;
   void initState() {
@@ -448,7 +504,6 @@ class _PostScreenState extends State<PostScreen> {
     });
 
   }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -478,7 +533,9 @@ class _PostScreenState extends State<PostScreen> {
             appBar: header(context, titleText: Username),
             body: ListView(
               children: <Widget>[
+                SizedBox(height: 5),
                 buildPostHeader(widget.userId),
+                SizedBox(height: 5),
                 buildPostImage(post.imageURL),
                 buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL)
               ],
