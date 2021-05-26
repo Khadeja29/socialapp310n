@@ -42,7 +42,7 @@ class _PostScreenState extends State<PostScreen> {
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
-
+  bool _Bookmarked = false;
 
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
@@ -132,9 +132,9 @@ class _PostScreenState extends State<PostScreen> {
             children: <Widget>[
               SimpleDialogOption(
                   onPressed: () async {
-                    print("not yet");
+
                     await deletePost();
-                    print("deleted");
+
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer)
                     ),);
@@ -185,29 +185,24 @@ class _PostScreenState extends State<PostScreen> {
   buildPostImage(String imageURL) {
     return GestureDetector(
       onDoubleTap: (){},//to do, handle like here
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Container(//todo fix sizing issues
-            padding:  EdgeInsets.all(0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(0),
-              child: Image(
-                fit: BoxFit.cover,
-                image:
-                NetworkImage(imageURL),
-              ),
-            ),
+      child: Container(//todo fix sizing issues
+        padding:  EdgeInsets.all(0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(0),
+          child: Image(
+            fit: BoxFit.cover,
+            image:
+            NetworkImage(imageURL),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  buildPostFooter(String userId, String caption, int likes) {
+  buildPostFooter(String userId, String caption, int likes , String imageURL) {
 
     return FutureBuilder(
         future: _listFuture2,
@@ -235,6 +230,18 @@ class _PostScreenState extends State<PostScreen> {
                       size: 28.0,
                       color: Colors.blue[900],
                     ),
+                  ),
+                  GestureDetector(
+                    onTap: () {handleBookmark(imageURL); },//todo add to favorites
+                    child: _Bookmarked ? Icon(
+                      Icons.bookmark,
+                      size: 28.0,
+                      color: Colors.blue[900],
+                    ) : Icon(
+                      Icons.bookmark_border,
+                      size: 28.0,
+                      color: Colors.blue[900],
+                    )
                   ),
                 ],
               ),
@@ -273,8 +280,33 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-
-
+  handleBookmark(String imageURL) async {
+  var results = await favoriteRef
+                .where("PostId", isEqualTo: widget.postId)
+                .where("UserId", isEqualTo: currentUser.uid)
+                .get();
+  bool bookmarked;
+  if(results.docs.isNotEmpty)
+  {
+    //remove it
+    for(var result in results.docs)
+    {
+      favoriteRef
+          .doc(result.id)
+          .delete();
+    }
+    bookmarked = false;
+  }
+  else{
+    //add it
+    favoriteRef
+        .add({"PostId" : widget.postId, "UserId" : currentUser.uid, "Image" : imageURL});
+    bookmarked = true;
+  }
+  setState(() {
+    _Bookmarked = bookmarked;
+  });
+  }
   handleLikePost(String userId) async {
 
 
@@ -353,6 +385,17 @@ class _PostScreenState extends State<PostScreen> {
     super.initState();
     _listFuture1 = getPost();
     _listFuture2 = getUser();
+    setBookmark();
+  }
+
+  setBookmark() async {
+    var results = await favoriteRef
+        .where("PostId", isEqualTo: widget.postId)
+        .where("UserId", isEqualTo: currentUser.uid)
+        .get();
+    setState(() {
+      _Bookmarked = results.docs.isNotEmpty;
+    });
 
   }
   Future<DocumentSnapshot> getPost() async{
@@ -362,6 +405,7 @@ class _PostScreenState extends State<PostScreen> {
                 .get();
     var parseLocation = result.data()['Location'];
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
+
     setLocation(location1);
     setState(() {
       isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
@@ -416,6 +460,7 @@ class _PostScreenState extends State<PostScreen> {
                   valueColor: new AlwaysStoppedAnimation<Color>(
                       AppColors.primarypurple)));
         }
+        print(snapshot.data);
         Post1 post = Post1(
             caption: snapshot.data["Caption"],
             imageURL: snapshot.data["Image"],
@@ -427,7 +472,7 @@ class _PostScreenState extends State<PostScreen> {
             UserID: widget.userId,
             PostID: widget.postId
         );
-        print("here");
+
         return Center(
           child: Scaffold(
             appBar: header(context, titleText: Username),
@@ -435,7 +480,7 @@ class _PostScreenState extends State<PostScreen> {
               children: <Widget>[
                 buildPostHeader(widget.userId),
                 buildPostImage(post.imageURL),
-                buildPostFooter(widget.userId, post.caption, post.likes)
+                buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL)
               ],
             ),
           ),

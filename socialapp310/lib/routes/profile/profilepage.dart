@@ -20,7 +20,7 @@ final followingRef = FirebaseFirestore.instance.collection('following');
 final usersRef = FirebaseFirestore.instance.collection('user');
 final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 final getpostRef = FirebaseFirestore.instance.collection('Post');
-
+final favoriteRef = FirebaseFirestore.instance.collection('Favorites');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
