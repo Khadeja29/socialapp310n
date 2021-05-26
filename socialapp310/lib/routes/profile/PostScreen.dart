@@ -39,6 +39,9 @@ class _PostScreenState extends State<PostScreen> {
   Map<String,dynamic> _Likesmap;
   bool _Bookmarked = false;
   bool _isFlagged = false;
+  final animatorKeyLike = AnimatorKey<double>();
+  final animatorKeyLike2 = AnimatorKey<double>();
+  final animatorKeyBookmark = AnimatorKey<double>();
 
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
@@ -206,17 +209,53 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   buildPostImage(String imageURL) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8,5,5,8),
-      child: Container(
-        height: (MediaQuery.of(context).size.width)-70,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(imageURL),
-            fit: BoxFit.fill,
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        GestureDetector(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) {
+              return DetailScreenLink(
+                ImageUrlPost: imageURL,
+              );
+            }));
+          },
+          onDoubleTap: (){handleLikePost(widget.userId);},
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8,5,5,8),
+            child: Container(
+              height: (MediaQuery.of(context).size.width)-70,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(imageURL),
+                  fit: BoxFit.cover  ,
+                ),
+              ),
+            ),
           ),
         ),
-      ),
+        Animator<double>(
+          tween: Tween<double>(begin: 0, end: 200),
+          cycles: 2,
+          animatorKey: animatorKeyLike2,
+          triggerOnInit: false,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.bounceIn,
+
+          builder: (context, animatorState, child ) => Center(
+            child:  isLiked ? Icon(
+                  Icons.favorite,
+                  color: Colors.pink.withOpacity(0.7),
+                  size: animatorState.value,)
+                    : Icon(
+                  Icons.favorite_border_outlined,
+                  color: Colors.pink,
+                  size:animatorState.value,
+                )
+                ),
+          ),
+
+      ]
     );
   }
 
@@ -237,62 +276,101 @@ class _PostScreenState extends State<PostScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.only(top: 40.0, left: 2.0)
-                  ),
-                  IconButton(
-                      icon: isLiked ? Icon(
-                        Icons.favorite,
-                        color: Colors.pink,
-                        size: 28,)
-                          : Icon(
-                        Icons.favorite_border_outlined,
-                        color: Colors.pink,
-                        size:28,
-                      )
-                      , onPressed: (){
-                        handleLikePost(userId);
-                      }),
-                  Padding(
-                      padding: EdgeInsets.only(top: 40.0, left: 5.0)
-                  ),
-                  GestureDetector(
-                    onTap: () {},//todo push comment page
-                    child: Icon(
-                      Icons.chat_bubble_outline_sharp,
-                      size: 26.0,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  SizedBox(width: 260),
-                  !isPostOwner?GestureDetector(
-                      onTap: () {}, //TODO:add reshare functions
-                      child: (!_isFlagged) ? Icon(
-                        Icons.assistant_photo_outlined,
-                        size: 28.0,
-                        color: Colors.blueGrey[900],
-                      ) :  Icon(
-                        Icons.assistant_photo,
-                        size: 28.0,
-                        color: Colors.blueGrey[900],
-                      )
-                  ): SizedBox(width:5,),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Animator<double>(
+                            tween: Tween<double>(begin: 0, end: 28),
+                            cycles: 1,
+                            animatorKey: animatorKeyLike,
+                            triggerOnInit: true,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.decelerate,
+                            builder: (context, animatorState, child ) => Center(
+                              child: IconButton(
+                                  icon: isLiked ? Icon(
+                                    Icons.favorite,
+                                    color: Colors.pink,
+                                    size: animatorState.value,)
+                                      : Icon(
+                                    Icons.favorite_border_outlined,
+                                    color: Colors.pink,
+                                    size:animatorState.value,
+                                  )
+                                  , onPressed: () async {
 
-                  GestureDetector(
-                    onTap: () {handleBookmark(imageURL); },//todo add to favorites
-                    child: _Bookmarked ? Icon(
-                      Icons.bookmark,
-                      size: 28.0,
-                      color: Colors.blue[900],
-                    ) : Icon(
-                      Icons.bookmark_border,
-                      size: 28.0,
-                      color: Colors.blue[900],
-                    )
-                  ),
-                  //TODO: add reshare button
+                                handleLikePost(userId);
+
+                              }),
+                            ),
+                          ),
+
+                          Padding(
+                              padding: EdgeInsets.only(top: 40.0, left: 5.0)
+                          ),
+                          GestureDetector(
+                            onTap: () {},//todo push comment page
+                            child: Icon(
+                              Icons.chat_bubble_outline_sharp,
+                              size: 26.0,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(top: 40.0, left: 5.0)
+                          ),
+                          !isPostOwner?GestureDetector(
+                              onTap: () {}, //TODO:add reshare functions
+                              child: (!_isFlagged) ? Icon(
+                                Icons.assistant_photo_outlined,
+                                size: 28.0,
+                                color: Colors.blueGrey[900],
+                              ) :  Icon(
+                                Icons.assistant_photo,
+                                size: 28.0,
+                                color: Colors.blueGrey[900],
+                              )
+                          ): SizedBox(width:5,),
+                        ],
+                    ),
+                  Row(
+                    children: <Widget>[
+                      Animator<double>(
+                        tween: Tween<double>(begin: 0, end: 28),
+                        cycles: 1,
+                        animatorKey: animatorKeyBookmark,
+                        triggerOnInit: true,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.decelerate,
+                        builder: (context, animatorState, child ) => Center(
+                          child: GestureDetector(
+                              onTap: () {
+                                animatorKeyBookmark.refreshAnimation(
+                                    tween: Tween<double>(begin: 0, end: 28),//new tween
+                                    duration : Duration(milliseconds: 500),
+                                    curve : Curves.elasticOut,
+                                    cycles : 1
+                                );
+                                animatorKeyBookmark.triggerAnimation(restart:  true);
+                                handleBookmark(imageURL); },//todo add to favorites
+                              child: _Bookmarked ? Icon(
+                                Icons.bookmark,
+                                size: animatorState.value,
+                                color: Colors.blue[900],
+                              ) : Icon(
+                                Icons.bookmark_border,
+                                size: animatorState.value,
+                                color: Colors.blue[900],
+                              )
+                          ),
+                        ),
+                      ),
+
+                      //TODO: add reshare button
+                      SizedBox(width: 5,)],
+                  )
 
                 ],
               ),
@@ -369,7 +447,12 @@ class _PostScreenState extends State<PostScreen> {
   });
   }
   handleLikePost(String userId) async {
-
+    animatorKeyLike.refreshAnimation(
+        tween: Tween<double>(begin: 0, end: 28),//new tween
+        duration : Duration(milliseconds: 500),
+        curve : Curves.elasticOut,
+        cycles : 1
+    );
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
       getpostRef
@@ -399,9 +482,13 @@ class _PostScreenState extends State<PostScreen> {
       }
       setState(() {
         likeCount -= 1;
+
         isLiked = false;
         _Likesmap[currentUser.uid] = false;
+
+
       });
+
     } else if (!_isLiked) {
       getpostRef
           .doc(widget.postId)
@@ -425,6 +512,8 @@ class _PostScreenState extends State<PostScreen> {
         likeCount += 1;
         isLiked = true;
         _Likesmap[currentUser.uid] = true;
+        animatorKeyLike2.triggerAnimation(restart: true);
+
         // showHeart = true;
       });
       // Timer(Duration(milliseconds: 500), () {
@@ -433,6 +522,8 @@ class _PostScreenState extends State<PostScreen> {
       //   });
       // });
     }
+    animatorKeyLike.triggerAnimation(restart:  true);
+
   }
 
   Future<DocumentSnapshot> _listFuture1;
