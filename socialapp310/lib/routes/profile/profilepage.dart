@@ -214,12 +214,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .doc(widget.UID)
         .collection('feedItems')
         .doc(currentUser.uid)
-        .set({
+        .set({//todo think about adding post id(as an empty value) or not
+      "PostID": "NoPost",
       "type": "follow",
       "ownerId": widget.UID,
-      "username": username,//todo: pass username from previous page
+      //"username": username,//todo: pass username from previous page
       "userId": currentUser.uid,
-      "userProfileImg": userProfileImg,
+      //"userProfileImg": userProfileImg,
       "timestamp": timestamp,
     });
 

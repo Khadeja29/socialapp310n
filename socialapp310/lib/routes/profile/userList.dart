@@ -190,11 +190,12 @@ class _userListState extends State<userList>{
               .collection('feedItems')
               .doc(widget.currentUserId)
               .set({
+            "PostID": "NoPost",
             "type": "follow",
             "ownerId": user.UID,
-            "username": username,
+            //"username": username,
             "userId": widget.currentUserId,
-            "userProfileImg": userProfileImg,
+            //"userProfileImg": userProfileImg,
             "timestamp": timestamp,
 
           });
