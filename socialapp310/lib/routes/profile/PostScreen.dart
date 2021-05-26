@@ -17,9 +17,6 @@ import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 
-
-
-
 class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
@@ -29,8 +26,6 @@ class PostScreen extends StatefulWidget {
   @override
   _PostScreenState createState() => _PostScreenState();
 }
-
-
 
 class _PostScreenState extends State<PostScreen> {
 
@@ -42,7 +37,8 @@ class _PostScreenState extends State<PostScreen> {
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
-
+  bool _Bookmarked = false;
+  bool _isFlagged = false;
 
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
@@ -52,12 +48,12 @@ class _PostScreenState extends State<PostScreen> {
         style: TextStyle(
           color: Colors.white,
           fontFamily: isAppTitle ? "Signatra" : "",
-          fontSize: isAppTitle ? 50.0 : 22.0,
+          fontSize: isAppTitle ? 22.0 : 22.0,
         ),
         overflow: TextOverflow.ellipsis,
       ),
       centerTitle: true,
-      backgroundColor: AppColors.peachpink,
+      backgroundColor: AppColors.darkpurple,
     );
   }
 
@@ -92,8 +88,9 @@ class _PostScreenState extends State<PostScreen> {
               child: Text(
                 data["Username"],
                 style: TextStyle(
-                  color: Colors.black,
+                  color: AppColors.darkpurple,
                   fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -102,7 +99,7 @@ class _PostScreenState extends State<PostScreen> {
             children: [
                Icon(
                 Icons.location_pin,
-                color: AppColors.darkpurple,
+                color: Colors.red,
                  size: 18,
               ),
               SizedBox(width: 2),
@@ -110,7 +107,7 @@ class _PostScreenState extends State<PostScreen> {
                 child: Text(
                   "$_locationString",
                   style: TextStyle(
-                  color: Colors.red,
+                  color: Colors.blue[800],
                 ),
                   overflow: TextOverflow.ellipsis,
                   softWrap: true,
@@ -118,13 +115,13 @@ class _PostScreenState extends State<PostScreen> {
                 ),
               ),
             ],
-          ), //todo convert location to string
+          ),
           trailing: isPostOwner
                 ? DropdownButton<String>(
                        elevation: 0,
                         iconSize: 25,
                         icon:Icon(
-                          Icons.more_vert,//todo how to get isliked(the map of user ids to bool values)
+                          Icons.more_vert,
                            color: Colors.blueGrey,
                         ),
             items: <String>['Edit', 'Delete'].map((String value) {
@@ -151,7 +148,6 @@ class _PostScreenState extends State<PostScreen> {
       },
     );
   }
-
   handleDeletePost(BuildContext parentContext) {
     return showDialog(
         context: parentContext,
@@ -161,9 +157,9 @@ class _PostScreenState extends State<PostScreen> {
             children: <Widget>[
               SimpleDialogOption(
                   onPressed: () async {
-                    print("not yet");
+
                     await deletePost();
-                    print("deleted");
+
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer)
                     ),);
@@ -224,7 +220,8 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  buildPostFooter(String userId, String caption, int likes) {
+
+  buildPostFooter(String userId, String caption, int likes , String imageURL) {
     return FutureBuilder(
         future: _listFuture2,
         builder: (context, docsnap) {
@@ -235,6 +232,7 @@ class _PostScreenState extends State<PostScreen> {
                         AppColors.primarypurple)));
           }
           Map<String, dynamic> data = docsnap.data.data();
+          bool isPostOwner = currentUser.uid == userId;
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -268,8 +266,33 @@ class _PostScreenState extends State<PostScreen> {
                       color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(width: 270),
-                  //TODO:BOOKMARKS
+                  SizedBox(width: 260),
+                  !isPostOwner?GestureDetector(
+                      onTap: () {}, //TODO:add reshare functions
+                      child: (!_isFlagged) ? Icon(
+                        Icons.assistant_photo_outlined,
+                        size: 28.0,
+                        color: Colors.blueGrey[900],
+                      ) :  Icon(
+                        Icons.assistant_photo,
+                        size: 28.0,
+                        color: Colors.blueGrey[900],
+                      )
+                  ): SizedBox(width:5,),
+
+                  GestureDetector(
+                    onTap: () {handleBookmark(imageURL); },//todo add to favorites
+                    child: _Bookmarked ? Icon(
+                      Icons.bookmark,
+                      size: 28.0,
+                      color: Colors.blue[900],
+                    ) : Icon(
+                      Icons.bookmark_border,
+                      size: 28.0,
+                      color: Colors.blue[900],
+                    )
+                  ),
+                  //TODO: add reshare button
 
                 ],
               ),
@@ -317,6 +340,33 @@ class _PostScreenState extends State<PostScreen> {
             ],
           );}
     );
+  }
+  handleBookmark(String imageURL) async {
+  var results = await favoriteRef
+                .where("PostId", isEqualTo: widget.postId)
+                .where("UserId", isEqualTo: currentUser.uid)
+                .get();
+  bool bookmarked;
+  if(results.docs.isNotEmpty)
+  {
+    //remove it
+    for(var result in results.docs)
+    {
+      favoriteRef
+          .doc(result.id)
+          .delete();
+    }
+    bookmarked = false;
+  }
+  else{
+    //add it
+    favoriteRef
+        .add({"PostId" : widget.postId, "UserId" : currentUser.uid, "Image" : imageURL});
+    bookmarked = true;
+  }
+  setState(() {
+    _Bookmarked = bookmarked;
+  });
   }
   handleLikePost(String userId) async {
 
@@ -384,12 +434,24 @@ class _PostScreenState extends State<PostScreen> {
       // });
     }
   }
+
   Future<DocumentSnapshot> _listFuture1;
   Future<DocumentSnapshot> _listFuture2;
   void initState() {
     super.initState();
     _listFuture1 = getPost();
     _listFuture2 = getUser();
+    setBookmark();
+  }
+
+  setBookmark() async {
+    var results = await favoriteRef
+        .where("PostId", isEqualTo: widget.postId)
+        .where("UserId", isEqualTo: currentUser.uid)
+        .get();
+    setState(() {
+      _Bookmarked = results.docs.isNotEmpty;
+    });
 
   }
   Future<DocumentSnapshot> getPost() async{
@@ -399,6 +461,7 @@ class _PostScreenState extends State<PostScreen> {
                 .get();
     var parseLocation = result.data()['Location'];
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
+
     setLocation(location1);
     setState(() {
       isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
@@ -441,7 +504,6 @@ class _PostScreenState extends State<PostScreen> {
     });
 
   }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -453,6 +515,7 @@ class _PostScreenState extends State<PostScreen> {
                   valueColor: new AlwaysStoppedAnimation<Color>(
                       AppColors.primarypurple)));
         }
+        print(snapshot.data);
         Post1 post = Post1(
             caption: snapshot.data["Caption"],
             imageURL: snapshot.data["Image"],
@@ -464,7 +527,7 @@ class _PostScreenState extends State<PostScreen> {
             UserID: widget.userId,
             PostID: widget.postId
         );
-        print("here");
+
         return Center(
           child: Scaffold(
             appBar: header(context, titleText: Username),
@@ -474,7 +537,7 @@ class _PostScreenState extends State<PostScreen> {
                 buildPostHeader(widget.userId),
                 SizedBox(height: 5),
                 buildPostImage(post.imageURL),
-                buildPostFooter(widget.userId, post.caption, post.likes)
+                buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL)
               ],
             ),
           ),
