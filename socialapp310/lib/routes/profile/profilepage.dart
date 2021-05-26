@@ -47,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int followerCount;
   int followingCount;
   int PostCount;
+  bool _isPrivate = true;
   bool isLoading = true;
   //Analytics
   Future<void> _setLogEvent() async {
@@ -65,6 +66,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     super.initState();
 
+
+    _setupall();
+
+  }
+
+  _setupall() async {
     if(widget.UID != null)
     {
       UID = widget.UID;
@@ -72,13 +79,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     else {
       UID = currentUser.uid;
     }
+    setState(() {
 
+      isLoading = true;
+    });
     _setCurrentScreen();
-    checkIfFollowing();
+
     getFollowers();
     getFollowing();
     GetPosts();
     _listFuture = getUserInfo();
+    await checkIfFollowing();
+    setState(() {
+
+      isLoading = false;
+    });
 
   }
   checkIfFollowing() async {
@@ -87,13 +102,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .collection('userFollowers')
         .doc(currentUser.uid)
         .get();
+    var ProfileUser;
+    bool isPrivate;
+    if(UID != currentUser.uid) {
+      ProfileUser = await usersRef.doc(UID).get();
+      isPrivate = ProfileUser.data()["IsPrivate"];
+    }
+    else {
+      isPrivate = false;
+    }
     setState(() {
+
       isFollowing = doc.exists;
+      _isPrivate = isPrivate;
+
+      print(_isPrivate);
     });
   }
   GetPosts() async {
     setState(() {
-      isLoading = true;
+      //isLoading = true;
     });
     List<Post1> PostsToBuild = [];
     QuerySnapshot snapshot = await getpostRef
@@ -116,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       PostCount = snapshot.docs.length;
       _PostsToBuild = PostsToBuild;
-      isLoading = false;
+      //isLoading = false;
     });
 
   }
@@ -341,13 +369,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         function: (){handleUnfollowUser();},
 
       );
-    } else if (!isFollowing) {
+    } else if (!isFollowing && !_isPrivate) {
       return buildButton(
         text: "Follow",
         function: (){handleFollowUser();},
 
       );
     }
+    else if(!isFollowing && _isPrivate)
+    {return buildButton(
+      text: "Request Follow",
+      function: (){},//TODO: request follow system
+
+    );}
   }
 
   //Main Header Widget: Avatar,following,follower,Post count,Bio,Username,Name
@@ -508,9 +542,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
   buildTogglePostOrientation() {
-    return Row(
+    return (!_isPrivate || isFollowing) ? Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
+      children:  <Widget>[
         IconButton(
           onPressed: () => setPostOrientation("grid"),
           icon: Icon(Icons.grid_on),
@@ -532,8 +566,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ? AppColors.peachpink
               : Colors.grey,
         ),
-      ],
-    );
+      ] ,
+    ): Image(image: AssetImage("assets/images/Private.png"),);
   }
 
   buildProfilePosts() {
@@ -545,7 +579,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   AppColors.primarypurple)),
         ),
       );
-    } else if (_PostsToBuild.isEmpty && postOrientation!="locations") {
+    }
+    else if(_isPrivate && !isFollowing){
+      return Text(" ");
+    }
+    else if (_PostsToBuild.isEmpty && postOrientation!="locations") {
       return Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
