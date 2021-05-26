@@ -164,17 +164,19 @@ class _PostScreenState extends State<PostScreen> {
     });
     // delete uploaded image for thep ost
     // TODO:then delete all activity feed notifications
-      activityFeedRef
-          .doc(currentUser.uid)
-          .collection('feedItems')
-          .doc(widget.postId)
-          .get()
-          .then((doc) {
-        if (doc.exists) {
-          doc.reference.delete();
-        }
-      });
-
+    var toDelete =  await activityFeedRef
+        .doc(widget.userId)
+        .collection('feedItems')
+        .where('PostID', isEqualTo: widget.postId)
+        .get();
+    for(var notif in toDelete.docs)
+    {
+       activityFeedRef
+           .doc(widget.userId)
+           .collection('feedItems')
+           .doc(notif.id)
+           .delete();
+    }
     // TODO:then delete all comments
 
   }
@@ -272,7 +274,7 @@ class _PostScreenState extends State<PostScreen> {
 
 
 
-  handleLikePost(String userId) {
+  handleLikePost(String userId) async {
 
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
@@ -282,16 +284,29 @@ class _PostScreenState extends State<PostScreen> {
       //removeLikeFromActivityFeed();
       if(widget.userId != currentUser.uid)
       {
-        activityFeedRef
+        var toDelete =  await activityFeedRef
             .doc(widget.userId)
             .collection('feedItems')
-            .doc(widget.postId)
-            .get()
-            .then((doc) {
-          if (doc.exists) {
-            doc.reference.delete();
+            .where('PostID', isEqualTo: widget.postId)
+            .get();
+        for(var notif in toDelete.docs)
+        {
+          // activityFeedRef
+          //     .doc(widget.userId)
+          //     .collection('feedItems')
+          //     .doc(notif.id)
+          //     .delete();
+          if(notif.data()["userId"] == currentUser.uid)
+          {
+            activityFeedRef
+                .doc(widget.userId)
+                .collection('feedItems')
+                .doc(notif.id)
+                .delete();
+            break;
           }
-        });
+        }
+
       }
       setState(() {
         likeCount -= 1;
@@ -306,13 +321,13 @@ class _PostScreenState extends State<PostScreen> {
         activityFeedRef
             .doc(widget.userId)
             .collection('feedItems')
-            .doc(widget.postId)
-            .set({
+            .add({
+          "PostID": widget.postId,
           "type": "like",
           "ownerId": widget.userId,
-          "username": _gotLoggedinUsername,
+          //"username": _gotLoggedinUsername,
           "userId": currentUser.uid,
-          "userProfileImg": userProfileImg,
+          //"userProfileImg": userProfileImg,2
           "timestamp": Timestamp.now(),
         });
       }
