@@ -77,51 +77,80 @@ class _PostScreenState extends State<PostScreen> {
         bool isPostOwner = currentUser.uid == userId;
 
         return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(data["ProfilePic"]),
-            backgroundColor: Colors.grey,
+          leading: Container(
+            width: 50,
+            height: 60,
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(data["ProfilePic"]),
+              backgroundColor: Colors.grey,
+            ),
           ),
           title: GestureDetector(
-            onTap: () => {},//todo on tap of username do something
-            child: Text(
-              data["Username"],
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            onTap: () => {},//TODO: on tap of username do something
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(5, 2, 0, 6),
+              child: Text(
+                data["Username"],
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-          subtitle: Text("$_locationString"),//todo convert location to string
+          subtitle: Row(
+            children: [
+               Icon(
+                Icons.location_pin,
+                color: AppColors.darkpurple,
+                 size: 18,
+              ),
+              SizedBox(width: 2),
+              Expanded(
+                child: Text(
+                  "$_locationString",
+                  style: TextStyle(
+                  color: Colors.red,
+                ),
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ), //todo convert location to string
           trailing: isPostOwner
-              ? DropdownButton<String>(
-            elevation: 0,
-            icon:Icon(
-               Icons.more_vert,//todo how to get isliked(the map of user ids to bool values)
-              color: Colors.black,
-            ),
+                ? DropdownButton<String>(
+                       elevation: 0,
+                        iconSize: 25,
+                        icon:Icon(
+                          Icons.more_vert,//todo how to get isliked(the map of user ids to bool values)
+                           color: Colors.blueGrey,
+                        ),
             items: <String>['Edit', 'Delete'].map((String value) {
-              return new DropdownMenuItem<String>(
-                value: value,
-                child:  Text(value),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value == "Edit")
-              {}
-              else if (value == "Delete")
-              {
-                handleDeletePost(context);
-              }
+                return new DropdownMenuItem<String>(
+                  value: value,
+                  child:  Text(value),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value == "Edit")
+                {
+                  //TODO: Edit post
+                }
+                else if (value == "Delete")
+                {
+                  handleDeletePost(context);
+                }
 
-            },
-          )
-              : Text(''),
+              },
+            )
+                : Text(''),
+
         );
       },
     );
   }
-
-
 
   handleDeletePost(BuildContext parentContext) {
     return showDialog(
@@ -150,7 +179,6 @@ class _PostScreenState extends State<PostScreen> {
           );
         });
   }
-
   deletePost() async {
     // delete post itself
     getpostRef
@@ -182,32 +210,21 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   buildPostImage(String imageURL) {
-    return GestureDetector(
-      onDoubleTap: (){},//to do, handle like here
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Container(//todo fix sizing issues
-            padding:  EdgeInsets.all(0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(0),
-              child: Image(
-                fit: BoxFit.cover,
-                image:
-                NetworkImage(imageURL),
-              ),
-            ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8,5,5,8),
+      child: Container(
+        height: (MediaQuery.of(context).size.width)-70,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(imageURL),
+            fit: BoxFit.fill,
           ),
-        ],
+        ),
       ),
     );
   }
 
   buildPostFooter(String userId, String caption, int likes) {
-
     return FutureBuilder(
         future: _listFuture2,
         builder: (context, docsnap) {
@@ -219,61 +236,88 @@ class _PostScreenState extends State<PostScreen> {
           }
           Map<String, dynamic> data = docsnap.data.data();
           return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
-                  IconButton(icon: isLiked ? Icon(Icons.favorite,color: Colors.pink,) : Icon(Icons.favorite_border_outlined   ,color: Colors.pink,)
-                      , onPressed: (){handleLikePost(userId);}),
-                  Padding(padding: EdgeInsets.only(right: 20.0)),
+                  Padding(
+                      padding: EdgeInsets.only(top: 40.0, left: 2.0)
+                  ),
+                  IconButton(
+                      icon: isLiked ? Icon(
+                        Icons.favorite,
+                        color: Colors.pink,
+                        size: 28,)
+                          : Icon(
+                        Icons.favorite_border_outlined,
+                        color: Colors.pink,
+                        size:28,
+                      )
+                      , onPressed: (){
+                        handleLikePost(userId);
+                      }),
+                  Padding(
+                      padding: EdgeInsets.only(top: 40.0, left: 5.0)
+                  ),
                   GestureDetector(
                     onTap: () {},//todo push comment page
                     child: Icon(
-                      Icons.chat,
-                      size: 28.0,
-                      color: Colors.blue[900],
+                      Icons.chat_bubble_outline_sharp,
+                      size: 26.0,
+                      color: Colors.grey[600],
                     ),
                   ),
+                  SizedBox(width: 270),
+                  //TODO:BOOKMARKS
+
                 ],
               ),
               Row(
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(left: 20.0),
+                    margin: EdgeInsets.only(left: 15.0),
                     child: Text(
                       "${likeCount} likes",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 5),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(left: 20.0),
+                    margin: EdgeInsets.only(left: 15.0),
                     child: Text(
                       "${data["Username"]}",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
                   ),
-                  Expanded(child: Text(caption))
+                  SizedBox(width:5,),
+                  Expanded(child: Text(
+                      caption,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                    ),
+                  )
+                  )
                 ],
               ),
             ],
           );}
     );
   }
-
-
-
   handleLikePost(String userId) async {
 
     bool _isLiked = _Likesmap[currentUser.uid] == true;
@@ -291,11 +335,6 @@ class _PostScreenState extends State<PostScreen> {
             .get();
         for(var notif in toDelete.docs)
         {
-          // activityFeedRef
-          //     .doc(widget.userId)
-          //     .collection('feedItems')
-          //     .doc(notif.id)
-          //     .delete();
           if(notif.data()["userId"] == currentUser.uid)
           {
             activityFeedRef
@@ -431,7 +470,9 @@ class _PostScreenState extends State<PostScreen> {
             appBar: header(context, titleText: Username),
             body: ListView(
               children: <Widget>[
+                SizedBox(height: 5),
                 buildPostHeader(widget.userId),
+                SizedBox(height: 5),
                 buildPostImage(post.imageURL),
                 buildPostFooter(widget.userId, post.caption, post.likes)
               ],
