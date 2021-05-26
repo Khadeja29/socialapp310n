@@ -136,7 +136,6 @@ class CommentsState extends State<Comments> {
                 leading: CircleAvatar(
                     backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
                 ),
-                
                 title: Text(comment.comment),
                 subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
                 //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
@@ -186,8 +185,8 @@ class CommentsState extends State<Comments> {
           snapshot.data.docs.forEach((doc) {
             comments.add(Comment.fromDocument(doc));
           });
-          //print("Com here"+postId);
-          //print(comments.length);
+          print("Com here"+postId);
+          print(comments.length);
           return ListView.builder(
             itemCount: comments.length,
             // ignore: missing_return
@@ -195,8 +194,8 @@ class CommentsState extends State<Comments> {
               //final choiceIdx = choice.index;
               if (comments[index]
                   .username != null) {
-                //final product = searchResults[index];
-                return buildComment(comments[index]);
+                final product = comments[index];
+                return buildComment(product);
                   // buildProductUser(product);
               } //else
                 //return Text("success");
