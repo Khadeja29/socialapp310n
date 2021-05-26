@@ -54,7 +54,7 @@ class _SearchLocationState extends State<SearchLocation> {
   String hintText = 'Search Location';
   ValueChanged<String> onChanged;
 
-  Future<void> locationfinder(String address) async {
+  Future<void> locationfinder(String address,String placeid) async {
     var locations =  await locationFromAddress(address);
     print(locations);
     lat=(locations[0].latitude);
@@ -67,7 +67,7 @@ class _SearchLocationState extends State<SearchLocation> {
     // locationname = ("${first.featureName} : ${first.addressLine}");
     locationname=address;
     Navigator.push(context, MaterialPageRoute<void>(
-      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
+      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile,placeid:placeid),
     ),);
   }
   Future<dynamic> findPlace(String placeName) async {
@@ -214,7 +214,7 @@ class _SearchLocationState extends State<SearchLocation> {
                             leading: Icon(Icons.add_location_alt),
                             onTap:() {
                               print(snapshot.data["predictions"][index]["description"]);
-                              locationfinder(snapshot.data["predictions"][index]["description"]);
+                              locationfinder(snapshot.data["predictions"][index]["description"],snapshot.data["predictions"][index]["place_id"]);
                             },
                           ),
                           Divider(color: Colors.black)

@@ -8,6 +8,7 @@ import 'package:socialapp310/utils/color.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:socialapp310/utils/color.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -32,13 +33,14 @@ class CreatePost extends StatefulWidget {
   double lat;
   double long;
   String locationname='Press the button to get current location';
-  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname})
+  String placeid;
+  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname);
+  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname,placeid);
 }
 
 //Location Functions come here
@@ -47,13 +49,14 @@ class _CreatePost extends State<CreatePost> {
   var location_pic;
   var caption;
   var locationMessage;
-  String locationname;
+  String placeid;
+  String locationname='Press the button to get current location';
   String latitude;
   String longitude;
   double lat;
   double long;
 
-  _CreatePost(this.imageFile,this.lat,this.long,this.locationname);
+  _CreatePost(this.imageFile,this.lat,this.long,this.locationname,this.placeid);
 
   // function for getting the current location
   // but before that you need to add this permission!
@@ -74,7 +77,7 @@ class _CreatePost extends State<CreatePost> {
     print("${first.featureName} : ${first.addressLine}");
     setState(() {
       locationMessage = "Latitude: $lat and Longitude: $long";
-      locationname = ("${first.featureName} : ${first.addressLine}");
+      locationname = ("${first.addressLine}");
     });
   }
 
@@ -154,6 +157,11 @@ class _CreatePost extends State<CreatePost> {
       'createdAt': Timestamp.now(),
       'PostUser': id_user,
       'IsPrivate': isprivate,
+      'locationID': placeid,
+    });
+    FirebaseFirestore.instance.collection('Locations').doc('placeid').set({
+      'address':locationname,
+      'coordinates':GeoPoint(lat,long),
     });
   }
 
@@ -187,89 +195,108 @@ class _CreatePost extends State<CreatePost> {
           )
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0, left: 12.0),
-                child: Container(
-                  width: 80.0,
-                  height: 80.0,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          fit: BoxFit.cover, image: FileImage(widget.imageFile))),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12.0, right: 8.0),
-                  child: TextField(
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      hintText: 'Write a caption...',
-                    ),
-                    onChanged: ((value) {
-                      setState(() {
-                        caption = value;
-                      });
-                    }),
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/images/cpback.png'),
+                fit: BoxFit.cover)
+        ),
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0, left: 12.0),
+                  child: Container(
+                    width: 80.0,
+                    height: 80.0,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.cover, image: FileImage(widget.imageFile))),
                   ),
                 ),
-              )
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: TextField(
-              onChanged: ((location_picx) {}),
-              readOnly: true,
-              decoration: InputDecoration(
-                hintText: '$locationname',
-                prefixIcon: IconButton(
-                    icon: Icon(Icons.add_location),
-                    onPressed: () => {getCurrentLocation()}),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12.0, right: 8.0),
+                    child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        hintText: 'Write a caption...',
+                        hintStyle: TextStyle(
+                          color: Colors.white,
+                        )
+                      ),
+                      onChanged: ((value) {
+                        setState(() {
+                          caption = value;
+                        });
+                      }),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: TextField(
+                onChanged: ((location_picx) {}),
+                readOnly: true,
+                decoration: InputDecoration(
+                  hintText: ('$locationname'),
+                  hintStyle: TextStyle(
+                    color: Colors.white,
+                  ),
+                  prefixIcon: IconButton(
+                      icon: Icon(Icons.location_on_outlined,
+                      color: Colors.red,
+                      ),
+                      onPressed: () => {getCurrentLocation()}),
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            child: ElevatedButton(
-                child: Row(
-                  children: <Widget>[
-                    Icon(Icons.add_location),
-                    SizedBox(width: 5),
-                    Text('Press button to see current location and Maps'),
-                  ],
-                ),
-                onPressed: () => {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Mappage()),
-                      )
-                    }),
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            child: ElevatedButton(
-                child: Row(
-                  children: <Widget>[
-                    Icon(Icons.add_location),
-                    SizedBox(width: 5),
-                    Text('Press button to search location'),
-                  ],
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 50),
+              child: ElevatedButton(
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+
+                  ),
+                  backgroundColor: AppColors.peachpink,
                 ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute<void>(
-                       builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
-                      ),);
-                }
+                    builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
+                  ),);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                          'Press button to search location',
+                          style:  TextStyle(
+                              color: AppColors.darkpurple,
+                              fontSize: 15.0,
+                              letterSpacing: -0.7,
+                              fontFamily: 'OpenSansCondensed-Light'
+                          )
+                      ),
+                      SizedBox(width:5),
+                      Icon(Icons.location_on_outlined,
+                        color: AppColors.darkpurple,)
+                    ],
+                  ),
                 ),
-          ),
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
