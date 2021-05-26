@@ -355,7 +355,7 @@ class _SearchState extends State<Search> {
                     if (searchResults[index]
                         .username != null) {
                       final product = searchResults[index];
-                      print("now");
+
 
                       return buildProductUser(
                           product); // buildProductUser(product);
@@ -477,10 +477,7 @@ class _SearchState extends State<Search> {
               List<Post> searchResultsPosts = [];
               snapshot.data.docs.forEach((doc) {
                 String cap = doc['Caption'];
-                print("here");
-                print(queryY);
                 if(cap.contains(queryY) || cap.contains(queryY.toLowerCase()) ||  cap.contains(queryY.toUpperCase())){
-                  print("cont" + cap);
                   Post post = Post(
                     userId: doc['PostUser'],
                     ImageUrlPost: doc['Image'],
@@ -490,7 +487,7 @@ class _SearchState extends State<Search> {
                     location: doc['Location'],
                     createdAt: doc['createdAt'],);
 
-                  if (post.userId != currentFB.uid) {
+                  if (post.userId != currentFB.uid && post.IsPrivate == false) {
                     //TODO: add isPublic attribute to post class
                     searchResultsPosts.add(post);
                   } else {

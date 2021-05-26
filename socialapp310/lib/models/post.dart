@@ -7,6 +7,7 @@ class Post {
   String ImageUrlPost;
   String caption;
   int likes;
+  bool IsPrivate;
   dynamic comment;
   dynamic location;
   dynamic createdAt;
@@ -19,7 +20,8 @@ class Post {
         this.likes,
         this.comment,
         this.location,
-        this.createdAt,});
+        this.createdAt,
+      this.IsPrivate,});
   factory Post.fromDocument(DocumentSnapshot doc) {
     return Post(
       userId: doc['PostUser'],
@@ -29,6 +31,7 @@ class Post {
       comment: doc['Comment'],
       location: doc['Location'],
       createdAt: doc['createdAt'],
+      IsPrivate: doc['IsPrivate'],
     );
   }
 }

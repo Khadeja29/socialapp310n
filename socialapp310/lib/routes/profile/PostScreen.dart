@@ -30,7 +30,7 @@ AppBar header(context,
       overflow: TextOverflow.ellipsis,
     ),
     centerTitle: true,
-    backgroundColor: Theme.of(context).accentColor,
+    backgroundColor: AppColors.darkpurple,//Theme.of(context).accentColor,
   );
 }
 
