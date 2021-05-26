@@ -55,7 +55,7 @@ class _TestPostState extends State<HomeFeed> {
       } else if (_selectedIndex == 2) {
         Navigator.pushReplacementNamed(context,'/uploadpic');
       } else if (_selectedIndex == 3) {
-        Navigator.pushReplacementNamed(context, '/notifications');
+        Navigator.pushReplacementNamed(context, '/comments');//'/notifications');
       } else if (_selectedIndex == 4) {
         Navigator.pushReplacementNamed(context, '/profile');
       } //TODO: if index 3 push notif page, if index 4 push profile page

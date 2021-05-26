@@ -36,8 +36,8 @@ class Comments extends StatefulWidget {
 
 class CommentsState extends State<Comments> {
   User1 currentUser;
-  String usrName;
-  Future<DocumentSnapshot> userInfo;
+  Future<String> usrName = UserFxns.getUserName();
+  Future<DocumentSnapshot>  userInfo;
   TextEditingController commentController = TextEditingController();
   final String postId; //= "mrPZJQzUriOlYb6ZLdjX"
   final String postOwnerId;
@@ -88,7 +88,7 @@ class CommentsState extends State<Comments> {
           }
           else if (snapshot.hasData) {
             print("ahdjghaskdj");
-            usrName = snapshot.data["Username"];
+            //usrName = snapshot.data["Username"];
             List<User1> searchResults = [];
             snapshot.data.docs.forEach((doc) {
               User1 user2 = User1(
@@ -207,7 +207,7 @@ class CommentsState extends State<Comments> {
 
   addComment() async {
     String prf =  await UserFxns.getProfilePic();
-    userInfo = UserFxns.getUserInfo();
+
     userInfoo();
   //print(currentUser.username);
      commentsRef.doc(postId).collection("postComments").add({
