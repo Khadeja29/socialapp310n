@@ -16,6 +16,19 @@ class _PostCardState extends State<PostCard> {
   bool pressed = false;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUser();
+    //create some function that gets user
+  }
+  getUser() async{
+    //query user using widget.post.userid
+    setState(() {
+
+    });
+  }
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Card(
