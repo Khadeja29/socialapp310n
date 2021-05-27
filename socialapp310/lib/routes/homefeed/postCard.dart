@@ -116,7 +116,7 @@ class _PostCardState extends State<PostCard> {
                 ),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return DetailScreen(
+                    return DetailScreenLink(
                       ImageUrlPost: widget.post.ImageUrlPost,
                     );
                   }));

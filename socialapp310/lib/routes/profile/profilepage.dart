@@ -13,7 +13,7 @@ import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
-
+import 'package:socialapp310/routes/profile/FollowRequest.dart';
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
@@ -690,7 +690,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //Main Page function
   @override
-  Widget build(BuildContext context) {
+    Widget build(BuildContext context) {
 
 
     return Scaffold(
@@ -782,6 +782,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   data["IsPrivate"] ? InkWell(
                     onTap: () {
                         //TODO create page to accept requests
+                        //We can pass userid and username and profile pic
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FollowReq(
+                            analytics: AppBase.analytics,
+                            observer: AppBase.observer,
+                            UID: currentUser.uid,
+                            Username: data["Username"],
+                            UserProfileImg: data["ProfilePic"],
+                          ),
+                        ),
+                      );
                     },
                     child: ListTile(
                       title: Text('Follow Requests'),
