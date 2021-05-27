@@ -36,7 +36,7 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   double lat=0;
   double long=0;
-  String locationname, locationMessage, placeId;
+  String locationname, locationMessage, placeId, placeName;
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture, searchResultsCaptionFuture,
       searchResultsLocationFuture;
@@ -67,6 +67,7 @@ class _SearchState extends State<Search> {
 
   Future<void> locationfinder(String address, String placeID) async {
     print(placeID);
+    placeName = address;
     var locations =  await locationFromAddress(address);
     lat=(locations[0].latitude);
     long=(locations[0].longitude);
@@ -76,6 +77,7 @@ class _SearchState extends State<Search> {
     var first = addresses.first;
     //print("${first.featureName} : ${first.addressLine}");
     locationname = ("${first.featureName} : ${first.addressLine}");
+    //TODO: IFRU'S CODE HERE user placeID and placeName
    // Navigator.push(context, MaterialPageRoute<void>(
      // builder: (BuildContext context) =>  LocationSubscription(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
     //),);
@@ -424,7 +426,6 @@ class _SearchState extends State<Search> {
                                 onTap:() {
                                   placeId = snapshot.data["predictions"][index]['place_id'];
                                   print('this is '+placeId);
-                                  //print(snapshot.data["predictions"][index]["description"]);
                                   locationfinder(snapshot.data["predictions"][index]["description"], placeId);
                                 },
                               ),
