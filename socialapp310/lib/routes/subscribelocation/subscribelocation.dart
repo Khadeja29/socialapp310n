@@ -69,19 +69,20 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
         .where("LocationId", isEqualTo: place_id)
         .where("UserId", isEqualTo: currentFB.uid)
         .get();
-    for(var y in x.docs) {
-      subbedResults.add(y);
-    }
-    // x.docs.forEach((doc) {
-    //   subbedResults.add(doc);
-    // });
+    if(x != null)
+      for(var y in x.docs) {
+        subbedResults.add(y);
+      }
 
-     // subbed = false;
     print(subbedResults.length);
     if (subbedResults.length > 0) {
-      subbed = true;
+      setState(() {
+        subbed = true;
+      });
     } else
-      subbed = false;
+      setState(() {
+        subbed = false;
+      });
 
     return subbed;
   }
@@ -110,27 +111,9 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
     });
   }
 
-  bool countSubbed(QuerySnapshot x) {
-    print('here');
-    for(var y in x.docs) {
-      subbedResults.add(y);
-    }
-    // x.docs.forEach((doc) {
-    //   subbedResults.add(doc);
-    // });
-
-    bool sub = false;
-
-    if (subbedResults.length > 0) {
-      sub = true;
-    } else
-      sub = false;
-
-    return sub;
-  }
-
   @override
   void initState() {
+    print(subbed);
     getSubbedLocations(place_id);
     super.initState();
   }
@@ -147,10 +130,6 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '$address',
-          style: kAppBarTitleTextStyle,
-        ),
         backgroundColor: AppColors.darkpurple,
         centerTitle: true,
         automaticallyImplyLeading: true,
@@ -168,91 +147,108 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Column(
-                  // mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    AvatarLetter(
-                      size: 80,
-                      backgroundColor: AppColors.darkgrey,
-                      textColor: AppColors.peachpink,
-                      fontSize: 50,
-                      upperCase: true,
-                      numberLetters: 1,
-                      letterType: LetterType.Circular,
-                      text: '$address',
-                    ),
-                  ],
-                ),
-                Visibility(
-                  visible: subbed == true ? true : false,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10.0, 10.0, 30, 10),
                   child: Column(
-                    // crossAxisAlignment: CrossAxisAlignment.end,
+                    // mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            deleteSubscription();
-                            subbed = false;
-                          });
-                        },
-                        child: Container(
-                          width: 200.0,
-                          height: 27.0,
-                          child: Text(
-                            'Subscribed',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.darkpurple,
-                            border: Border.all(
-                              color: AppColors.darkpurple,
-                            ),
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
+                      AvatarLetter(
+                        size: 100,
+                        backgroundColor: AppColors.darkgrey,
+                        textColor: AppColors.peachpink,
+                        fontSize: 50,
+                        upperCase: true,
+                        numberLetters: 1,
+                        letterType: LetterType.Circular,
+                        text: '$address',
                       ),
                     ],
                   ),
                 ),
-                Visibility(
-                  visible: subbed == false ? true : false,
+                Expanded(
                   child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            addSubscription();
-                            subbed = true;
-                          });
-                        },
-                        child: Container(
-                          width: 200.0,
-                          height: 27.0,
-                          child: Text(
-                            'Unsubscribed',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                      Text('$address', style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18
+                      ),),
+                      Visibility(
+                        visible: subbed == true ? true : false,
+                        child: Column(
+                          // crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  deleteSubscription();
+                                  subbed = false;
+                                });
+                              },
+                              child: Container(
+                                width: 200.0,
+                                height: 27.0,
+                                child: Text(
+                                  'Subscribed',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.darkpurple,
+                                  border: Border.all(
+                                    color: AppColors.darkpurple,
+                                  ),
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                              ),
                             ),
-                          ),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.peachpink,
-                            border: Border.all(
+                          ],
+                        ),
+                      ),
+
+
+                  Visibility(
+                    visible: subbed == false ? true : false,
+                    child: Column(
+                      // mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              addSubscription();
+                              subbed = true;
+                            });
+                          },
+                          child: Container(
+                            width: 200.0,
+                            height: 27.0,
+                            child: Text(
+                              'Unsubscribed',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
                               color: AppColors.peachpink,
+                              border: Border.all(
+                                color: AppColors.peachpink,
+                              ),
+                              borderRadius: BorderRadius.circular(5.0),
                             ),
-                            borderRadius: BorderRadius.circular(5.0),
                           ),
                         ),
-                      ),
+                      ],
+                    ),
+                  )
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -265,30 +261,22 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
               // List subbedResults = [];
               Post fav;
               bool subbed = false;
-              snapshot.data.docs.forEach((doc) {
-                fav = Post(ImageUrlPost: doc["Image"]);
-                searchResults.add(fav);
-              });
-
-              // snapshot.data[1].docs.forEach((doc) {
-              //   subbedResults.add(doc);
-              // });
-              //
-              // if (subbedResults.length > 0) {
-              //   subbed = true;
-              // } else {
-              //   subbed = false;
-              // }
-              print(searchResults);
-              // searchResults = [];
+              print('here');
+              if(snapshot.data != null)
+                snapshot.data.docs.forEach((doc) {
+                  fav = Post(ImageUrlPost: doc["Image"]);
+                  searchResults.add(fav);
+                });
+              
               if (snapshot.hasError) {
                 return Text('There was an error :(');
               } else if (searchResults.length == 0) {
                 return Container(
-                    child: Center(
-                  child: Text('No posts found',
-                      style: TextStyle(color: Colors.black)),
-                ));
+                    child: Expanded(
+                      child: Center(
+                        child: Image.asset('assets/images/images.png', height:500, width:500)
+                ),
+                    ));
               } else if (snapshot.hasData && searchResults.length != 0) {
                 return SingleChildScrollView(
                   child: Column(

@@ -203,7 +203,6 @@ class _Uploadpic extends State<Uploadpic> {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 onPressed: () => {
-
                   Navigator.push(context, MaterialPageRoute<void>(
                     builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, imageFile:imageFile ),
                   ),)
@@ -249,4 +248,3 @@ class _Uploadpic extends State<Uploadpic> {
     }
   }
 }
-

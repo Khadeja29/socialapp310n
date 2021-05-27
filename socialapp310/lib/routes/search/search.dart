@@ -14,6 +14,7 @@ import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
+import 'package:socialapp310/routes/subscribelocation/subscribelocation.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
@@ -36,7 +37,7 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   double lat=0;
   double long=0;
-  String locationname, locationMessage, placeId;
+  String locationname, locationMessage, placeId, placeName;
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture, searchResultsCaptionFuture,
       searchResultsLocationFuture;
@@ -67,6 +68,7 @@ class _SearchState extends State<Search> {
 
   Future<void> locationfinder(String address, String placeID) async {
     print(placeID);
+    placeName = address;
     var locations =  await locationFromAddress(address);
     lat=(locations[0].latitude);
     long=(locations[0].longitude);
@@ -76,9 +78,11 @@ class _SearchState extends State<Search> {
     var first = addresses.first;
     //print("${first.featureName} : ${first.addressLine}");
     locationname = ("${first.featureName} : ${first.addressLine}");
-   // Navigator.push(context, MaterialPageRoute<void>(
-     // builder: (BuildContext context) =>  LocationSubscription(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
-    //),);
+    //TODO: IFRU'S CODE HERE user placeID and placeName
+   Navigator.push(context, MaterialPageRoute<void>(
+     builder:(BuildContext context) =>
+         SubcribeLocation(analytics: AppBase.analytics, observer: AppBase.observer, place_id: placeID, address: placeName ),
+    ),);
   }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');
@@ -355,7 +359,7 @@ class _SearchState extends State<Search> {
                     if (searchResults[index]
                         .username != null) {
                       final product = searchResults[index];
-                      print("now");
+
 
                       return buildProductUser(
                           product); // buildProductUser(product);
@@ -424,7 +428,6 @@ class _SearchState extends State<Search> {
                                 onTap:() {
                                   placeId = snapshot.data["predictions"][index]['place_id'];
                                   print('this is '+placeId);
-                                  //print(snapshot.data["predictions"][index]["description"]);
                                   locationfinder(snapshot.data["predictions"][index]["description"], placeId);
                                 },
                               ),
@@ -477,10 +480,7 @@ class _SearchState extends State<Search> {
               List<Post> searchResultsPosts = [];
               snapshot.data.docs.forEach((doc) {
                 String cap = doc['Caption'];
-                print("here");
-                print(queryY);
                 if(cap.contains(queryY) || cap.contains(queryY.toLowerCase()) ||  cap.contains(queryY.toUpperCase())){
-                  print("cont" + cap);
                   Post post = Post(
                     userId: doc['PostUser'],
                     ImageUrlPost: doc['Image'],
@@ -490,7 +490,7 @@ class _SearchState extends State<Search> {
                     location: doc['Location'],
                     createdAt: doc['createdAt'],);
 
-                  if (post.userId != currentFB.uid) {
+                  if (post.userId != currentFB.uid && post.IsPrivate == false) {
                     //TODO: add isPublic attribute to post class
                     searchResultsPosts.add(post);
                   } else {
