@@ -16,6 +16,7 @@ import 'package:socialapp310/routes/settings/settings.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
+import 'package:socialapp310/routes/subscribelocation/subscribelocation.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
@@ -144,6 +145,10 @@ class AppBase extends StatelessWidget {
               observer: observer,
             ),
         '/favourites': (context) => Favourites(
+          analytics: analytics,
+          observer: observer,
+        ),
+        '/subscribelocation': (context) => SubcribeLocation(
           analytics: analytics,
           observer: observer,
         ),

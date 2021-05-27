@@ -7,6 +7,7 @@ import 'package:socialapp310/models/favorites.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:socialapp310/utils/styles.dart';
 
 final postsRef = FirebaseFirestore.instance.collection('Post');
 final favouritesRef = FirebaseFirestore.instance.collection('Favorites');
@@ -78,6 +79,7 @@ class _FavoriteState extends State<Favourites> {
           leading: IconButton(icon:Icon(Icons.arrow_back),
             onPressed:() => Navigator.pop(context, false),
           ),
+      ),
       body: FutureBuilder(
           future: getFavInfo(),
           builder: (context, snapshot) {
