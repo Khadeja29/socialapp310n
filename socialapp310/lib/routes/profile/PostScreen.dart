@@ -110,7 +110,11 @@ class _PostScreenState extends State<PostScreen> {
                 child: Text(
                   "$_locationString",
                   style: TextStyle(
-                  color: Colors.blue[800],
+                      color: Colors.lightBlue,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.4,
+                      fontFamily: 'OpenSansCondensed-Bold'
                 ),
                   overflow: TextOverflow.ellipsis,
                   softWrap: true,
@@ -258,7 +262,6 @@ class _PostScreenState extends State<PostScreen> {
       ]
     );
   }
-
 
   buildPostFooter(String userId, String caption, int likes , String imageURL) {
     return FutureBuilder(

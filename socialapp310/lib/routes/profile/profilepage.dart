@@ -281,7 +281,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Get user functions //TODO:replicated use from UserFnx try to remove
   @override
   Future<DocumentSnapshot> getUserInfo() {
-
     FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
 
     //final args = ModalRoute.of(context).settings.arguments as PassingUID;
@@ -614,10 +613,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "list") {
       return Column(
-        children: [
-
-        ],
-      );
+          children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+         );
     }
     else if (postOrientation == "locations") {
       return Column(

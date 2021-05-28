@@ -1,11 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:socialapp310/main.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
-import '../../models/post.dart';
+import 'package:socialapp310/models/Post1.dart';
 import 'package:flutter/gestures.dart';
+import 'package:geocoder/geocoder.dart';
+
 
 class PostCard extends StatefulWidget {
-  final Post post;
+  final Post1 post;
   PostCard({this.post});
 
   @override
@@ -14,6 +20,98 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool pressed = false;
+  String _postOwner ="";
+  var _location = "Something Else";
+  bool _isPostOwner = false;
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUsername();
+    var parseLocation = widget.post.location;
+    var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
+    setLocation(location1);
+    User currentUser = FirebaseAuth.instance.currentUser;
+    _isPostOwner = currentUser.uid == widget.post.UserID;
+    //print(_isPostOwner);
+
+    //create some function that gets user
+  }
+  getUsername() async{
+    var result = await usersRef
+        .doc(widget.post.UserID)
+        .get();
+    var PostOwner = result.data()['Username'];
+    setState(() {
+     _postOwner =PostOwner;
+    });
+  }
+  setLocation(GeoPoint location1) async {
+    final coordinates = new Coordinates(location1.latitude, location1.longitude);
+    var locationString = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    setState(() {
+      _location = locationString.first.addressLine;
+    });
+  }
+  handleDeletePost(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("Remove this post?"),
+            children: <Widget>[
+              SimpleDialogOption(
+                  onPressed: () async {
+
+                    await deletePost();
+
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                        builder: (context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer)
+                    ),);
+                  },
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel')),
+            ],
+          );
+        });
+  }
+  deletePost() async {
+    // delete post itself
+    getpostRef
+        .doc(widget.post.PostID)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+
+    });
+    // delete uploaded image for thep ost
+    // delete all activity feed notifications
+    var toDelete =  await activityFeedRef
+        .doc(widget.post.UserID)
+        .collection('feedItems')
+        .where('PostID', isEqualTo: widget.post.PostID)
+        .get();
+    for(var notif in toDelete.docs)
+    {
+      activityFeedRef
+          .doc(widget.post.UserID)
+          .collection('feedItems')
+          .doc(notif.id)
+          .delete();
+    }
+    // TODO:then delete all comments
+
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -25,69 +123,82 @@ class _PostCardState extends State<PostCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage(widget.post.ImageUrlAvatar),
-                      radius: 30,
+              ListTile(
+                leading: Container(
+                  width: 50,
+                  height: 60,
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(widget.post.imageURL),
+                    backgroundColor: Colors.grey,
+                  ),
+                ),
+                title: GestureDetector(
+                  onTap: () => {},//TODO: on tap of username do something
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(2, 2, 0, 6),
+                    child: Text(
+                      _postOwner,
+                      style: TextStyle(
+                        color: AppColors.darkpurple,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    width: 10,
+                ),
+                subtitle: Row(
+                  children: [
+                    Icon(
+                      Icons.location_pin,
+                      color: Colors.red,
+                      size: 18,
+                    ),
+                    SizedBox(width: 2),
+                    Expanded(
+                      child: Text(
+                        "$_location",
+                        style: TextStyle(
+                            color: Colors.lightBlue,
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.4,
+                            fontFamily: 'OpenSansCondensed-Bold'
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: _isPostOwner
+                    ? DropdownButton<String>(
+                  elevation: 0,
+                  iconSize: 25,
+                  icon:Icon(
+                    Icons.more_vert,
+                    color: Colors.blueGrey,
                   ),
-                  Expanded(
-                    flex: 7,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        RichText(
-                          text: TextSpan(
-                            text: "${widget.post.username}",
+                  items: <String>['Edit', 'Delete'].map((String value) {
+                    return new DropdownMenuItem<String>(
+                      value: value,
+                      child:  Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value == "Edit")
+                    {
+                      //TODO: Edit post
+                    }
+                    else if (value == "Delete")
+                    {
+                      handleDeletePost(context);
+                    }
 
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => print(
-                                  'Click on username'), //TODO: Push user profile
-                            style: TextStyle(
-                                color: AppColors.darkpurple,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -0.7,
-                                fontFamily: 'OpenSansCondensed-Bold'),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.location_on_rounded,
-                              size: 17.0,
-                              color: Colors.redAccent,
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text: "${widget.post.loc.loc_name}",//loc => lat and long
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () => print(
-                                      'Click on location'), //TODO: Push user profile
-                                style: TextStyle(
-                                    color: Colors.lightBlue,
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.4,
-                                    fontFamily: 'OpenSansCondensed-Bold'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+                  },
+                )
+                    : Text(''),
+
               ),
               Divider(
                 color: AppColors.lightgrey,
@@ -96,15 +207,15 @@ class _PostCardState extends State<PostCard> {
               ),
               GestureDetector(
                 child: Hero(
-                  tag: '${widget.post.ImageUrlPost}',
+                  tag: '${widget.post.imageURL}',
                   child: Image(
-                    image: AssetImage(widget.post.ImageUrlPost),
+                    image: NetworkImage(widget.post.imageURL),
                   ),
                 ),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return DetailScreen(
-                      ImageUrlPost: widget.post.ImageUrlPost,
+                    return DetailScreenLink(
+                      ImageUrlPost: widget.post.imageURL,
                     );
                   }));
                 },
@@ -142,14 +253,14 @@ class _PostCardState extends State<PostCard> {
                           SizedBox(
                             width: 10,
                           ),
-                          Text(
+                          /*Text(   //Get total number of comments
                             "${widget.post.comments} comments",
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0,
                                 fontFamily: 'OpenSansCondensed-Bold'),
-                          ),
+                          ), */
                         ],
                       ),
                     ),
@@ -172,9 +283,9 @@ class _PostCardState extends State<PostCard> {
                             setState(() {
                               pressed = !pressed;
                               if (pressed) {
-                                widget.post.likes++;
+                                widget.post.likes;
                               } else {
-                                widget.post.likes--;
+                                widget.post.likes;
                               }
                             });
                           },
@@ -294,6 +405,5 @@ class DetailScreenLink extends StatelessWidget {
       },
     );
   }
-
 }
 
