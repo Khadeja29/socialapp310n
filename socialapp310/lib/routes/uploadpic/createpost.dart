@@ -32,15 +32,16 @@ class CreatePost extends StatefulWidget {
   final File imageFile;
   double lat;
   double long;
-  String locationname='Press the button to get current location';
+  var locationname;
   String placeid;
-  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid})
+  var caption;
+  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid,this.caption})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname,placeid);
+  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname,placeid,caption);
 }
 
 //Location Functions come here
@@ -50,13 +51,13 @@ class _CreatePost extends State<CreatePost> {
   var caption;
   var locationMessage;
   String placeid;
-  String locationname='Press the button to get current location';
+  var locationname;
   String latitude;
   String longitude;
   double lat;
   double long;
 
-  _CreatePost(this.imageFile,this.lat,this.long,this.locationname,this.placeid);
+  _CreatePost(this.imageFile,this.lat,this.long,this.locationname,this.placeid,this.caption);
 
   // function for getting the current location
   // but before that you need to add this permission!
@@ -66,13 +67,14 @@ class _CreatePost extends State<CreatePost> {
     lat = position.latitude;
     long = position.longitude;
 
+
     // passing this to latitude and longitude strings
     latitude = "$lat";
     longitude = "$long";
 
     final coordinates = new Coordinates(lat, long);
     var addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     print("${first.featureName} : ${first.addressLine}");
     setState(() {
@@ -99,6 +101,7 @@ class _CreatePost extends State<CreatePost> {
     // TODO: implement initState
     super.initState();
     caption = TextEditingController();
+
   }
 
   // @override
@@ -111,7 +114,7 @@ class _CreatePost extends State<CreatePost> {
   void imageuploader(String caption, File inputimageFile) {
     String imagename = DateTime.now().millisecondsSinceEpoch.toString();
     final Reference storageReference =
-        FirebaseStorage.instance.ref().child(imagename);
+    FirebaseStorage.instance.ref().child(imagename);
     final UploadTask uploadTask = storageReference.putFile(inputimageFile);
     uploadTask.then((TaskSnapshot taskSnapshot) {
       taskSnapshot.ref.getDownloadURL().then((imageUrl) {
@@ -148,6 +151,7 @@ class _CreatePost extends State<CreatePost> {
       lat=0;
       long=0;
     }
+    Map<String,bool> LikesMap = {};
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
@@ -158,6 +162,8 @@ class _CreatePost extends State<CreatePost> {
       'PostUser': id_user,
       'IsPrivate': isprivate,
       'locationID': placeid,
+      'LikesMap' : LikesMap,
+      'Locationname':locationname,
     });
     FirebaseFirestore.instance.collection('Locations').doc('placeid').set({
       'address':locationname,
@@ -199,7 +205,7 @@ class _CreatePost extends State<CreatePost> {
         constraints: BoxConstraints.expand(),
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/images/cpback2.jpg'),
+                image: AssetImage('assets/images/cpback3.jpg'),
                 fit: BoxFit.cover)
         ),
         child: Column(
@@ -220,12 +226,19 @@ class _CreatePost extends State<CreatePost> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 12.0, right: 8.0),
                     child: TextField(
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                        hintText: 'Write a caption...',
-                        hintStyle: TextStyle(
-                          color: Colors.white,
-                        )
+                          hintText: 'Write a caption...',
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                          ),
+                        enabledBorder:  UnderlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.white,width: 1.0),
+                          borderRadius: BorderRadius.circular(1.0),
+                        ),
                       ),
                       onChanged: ((value) {
                         setState(() {
@@ -240,19 +253,27 @@ class _CreatePost extends State<CreatePost> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextField(
-                onChanged: ((location_picx) {}),
+                onChanged: ((location_picx) {
+
+                }),
                 readOnly: true,
                 decoration: InputDecoration(
-                  hintText: ('$locationname'),
+                  hintText: (locationname!=null)?'$locationname':'Press button on left to get current location',
                   hintStyle: TextStyle(
                     color: Colors.white,
                   ),
                   prefixIcon: IconButton(
                       icon: Icon(Icons.location_on_outlined,
-                      color: Colors.red,
+                        color: Colors.red,
                       ),
-                      onPressed: () => {getCurrentLocation()}),
+                      onPressed: () => {getCurrentLocation()}
+                      ),
+                  enabledBorder:  UnderlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white,width: 1.0),
+                    borderRadius: BorderRadius.circular(1.0),
+                  ),
                 ),
+
               ),
             ),
             SizedBox(

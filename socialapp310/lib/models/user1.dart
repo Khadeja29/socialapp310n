@@ -7,8 +7,10 @@ class User1 {
   final String bio;
   final String ProfilePic;
   final bool isPrivate,  isDeactivated;
+  final String UID;
 
   User1({
+    this.UID,
     this.username,
     this.email,
     this.fullName,
@@ -20,6 +22,7 @@ class User1 {
 
   factory User1.fromDocument(DocumentSnapshot doc) {
     return User1(
+      UID: doc.id,
       username: doc['Username'],
       email: doc['Email'],
       fullName: doc['FullName'],

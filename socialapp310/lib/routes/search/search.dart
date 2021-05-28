@@ -3,7 +3,9 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -88,37 +90,37 @@ class _SearchState extends State<Search> {
 
 
   PreferredSize buildSearchField(){
-   return new PreferredSize(
-       preferredSize: Size.fromHeight(kToolbarHeight + kToolbarHeight),
-       child: new Container(
-         color: AppColors.darkpurple,
-         child: new SafeArea(
-           child: Column(
-             children: <Widget>[
-                 SearchWidget(
-                 text: query,
-                 hintText: 'Search...',
-                 onChanged: handleSearch,
-               ),
-               new TabBar(
-                 isScrollable: true,
-                 indicatorColor: AppColors.peachpink,
-                 tabs: choices.map<Widget>((Choice choice) {
-                   return new Container(
-                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                     child: new Tab(
-                       text: choice.title,
+    return new PreferredSize(
+      preferredSize: Size.fromHeight(kToolbarHeight + kToolbarHeight),
+      child: new Container(
+        color: AppColors.darkpurple,
+        child: new SafeArea(
+          child: Column(
+            children: <Widget>[
+              SearchWidget(
+                text: query,
+                hintText: 'Search...',
+                onChanged: handleSearch,
+              ),
+              new TabBar(
+                isScrollable: true,
+                indicatorColor: AppColors.peachpink,
+                tabs: choices.map<Widget>((Choice choice) {
+                  return new Container(
+                    margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: new Tab(
+                      text: choice.title,
 
-                       //icon: Icon(choice.icon),
-                     ),
-                   );
-                 }).toList(),
-               ),
-             ],
-           ),
-         ),
-       ),
-     );
+                      //icon: Icon(choice.icon),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Container buildNoContent() {
@@ -238,16 +240,20 @@ class _SearchState extends State<Search> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            leading: Image.network(
-              user.ProfilePic,
-              fit: BoxFit.cover,
-              width: 60,
-              height: 60,
-            ),
+              leading: Image.network(
+                user.ProfilePic,
+                fit: BoxFit.cover,
+                width: 60,
+                height: 60,
+              ),
 
-            title: Text(user.username),
-            subtitle: Text(user.fullName),
-            onTap: () =>_showMyDialog("Todo: Path to this user's page should be added")
+              title: Text(user.username),
+              subtitle: Text(user.fullName),
+              onTap: () => {
+                Navigator.push(context, MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: user.UID, index: 1),
+                ),)
+              }
           ),
         ),
       );
@@ -255,15 +261,15 @@ class _SearchState extends State<Search> {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          leading:
-          Image(
-            image: AssetImage('assets/images/logo_woof.png'),
-            fit: BoxFit.cover,
-            width: 60,
-            height: 60,
-          ),
-          title: Text(user.username),
-          subtitle: Text(user.fullName),
+            leading:
+            Image(
+              image: AssetImage('assets/images/logo_woof.png'),
+              fit: BoxFit.cover,
+              width: 60,
+              height: 60,
+            ),
+            title: Text(user.username),
+            subtitle: Text(user.fullName),
             onTap: () => _showMyDialog("Todo: Path to this user's page should be added")
         ),
       );
@@ -292,55 +298,59 @@ class _SearchState extends State<Search> {
       );
     else{
       return FutureBuilder(
-      future: searchResultsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text(
-              'There was an error :('
-          );
-        }
-        else if (snapshot.hasData) {
-        List<User1> searchResults = [];
-        snapshot.data.docs.forEach((doc) {
-          User1 user = User1(username: doc['Username'],
-            email: doc['Email'],
-            fullName: doc['FullName'],
-            isPrivate: doc['IsPrivate'],
-            isDeactivated: doc['isDeactivated'],
-            bio: doc['Bio'],
-            ProfilePic: doc['ProfilePic']);
+          future: searchResultsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(
+                  'There was an error :('
+              );
+            }
+            else if (snapshot.hasData) {
+              List<User1> searchResults = [];
+              //print(snapshot.data.docs[0]['Username']);
+              snapshot.data.docs.forEach((doc) {
 
-          if(user.email != currentFB.email){
-            searchResults.add(user);
-          }else{
-            print(user.email);
+                User1 user = User1(
+                    UID: doc.id,
+                    username: doc['Username'],
+                    email: doc['Email'],
+                    fullName: doc['FullName'],
+                    isPrivate: doc['IsPrivate'],
+                    isDeactivated: doc['isDeactivated'],
+                    bio: doc['Bio'],
+                    ProfilePic: doc['ProfilePic']);
+
+                if(user.email != currentFB.email){
+                  searchResults.add(user);
+                }else{
+                  print(user.email);
+                }
+              });
+              int len = 0;
+
+              if (searchResults != null)
+                len = searchResults.length;
+              if (len > 0) {return ListView.builder(
+                itemCount: len,
+                // ignore: missing_return
+                itemBuilder: (context, index) {
+                  //final choiceIdx = choice.index;
+                  if (choiceIdx == 0) {
+                    if (searchResults[index]
+                        .username != null) {
+                      final product = searchResults[index];
+                      return buildProductUser(product); // buildProductUser(product);
+                    } else
+                      return  Text("no username");
+                  }
+                },
+              );
+              }else
+                return Text("No users were found!");
+            }else{
+              return CircularProgressIndicator();
+            }
           }
-        });
-        int len = 0;
-
-          if (searchResults != null)
-            len = searchResults.length;
-          if (len > 0) {return ListView.builder(
-            itemCount: len,
-            // ignore: missing_return
-            itemBuilder: (context, index) {
-              //final choiceIdx = choice.index;
-              if (choiceIdx == 0) {
-                if (searchResults[index]
-                    .username != null) {
-                  final product = searchResults[index];
-                  return buildProductUser(product); // buildProductUser(product);
-                } else
-                  return  Text("no username");
-              }
-            },
-          );
-          }else
-            return Text("No users were found!");
-        }else{
-          return CircularProgressIndicator();
-        }
-      }
       );
     }
   }
@@ -398,4 +408,9 @@ class UserResult extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text("User Result");
   }
+}
+
+class PassingUID {
+  final String UID;
+  PassingUID(this.UID);
 }

@@ -32,13 +32,23 @@ class Uploadpic extends StatefulWidget {
 
 class _Uploadpic extends State<Uploadpic> {
   File imageFile;
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.purpleAccent,
       appBar: AppBar(
         backgroundColor: AppColors.darkpurple,
         title: Text(''),
+        leading: InkWell(
+          onTap: () {
+            Navigator.pushReplacementNamed(context, '/homefeed');
+          },
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black54,
+          ),
+        ),
       ),
       body: Center(
         child: imageFile == null ? Container(
@@ -66,20 +76,21 @@ class _Uploadpic extends State<Uploadpic> {
                     _getFromCamera();
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 30),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
                             'Use camera',
-                            style:  TextStyle(
+                            style: TextStyle(
                                 color: AppColors.darkpurple,
                                 fontSize: 20.0,
                                 letterSpacing: -0.7,
                                 fontFamily: 'OpenSansCondensed-Light'
                             )
                         ),
-                        SizedBox(width:5),
+                        SizedBox(width: 5),
                         Icon(Icons.camera_alt_outlined,
                           color: AppColors.darkpurple,)
                       ],
@@ -102,22 +113,23 @@ class _Uploadpic extends State<Uploadpic> {
                     _getFromGallery();
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 30),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
                             'Upload from device',
-                            style:  TextStyle(
+                            style: TextStyle(
                                 color: AppColors.darkpurple,
                                 fontSize: 20.0,
                                 letterSpacing: -0.7,
                                 fontFamily: 'OpenSansCondensed-Light'
                             )
                         ),
-                        SizedBox(width:5),
+                        SizedBox(width: 5),
                         Icon(Icons.file_upload,
-                            color:AppColors.darkpurple),
+                            color: AppColors.darkpurple),
                       ],
                     ),
                   ),
@@ -138,10 +150,11 @@ class _Uploadpic extends State<Uploadpic> {
                   Navigator.pushReplacementNamed(context, '/homefeed');
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 30),
                   child: Text(
                       'Cancel',
-                      style:  TextStyle(
+                      style: TextStyle(
                           color: AppColors.darkpurple,
                           fontSize: 20.0,
                           letterSpacing: -0.7,
@@ -151,31 +164,7 @@ class _Uploadpic extends State<Uploadpic> {
                 ),
               ),
               SizedBox(height: 30,),
-              ElevatedButton(
 
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-
-                  ),
-                  backgroundColor: AppColors.peachpink,
-                ),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/searchlocation');
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
-                  child: Text(
-                      'Search Location',
-                      style:  TextStyle(
-                          color: AppColors.darkpurple,
-                          fontSize: 20.0,
-                          letterSpacing: -0.7,
-                          fontFamily: 'OpenSansCondensed-Light'
-                      )
-                  ),
-                ),
-              ),
             ],
 
           ),
@@ -202,9 +191,13 @@ class _Uploadpic extends State<Uploadpic> {
                 child: Icon(Icons.backup_outlined),
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
-                onPressed: () => {
+                onPressed: () =>
+                {
                   Navigator.push(context, MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, imageFile:imageFile ),
+                    builder: (BuildContext context) =>
+                        CreatePost(analytics: AppBase.analytics,
+                            observer: AppBase.observer,
+                            imageFile: imageFile),
                   ),)
                 },
               ),
@@ -219,10 +212,12 @@ class _Uploadpic extends State<Uploadpic> {
     await widget.analytics.setCurrentScreen(screenName: 'Upload page');
     print("SCS : Upload page succeeded");
   }
+
   void initState() {
     super.initState();
     _setCurrentScreen();
   }
+
   _getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.gallery,
@@ -235,6 +230,7 @@ class _Uploadpic extends State<Uploadpic> {
       });
     }
   }
+
   _getFromCamera() async {
     PickedFile pickedFile = await ImagePicker().getImage(
       source: ImageSource.camera,

@@ -29,35 +29,37 @@ import 'package:geocoder/geocoder.dart';
 import 'package:socialapp310/main.dart';
 
 class editpost extends StatefulWidget {
-  final File imageFile;
+  String postId;
   String imageUrl;
   double lat;
   double long;
-  String locationname='Press the button to get current location';
+  var locationname;
   String placeid;
-  editpost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid})
+  var caption;
+  editpost({Key key, this.analytics, this.observer, this.imageUrl,this.placeid,this.locationname,this.lat,this.long,this.postId,this.caption})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _editpost createState() => _editpost(imageFile,lat,long,locationname,placeid);
+  _editpost createState() => _editpost(lat,long,locationname,placeid,imageUrl,postId,caption);
 }
 
 //Location Functions come here
 class _editpost extends State<editpost> {
-  File imageFile;
   var location_pic;
   var caption;
   var locationMessage;
+  String postId;
+  String imageUrl;
   String placeid;
-  String locationname='Press the button to get current location';
+  var locationname;
   String latitude;
   String longitude;
   double lat;
   double long;
 
-  _editpost(this.imageFile,this.lat,this.long,this.locationname,this.placeid);
+  _editpost(this.lat,this.long,this.locationname,this.placeid,this.imageUrl,this.postId,this.caption);
 
   // function for getting the current location
   // but before that you need to add this permission!
@@ -139,7 +141,7 @@ class _editpost extends State<editpost> {
   // void newfunction ()async{
   //   print(await checkUser());
   // }
-  Future<void> _saveData(String imageUrl) async {
+  Future<void> _saveData(String caption) async {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = 0;
@@ -150,16 +152,17 @@ class _editpost extends State<editpost> {
       lat=0;
       long=0;
     }
-    FirebaseFirestore.instance.collection('Post').doc('').update({
-      'Image': imageUrl,
+
+    QuerySnapshot querySnap = await FirebaseFirestore.instance.collection('Post').where('Image', isEqualTo: widget.imageUrl).get();
+    QueryDocumentSnapshot doc = querySnap.docs[0];  // Assumption: the query returns only one document, THE doc you are looking for.
+    DocumentReference docRef = doc.reference;
+    docRef.update({
       'Caption': caption,
       'Location': GeoPoint(lat, long),
-      'createdAt': Timestamp.now(),
-      'PostUser': id_user,
-      'IsPrivate': isprivate,
       'locationID': placeid,
+      'Locationname':locationname,
     });
-    FirebaseFirestore.instance.collection('Locations').doc('placeid').update({
+    FirebaseFirestore.instance.collection('Locations').doc(placeid).update({
       'address':locationname,
       'coordinates':GeoPoint(lat,long),
     });
@@ -178,11 +181,20 @@ class _editpost extends State<editpost> {
         ),
         backgroundColor: AppColors.darkpurple,
         elevation: 1.0,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pushReplacementNamed(context, '/profile');
+          },
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black54,
+          ),
+        ),
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 20.0, top: 20.0),
             child: GestureDetector(
-                child: Text('Share',
+                child: Text('Update',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
                   //imageuploader(caption);
@@ -190,7 +202,7 @@ class _editpost extends State<editpost> {
 
                   _saveData(caption);
                   Navigator.pushNamedAndRemoveUntil(
-                      context, '/homefeed', (route) => false);
+                      context, '/profile', (route) => false);
                 }),
           )
         ],
@@ -199,7 +211,7 @@ class _editpost extends State<editpost> {
         constraints: BoxConstraints.expand(),
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/images/cpback2.jpg'),
+                image: AssetImage('assets/images/cpback3.jpg'),
                 fit: BoxFit.cover)
         ),
         child: Column(
@@ -213,7 +225,7 @@ class _editpost extends State<editpost> {
                     height: 80.0,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            fit: BoxFit.cover, image: NetworkImage(widget.imageUrl)
+                            fit: BoxFit.cover, image: NetworkImage(imageUrl)
                         )
                     ),
                   ),
@@ -222,12 +234,20 @@ class _editpost extends State<editpost> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 12.0, right: 8.0),
                     child: TextField(
+                      style: TextStyle(
+                        color:Colors.white,
+                      ),
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                          hintText: 'Write a caption...',
+                          hintText:  'Write a caption...',
                           hintStyle: TextStyle(
                             color: Colors.white,
-                          )
+                          ),
+                          enabledBorder:  UnderlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white,width: 1.0),
+                            borderRadius: BorderRadius.circular(1.0),
+                          ),
+
                       ),
                       onChanged: ((value) {
                         setState(() {
@@ -245,9 +265,13 @@ class _editpost extends State<editpost> {
                 onChanged: ((location_picx) {}),
                 readOnly: true,
                 decoration: InputDecoration(
-                  hintText: ('$locationname'),
+                  hintText: (locationname!=null)?'$locationname':'Press button on left to get current location',
                   hintStyle: TextStyle(
                     color: Colors.white,
+                  ),
+                  enabledBorder:  UnderlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white,width: 1.0),
+                    borderRadius: BorderRadius.circular(1.0),
                   ),
                   prefixIcon: IconButton(
                       icon: Icon(Icons.location_on_outlined,
@@ -272,7 +296,7 @@ class _editpost extends State<editpost> {
                 ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
+                    builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,imageUrl:imageUrl),
                   ),);
                 },
                 child: Padding(

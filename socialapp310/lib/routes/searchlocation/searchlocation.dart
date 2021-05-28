@@ -11,19 +11,23 @@ import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/editpost.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geocoder/geocoder.dart';
 
 class SearchLocation extends StatefulWidget {
-  const SearchLocation({Key key, this.analytics, this.observer,this.imageFile})
+   SearchLocation({Key key, this.analytics, this.observer,this.imageFile,this.imageUrl,this.postId,this.caption})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   final File imageFile;
+  final String imageUrl;
+  final String postId;
+  var caption;
   @override
-  _SearchLocationState createState() => _SearchLocationState(imageFile);
+  _SearchLocationState createState() => _SearchLocationState(imageFile,imageUrl,postId,caption);
 }
 
 class _SearchLocationState extends State<SearchLocation> {
@@ -32,7 +36,10 @@ class _SearchLocationState extends State<SearchLocation> {
   String locationname;
   String locationMessage;
   File imageFile;
-  _SearchLocationState(this.imageFile);
+  String imageUrl;
+  String postId;
+  var caption;
+  _SearchLocationState(this.imageFile,this.imageUrl,this.postId,this.caption);
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Search Location Page');
     _setLogEvent();
@@ -59,17 +66,43 @@ class _SearchLocationState extends State<SearchLocation> {
     print(locations);
     lat=(locations[0].latitude);
     long=(locations[0].longitude);
-     final coordinates = new Coordinates(lat, long);
-     var addresses =
-     await Geocoder.local.findAddressesFromCoordinates(coordinates);
-     var first = addresses.first;
-     print("${first.featureName} : ${first.addressLine}");
+    final coordinates = new Coordinates(lat, long);
+    var addresses =
+    await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var first = addresses.first;
+    print("${first.featureName} : ${first.addressLine}");
     // locationname = ("${first.featureName} : ${first.addressLine}");
     locationname=address;
-    Navigator.push(context, MaterialPageRoute<void>(
-      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile,placeid:placeid),
-    ),);
-  }
+    if(imageUrl==null) {
+      Navigator.push(context, MaterialPageRoute<void>(
+        builder: (BuildContext context) =>
+            CreatePost(analytics: AppBase.analytics,
+                observer: AppBase.observer,
+                lat: lat,
+                long: long,
+                locationname: locationname,
+                imageFile: imageFile,
+                placeid: placeid,
+                caption: caption),
+      ),);
+    }
+    else
+      {
+        Navigator.push(context, MaterialPageRoute<void>(
+          builder: (BuildContext context) =>
+              editpost(analytics: AppBase.analytics,
+                  observer: AppBase.observer,
+                  lat: lat,
+                  long: long,
+                  locationname: locationname,
+                  imageUrl: imageUrl,
+                  placeid: placeid,
+                  postId: postId,
+                  caption: caption,
+              ),
+        ),);
+    }
+    }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');
     // print(placeName);
@@ -119,20 +152,20 @@ class _SearchLocationState extends State<SearchLocation> {
         // elevation: 0.0,
       ),
       body:
-          // StreamBuilder(
-          // stream: _stream,
-          // // initialData: [],
-          // builder: (context, snapshot) {
-          //   if (snapshot.hasError) {
-          //     return Text('There was an error :(');
-          //   } else if (snapshot.hasData || snapshot.data == null) {
-          //     res != null ? print(res) : null;
-          //     print(snapshot.data);
-          //     // if(snapshot.data != null)
-          //     // print(snapshot.data.length);
-          //     return
-          (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-              Widget>[
+      // StreamBuilder(
+      // stream: _stream,
+      // // initialData: [],
+      // builder: (context, snapshot) {
+      //   if (snapshot.hasError) {
+      //     return Text('There was an error :(');
+      //   } else if (snapshot.hasData || snapshot.data == null) {
+      //     res != null ? print(res) : null;
+      //     print(snapshot.data);
+      //     // if(snapshot.data != null)
+      //     // print(snapshot.data.length);
+      //     return
+      (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+          Widget>[
         SizedBox(
           height: 20,
         ),
@@ -155,13 +188,13 @@ class _SearchLocationState extends State<SearchLocation> {
                     icon: Icon(Icons.search, color: style.color),
                     suffixIcon: text.isNotEmpty
                         ? GestureDetector(
-                            child: Icon(Icons.close, color: style.color),
-                            onTap: () {
-                              controller.clear();
-                              onChanged('');
-                              FocusScope.of(context).requestFocus(FocusNode());
-                            },
-                          )
+                      child: Icon(Icons.close, color: style.color),
+                      onTap: () {
+                        controller.clear();
+                        onChanged('');
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                    )
                         : null,
                     hintText: hintText,
                     hintStyle: style,
@@ -205,12 +238,12 @@ class _SearchLocationState extends State<SearchLocation> {
                     padding: const EdgeInsets.symmetric(),
                     child: ListView.builder(
                       itemCount:
-                          snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
                       itemBuilder: (context, index) => Column(
                         children: [
                           ListTile(
                             title:
-                                Text(snapshot.data["predictions"][index]["description"]),
+                            Text(snapshot.data["predictions"][index]["description"]),
                             leading: Icon(Icons.add_location_alt),
                             onTap:() {
                               print(snapshot.data["predictions"][index]["description"]);
@@ -221,13 +254,13 @@ class _SearchLocationState extends State<SearchLocation> {
                         ],
                       ),
                       //ItemCard(
-                       //product: snapshot.data[index],
-                       //press: () => Navigator.push(
-                         // context,
-                           //MaterialPageRoute(
-                             //builder: (context) =>
-                                // SingleProduct(id: products[index].productId),
-                           //)),
+                      //product: snapshot.data[index],
+                      //press: () => Navigator.push(
+                      // context,
+                      //MaterialPageRoute(
+                      //builder: (context) =>
+                      // SingleProduct(id: products[index].productId),
+                      //)),
                     ),
                   ),
                 );
