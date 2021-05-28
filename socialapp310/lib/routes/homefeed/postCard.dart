@@ -140,12 +140,7 @@ class _PostCardState extends State<PostCard> {
   }
 
   handleLikePost(String userID) async {
-    // animatorKeyLike.refreshAnimation(
-    //     tween: Tween<double>(begin: 0, end: 28),//new tween
-    //     duration : Duration(milliseconds: 500),
-    //     curve : Curves.elasticOut,
-    //     cycles : 1
-    // );
+
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {  //already liked, current user unlikes post
       getpostRef
@@ -179,7 +174,6 @@ class _PostCardState extends State<PostCard> {
         isLiked = false;
         _Likesmap[currentUser.uid] = false;
       });
-
     }
     else if (!_isLiked) {   //if current user hasnot liked the post
       getpostRef
