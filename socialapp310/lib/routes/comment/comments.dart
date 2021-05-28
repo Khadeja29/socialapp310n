@@ -3,9 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-//import 'package:socialapp310/models/comment_model.dart';
-import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
@@ -23,31 +22,28 @@ class Comments extends StatefulWidget {
   final String postOwnerId;
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
-  //final String postMediaUrl;
-  const Comments({Key key, this.analytics, this.observer,    this.postId, this.postOwnerId,}): super (key: key);
+  final String postMediaUrl;
+  const Comments({Key key, this.analytics, this.observer, this.postMediaUrl,this.postId, this.postOwnerId,}): super (key: key);
 
   @override
   CommentsState createState() => CommentsState(
     postId: this.postId,
     postOwnerId: this.postOwnerId,
-    //postMediaUrl: this.postMediaUrl,
+    postMediaUrl: this.postMediaUrl,
   );
 }
 
 class CommentsState extends State<Comments> {
-  User1 currentUser;
-  Future<String> usrName = UserFxns.getUserName();
-  Future<DocumentSnapshot>  userInfo;
   TextEditingController commentController = TextEditingController();
   final String postId; //= "mrPZJQzUriOlYb6ZLdjX"
   final String postOwnerId;
-  //final String postMediaUrl;
+  final String postMediaUrl;
   Future<QuerySnapshot> searchResultsFuture;
 
   CommentsState({
     this.postId,
     this.postOwnerId,
-   // this.postMediaUrl,
+    this.postMediaUrl,
   });
 
 
@@ -66,84 +62,41 @@ class CommentsState extends State<Comments> {
     );
   }
 
-  getUserInfo() {
-    Future<QuerySnapshot> user = usersRef
-        .where("email", isEqualTo: curUser.email)
-        .get();
-    setState(() {
-      searchResultsFuture = user;
-    });
-    return searchResultsFuture;
-  }
-
-   userInfoo(){
-    //getUserInfo();
-    return FutureBuilder(
-        future: userInfo,//getUserInfo(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text(
-                'There was an error :('
-            );
-          }
-          else if (snapshot.hasData) {
-            print("ahdjghaskdj");
-            //usrName = snapshot.data["Username"];
-            List<User1> searchResults = [];
-            snapshot.data.docs.forEach((doc) {
-              User1 user2 = User1(
-                  UID: doc.id,
-                  username: doc['Username'],
-                  email: doc['Email'],
-                  fullName: doc['FullName'],
-                  isPrivate: doc['IsPrivate'],
-                  isDeactivated: doc['isDeactivated'],
-                  bio: doc['Bio'],
-                  ProfilePic: doc['ProfilePic']);
-              if(user2.email != curUser.email){
-                searchResults.add(user2);
-                currentUser = user2;
-              }else{
-                print(user2.email);
-              }
-            });
-            //currentUser = searchResults[0];
-            print(currentUser.username);
-            return Text("success");
-          }else {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(child: CircularProgressIndicator(),
-                  height: 20,
-                  width: 20,),
-              ],
-            );
-          }
-        }
-    );
-  }
-
   Widget buildComment(Comment comment) {
     if (comment.avatarUrl != null) {
-      return Container(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(40),
-                child: ListTile(
-                tileColor: AppColors.peachpink,
-                leading: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
-                ),
-                title: Text(comment.comment),
-                subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
-                //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
-                ),
-          ),
+      return Column(
+        children: <Widget> [
+          Container(
+            margin: const EdgeInsets.only(top: 3.0,bottom: 3.0),
+            decoration: new BoxDecoration(
+              color: AppColors.lightgrey,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.all(Radius.circular(30.0)),
             ),
-        ),
+            height: 60,
+            child: ListTile(
+              contentPadding:  const EdgeInsets.only(left: 5, bottom: 5),
+            leading: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: 60,
+                minHeight: 40,
+                maxWidth: 80,
+                maxHeight: 50,
+              ),
+              child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
+              ),
+            ),
+            title: Text(comment.comment, style: TextStyle(fontSize: 14)),
+            subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
+            //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
+            ),
+            ),
+          ),
+          //Divider(),
+        ],
       );
+
     } else {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -180,13 +133,10 @@ class CommentsState extends State<Comments> {
               ],
             );
           }
-          print(snapshot.data.docs);
           List<Comment> comments = [];
           snapshot.data.docs.forEach((doc) {
             comments.add(Comment.fromDocument(doc));
           });
-          print("Com here"+postId);
-          print(comments.length);
           return ListView.builder(
             itemCount: comments.length,
             // ignore: missing_return
@@ -206,9 +156,9 @@ class CommentsState extends State<Comments> {
 
   addComment() async {
     String prf =  await UserFxns.getProfilePic();
+    String usrName = await UserFxns.getUserName();
 
-    userInfoo();
-  //print(currentUser.username);
+
      commentsRef.doc(postId).collection("postComments").add({
       "comment": commentController.text,
       "timestamp": timestamp,
@@ -216,41 +166,20 @@ class CommentsState extends State<Comments> {
       "userId": curUser.uid,
       "username": usrName,
     });
-    /*bool isNotPostOwner = postOwnerId != currentUser.uid;
+    bool isNotPostOwner = postOwnerId != curUser.uid;
     if (isNotPostOwner) {
       activityFeedRef.doc(postOwnerId).collection('feedItems').add({
         "type": "comment",
         "commentData": commentController.text,
         "timestamp": timestamp,
         "postId": postId,
-        "userId": currentUser.uid,
-        "username": currentUser.username,
-        "userProfileImg": currentUser.photoUrl,
+        "userId": curUser.uid,
+        "username":usrName,
+        "userProfileImg": prf,
         "mediaUrl": postMediaUrl,
       });
-    }*/
+    }
     commentController.clear();
-  }
-
-  int _selectedIndex = 1;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      print(index);
-      _selectedIndex =
-          index; //TODO: if index 0 nothing happens, if index 1 push search page, if index 2 push create page,
-      if (_selectedIndex == 0) {
-        Navigator.pushReplacementNamed(context, '/homefeed');
-      } else if (_selectedIndex == 1) {
-        Navigator.pushReplacementNamed(context, '/search');
-      } else if (_selectedIndex == 2) {
-        Navigator.pushReplacementNamed(context, '/uploadpic');
-      } else if (_selectedIndex == 3) {
-        Navigator.pushReplacementNamed(context, '/notifications');
-      } else if (_selectedIndex == 4) {
-        Navigator.pushReplacementNamed(context, '/profile');
-      } //TODO: if index 3 push notif page, if index 4 push profile page
-    });
   }
 
   @override
@@ -276,29 +205,6 @@ class CommentsState extends State<Comments> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        iconSize: 30,
-        backgroundColor: AppColors.darkpurple,
-        selectedItemColor: AppColors.peachpink,
-        unselectedItemColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Create"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border_outlined),
-              label: "Notifications"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
