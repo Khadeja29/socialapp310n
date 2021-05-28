@@ -171,7 +171,6 @@ class _PostCardState extends State<PostCard> {
             break;
           }
         }
-
       }
       setState(() {
         print("subtract 1");
@@ -220,8 +219,12 @@ class _PostCardState extends State<PostCard> {
 
   }
 
+  getUser() async{
+    //query user using widget.post.userid
+    setState(() {
 
-
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -325,6 +328,7 @@ class _PostCardState extends State<PostCard> {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
                     return DetailScreenLink(
                       ImageUrlPost: widget.post.imageURL,
+
                     );
                   }));
                 },

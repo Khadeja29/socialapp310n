@@ -13,7 +13,7 @@ import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
-
+import 'package:socialapp310/routes/profile/FollowRequest.dart';
 
 final followersRef = FirebaseFirestore.instance.collection('followers');
 final followingRef = FirebaseFirestore.instance.collection('following');
@@ -21,6 +21,7 @@ final usersRef = FirebaseFirestore.instance.collection('user');
 final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 final getpostRef = FirebaseFirestore.instance.collection('Post');
 final favoriteRef = FirebaseFirestore.instance.collection('Favorites');
+final followrequestRef = FirebaseFirestore.instance.collection('FollowRequests');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
@@ -43,12 +44,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String UID;
   User currentUser = FirebaseAuth.instance.currentUser;
   String username;
-  bool isFollowing = true;
+  bool isFollowing = false;
   int followerCount;
   int followingCount;
   int PostCount;
   bool _isPrivate = true;
   bool isLoading = true;
+  bool _Requested = false;
   //Analytics
   Future<void> _setLogEvent() async {
     await widget.analytics.logEvent(
@@ -104,6 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     var ProfileUser;
     bool isPrivate;
+    bool Requested = false;
     if(UID != currentUser.uid) {
       ProfileUser = await usersRef.doc(UID).get();
       isPrivate = ProfileUser.data()["IsPrivate"];
@@ -111,12 +114,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     else {
       isPrivate = false;
     }
+
     setState(() {
 
       isFollowing = doc.exists;
       _isPrivate = isPrivate;
 
       print(_isPrivate);
+    });
+    if(isPrivate)
+    {
+      await followrequestRef
+          .doc(UID)
+          .collection('requests')
+          .doc(currentUser.uid)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          print("here");
+          Requested = true;
+        }});
+    }
+    setState(() {
+      print("Requested is $Requested");
+      _Requested = Requested;
     });
   }
   GetPosts() async {
@@ -140,6 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         PostID: doc.id,
         LikesMap : doc['LikesMap'],
       );
+
       PostsToBuild.add(post);
     }
     setState(() {
@@ -166,7 +188,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     });
   }
-
   getFollowing() async {
     QuerySnapshot snapshot = await followingRef
         .doc(UID)
@@ -236,8 +257,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .set({});
     // add activity feed item for that user to notify about new follower (us)
 
-    String username = await UserFxns.getUserName();
-    String userProfileImg = await UserFxns.getProfilePic();
+    //String username = await UserFxns.getUserName();
+    //String userProfileImg = await UserFxns.getProfilePic();
     var timestamp = DateTime.now();
     activityFeedRef
         .doc(widget.UID)
@@ -253,6 +274,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
       "timestamp": timestamp,
     });
 
+  }
+  handleFollowRequest() async {
+    bool Requested;
+    if(!_Requested)
+    {
+      //Request follow
+      await followrequestRef
+          .doc(UID)
+          .collection('requests')
+          .doc(currentUser.uid)
+          .set({});
+      Requested = true;
+    }
+    else if(_Requested){
+      //cancel follow
+
+      await followrequestRef
+          .doc(UID)
+          .collection('requests')
+          .doc(currentUser.uid)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+
+          doc.reference.delete();
+        }
+      });
+      Requested = false;
+    }
+    setState(() {
+      _Requested = Requested;
+    });
   }
   //BottomNavBar
   void _onItemTapped(int index) {
@@ -376,12 +429,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       );
     }
-    else if(!isFollowing && _isPrivate)
+    else if(!isFollowing && _isPrivate && !_Requested)
     {return buildButton(
       text: "Request Follow",
-      function: (){},//TODO: request follow system
+      function: (){handleFollowRequest();},//TODO: request follow system
 
-    );}
+    );
+    }
+    else if(!isFollowing && _isPrivate && _Requested)
+    {
+      return buildButton(
+        text: "Follow already Requested.",
+        function: (){handleFollowRequest();},//TODO: request follow system
+      );
+    }
   }
 
   //Main Header Widget: Avatar,following,follower,Post count,Bio,Username,Name
@@ -628,7 +689,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //Main Page function
   @override
-  Widget build(BuildContext context) {
+    Widget build(BuildContext context) {
 
 
     return Scaffold(
@@ -717,7 +778,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Icon(Icons.bookmark),
                     ),
                   ),
-
+                  data["IsPrivate"] ? InkWell(
+                    onTap: () {
+                        //TODO create page to accept requests
+                        //We can pass userid and username and profile pic
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FollowReq(
+                            analytics: AppBase.analytics,
+                            observer: AppBase.observer,
+                            UID: currentUser.uid,
+                            Username: data["Username"],
+                            UserProfileImg: data["ProfilePic"],
+                          ),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text('Follow Requests'),
+                      leading: Icon(Icons.person),
+                    ),
+                  ) : Text(""),
                   Divider(),
                   InkWell(
                     onTap: () {},
