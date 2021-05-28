@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:flutter/gestures.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:animator/animator.dart';
 
 
 class PostCard extends StatefulWidget {
@@ -19,10 +20,17 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  User currentUser = FirebaseAuth.instance.currentUser;
   bool pressed = false;
   String _postOwner ="";
   var _location = "Something Else";
   bool _isPostOwner = false;
+  bool isLiked = false;
+  int likeCount = 0;
+  Map<String,dynamic> _Likesmap;
+  // final animatorKeyLike = AnimatorKey<double>();
+  // final animatorKeyLike2 = AnimatorKey<double>();
+  // final animatorKeyBookmark = AnimatorKey<double>();
 
   void initState() {
     // TODO: implement initState
@@ -31,17 +39,17 @@ class _PostCardState extends State<PostCard> {
     var parseLocation = widget.post.location;
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
-    User currentUser = FirebaseAuth.instance.currentUser;
     _isPostOwner = currentUser.uid == widget.post.UserID;
     //print(_isPostOwner);
+    setUpLikes();
 
-    //create some function that gets user
   }
   getUsername() async{
     var result = await usersRef
         .doc(widget.post.UserID)
         .get();
     var PostOwner = result.data()['Username'];
+    //TODO: Profpic
     setState(() {
      _postOwner =PostOwner;
     });
@@ -91,7 +99,6 @@ class _PostCardState extends State<PostCard> {
       }
 
     });
-    // delete uploaded image for thep ost
     // delete all activity feed notifications
     var toDelete =  await activityFeedRef
         .doc(widget.post.UserID)
@@ -110,6 +117,106 @@ class _PostCardState extends State<PostCard> {
 
   }
 
+  setUpLikes() async{
+    setState(() {
+      isLiked = widget.post.LikesMap[currentUser.uid] == true ;
+      if (widget.post.LikesMap == null) {
+        likeCount = 0;
+      }
+      else{
+        int count = 0;
+        widget.post.LikesMap.values.forEach((val) {
+          if (val == true) {
+            count += 1;
+          }
+        });
+        likeCount = count;
+      }
+      _Likesmap = widget.post.LikesMap;
+
+    });
+  }
+
+  handleLikePost(String userID) async {
+    // animatorKeyLike.refreshAnimation(
+    //     tween: Tween<double>(begin: 0, end: 28),//new tween
+    //     duration : Duration(milliseconds: 500),
+    //     curve : Curves.elasticOut,
+    //     cycles : 1
+    // );
+    bool _isLiked = _Likesmap[currentUser.uid] == true;
+    if (_isLiked) {  //already liked, current user unlikes post
+      getpostRef
+          .doc(widget.post.PostID)
+          .update({'LikesMap.${currentUser.uid}': false}); //update post likes inpost collection
+      //removeLikeFromActivityFeed();
+      if(widget.post.UserID != currentUser.uid) //if unliked by current user who is not the owner
+      {
+        var toDelete =  await activityFeedRef //from notification collection
+            .doc(widget.post.UserID) //find the user in notifications who owns the post
+            .collection('feedItems')
+            .where('PostID', isEqualTo: widget.post.PostID) //get all notififcations with this post ID from owner
+            .get();
+        for(var notif in toDelete.docs) //for each notification
+        {
+          if(notif.data()["userId"] == currentUser.uid) //inside notfi use userID and compare to current user who unliked it/so remove only his like
+          {
+            activityFeedRef
+                .doc(widget.post.UserID) //go to that userID and delete that Object with Postid returned
+                .collection('feedItems')
+                .doc(notif.id)
+                .delete();
+            break;
+          }
+        }
+
+      }
+      setState(() {
+        print("subtract 1");
+        likeCount -= 1;
+
+        isLiked = false;
+        _Likesmap[currentUser.uid] = false;
+      });
+
+    }
+    else if (!_isLiked) {   //if current user hasnot liked the post
+      getpostRef
+          .doc(widget.post.PostID)
+          .update({'LikesMap.${currentUser.uid}': true}); //change like status to true in the posts table
+      if(widget.post.UserID != currentUser.uid) { //if someone other than the postowner  liked
+        activityFeedRef
+            .doc(widget.post.UserID) //find the notifications of post owner
+            .collection('feedItems')
+            .add({  //add notification
+          "PostID": widget.post.PostID,
+          "type": "like",
+          "ownerId": widget.post.UserID,
+          //"username": _gotLoggedinUsername,
+          "userId": currentUser.uid,
+          //"userProfileImg": userProfileImg,2
+          "timestamp": Timestamp.now(),
+        });
+      }
+
+      setState(() {
+        print("add 1");
+        likeCount +=1;
+        isLiked = true;
+        _Likesmap[currentUser.uid] = true;
+       // animatorKeyLike2.triggerAnimation(restart: true);
+
+        // showHeart = true;
+      });
+      // Timer(Duration(milliseconds: 500), () {
+      //   setState(() {
+      //     showHeart = false;
+      //   });
+      // });
+    }
+    //animatorKeyLike.triggerAnimation(restart:  true);
+
+  }
 
 
 
@@ -243,7 +350,7 @@ class _PostCardState extends State<PostCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${widget.post.likes} likes",
+                            "${likeCount} likes",
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
@@ -267,29 +374,19 @@ class _PostCardState extends State<PostCard> {
                     Row(
                       children: [
                         IconButton(
-                          icon: pressed == true
-                              ? //if true then filled heart else empty heart
-                              Icon(
+                                icon: isLiked ? Icon(
                                   Icons.favorite,
-                                  color: Colors.redAccent,
-                                  size: 30,
+                                  color: Colors.pink,
+                                  size: 28,)
+                                    : Icon(
+                                  Icons.favorite_border_outlined,
+                                  color: Colors.pink,
+                                  size: 28,
                                 )
-                              : Icon(Icons.favorite_border_outlined,
-                                  color: Colors.redAccent, size: 30),
-                          padding: EdgeInsets.all(0.0),
-                          splashColor: Colors.pinkAccent[100],
-                          splashRadius: 25,
-                          onPressed: () {
-                            setState(() {
-                              pressed = !pressed;
-                              if (pressed) {
-                                widget.post.likes;
-                              } else {
-                                widget.post.likes;
-                              }
-                            });
-                          },
-                        ),
+                                , onPressed: () async {
+                                  await handleLikePost(widget.post.PostID);
+                                }),
+
                         IconButton(
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,

@@ -20,8 +20,9 @@ import 'package:socialapp310/routes/profile/profilepage.dart';
 class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
+  final int index;
 
-  PostScreen({this.userId, this.postId});
+  PostScreen({this.userId, this.postId,this.index});
 
   @override
   _PostScreenState createState() => _PostScreenState();
@@ -45,6 +46,22 @@ class _PostScreenState extends State<PostScreen> {
 
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
+      leading: GestureDetector(
+        onTap: (){
+          Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
+              builder: (context) =>
+                  ProfileScreen(analytics: AppBase.analytics,
+                      observer: AppBase.observer,
+                      index: widget.index,
+                      UID: (widget.userId== currentUser.uid)?null : widget.userId )
+          ),
+                  (route) => route.isFirst);
+        },
+        child: Icon(
+          Icons.arrow_back,
+          size: 28,
+        ),
+      ),
       automaticallyImplyLeading: removeBackButton ? false : true,
       title: Text(
         isAppTitle ? "FlutterShare" : "@$titleText",

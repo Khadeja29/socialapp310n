@@ -137,7 +137,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isPrivate: doc["IsPrivate"],
         location: doc["Location"],
         UserID: doc["PostUser"],
-        PostID: doc.id
+        PostID: doc.id,
+        LikesMap : doc['LikesMap'],
       );
       PostsToBuild.add(post);
     }
@@ -597,8 +598,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "grid") {
       List<GridTile> gridTiles = [];
+      int currindex = currentindex();
       _PostsToBuild.forEach((post) {
-        gridTiles.add(GridTile(child: PostTile(post)));
+        gridTiles.add(GridTile(child: PostTile(post,currindex)));
       });
 
       return GridView.count(
@@ -772,8 +774,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class PostTile extends StatelessWidget {
   final Post1 post;
+  final int index;
 
-  PostTile(this.post);
+  PostTile(this.post,this.index);
 
   showPost(context) {
     Navigator.push(
@@ -782,6 +785,8 @@ class PostTile extends StatelessWidget {
         builder: (context) => PostScreen(
           postId: post.PostID,
           userId: post.UserID,
+          index: index,
+
         ),
       ),
     );
