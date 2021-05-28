@@ -28,6 +28,7 @@ class _PostCardState extends State<PostCard> {
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
+  String _ProfPic = 'https://picsum.photos/250?image=9';
   // final animatorKeyLike = AnimatorKey<double>();
   // final animatorKeyLike2 = AnimatorKey<double>();
   // final animatorKeyBookmark = AnimatorKey<double>();
@@ -35,7 +36,7 @@ class _PostCardState extends State<PostCard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getUsername();
+    getUserinfo();
     var parseLocation = widget.post.location;
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
@@ -44,14 +45,15 @@ class _PostCardState extends State<PostCard> {
     setUpLikes();
 
   }
-  getUsername() async{
+  getUserinfo() async{
     var result = await usersRef
         .doc(widget.post.UserID)
         .get();
     var PostOwner = result.data()['Username'];
-    //TODO: Profpic
+    var profPic = result.data()['ProfilePic'];
     setState(() {
      _postOwner =PostOwner;
+     _ProfPic = profPic;
     });
   }
   setLocation(GeoPoint location1) async {
@@ -235,7 +237,7 @@ class _PostCardState extends State<PostCard> {
                   width: 50,
                   height: 60,
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(widget.post.imageURL),
+                    backgroundImage: NetworkImage(_ProfPic),
                     backgroundColor: Colors.grey,
                   ),
                 ),
