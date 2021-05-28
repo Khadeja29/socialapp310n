@@ -184,9 +184,12 @@ class _PostScreenState extends State<PostScreen> {
 
                     await deletePost();
 
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                      builder: (context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer)
-                    ),);
+                    Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
+                        builder: (context) =>
+                            ProfileScreen(analytics: AppBase.analytics,
+                                observer: AppBase.observer,)
+                    ),
+                            (route) => route.isFirst);
                   },
                   child: Text(
                     'Delete',

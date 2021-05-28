@@ -12,7 +12,6 @@ import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
-
 import 'package:socialapp310/routes/profile/userList.dart';
 
 import 'package:socialapp310/routes/unknownwelcome.dart';
