@@ -7,6 +7,7 @@ class Post1 {
   final int likes;
   final GeoPoint location;
   final Timestamp createdAt;
+  Map<String,dynamic> LikesMap;
   final String PostID;
   final String UserID;
 
@@ -15,6 +16,7 @@ class Post1 {
     this.imageURL,
     this.likes,
     this.createdAt,
+    this.LikesMap,
     this.isPrivate,
     this.location,
     this.PostID,

@@ -11,6 +11,8 @@ import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:socialapp310/routes/settings/deleteAccount.dart';
+import 'package:socialapp310/routes/settings/settings.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
@@ -142,6 +144,14 @@ class AppBase extends StatelessWidget {
         ),
     '/userList' : (context) => userList(analytics: analytics, observer: observer,),
         '/comments' : (context) => Comments(analytics: analytics, observer: observer,postId: "rmIqMR4yiLKalMOz4gtl",postOwnerId: "NJR9BykZFHUWcDxIus5Mb2uAkp83"),
+        '/settings': (context) => Settings(
+          analytics: analytics,
+          observer: observer,
+        ),
+        '/deleteaccount': (context) => DeleteAccount(
+          analytics: analytics,
+          observer: observer,
+        ),
       },
     );
   }

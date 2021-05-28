@@ -22,7 +22,6 @@ class HomeFeed extends StatefulWidget {
   _TestPostState createState() => _TestPostState();
 }
 
-//to connect to main use Function '/someroutename': (context) => HomeFeed(),
 class _TestPostState extends State<HomeFeed> {
   int _selectedIndex = 0;
   Future<void> _setCurrentScreen() async {
@@ -89,9 +88,9 @@ class _TestPostState extends State<HomeFeed> {
           )
         ],
       ),
-      body: ListView(
-        //children: posts.map((post) => PostCard(post: post)).toList(),
-      ),
+      // body: ListView(
+      //   children: posts.map((post) => PostCard(post: post)).toList(),
+      // ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         backgroundColor: AppColors.darkpurple,

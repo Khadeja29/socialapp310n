@@ -20,7 +20,7 @@ final followingRef = FirebaseFirestore.instance.collection('following');
 final usersRef = FirebaseFirestore.instance.collection('user');
 final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 final getpostRef = FirebaseFirestore.instance.collection('Post');
-
+final favoriteRef = FirebaseFirestore.instance.collection('Favorites');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
@@ -47,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int followerCount;
   int followingCount;
   int PostCount;
+  bool _isPrivate = true;
   bool isLoading = true;
   //Analytics
   Future<void> _setLogEvent() async {
@@ -65,6 +66,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     super.initState();
 
+
+    _setupall();
+
+  }
+
+  _setupall() async {
     if(widget.UID != null)
     {
       UID = widget.UID;
@@ -72,13 +79,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     else {
       UID = currentUser.uid;
     }
+    setState(() {
 
+      isLoading = true;
+    });
     _setCurrentScreen();
-    checkIfFollowing();
+
     getFollowers();
     getFollowing();
     GetPosts();
     _listFuture = getUserInfo();
+    await checkIfFollowing();
+    setState(() {
+
+      isLoading = false;
+    });
 
   }
   checkIfFollowing() async {
@@ -87,13 +102,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .collection('userFollowers')
         .doc(currentUser.uid)
         .get();
+    var ProfileUser;
+    bool isPrivate;
+    if(UID != currentUser.uid) {
+      ProfileUser = await usersRef.doc(UID).get();
+      isPrivate = ProfileUser.data()["IsPrivate"];
+    }
+    else {
+      isPrivate = false;
+    }
     setState(() {
+
       isFollowing = doc.exists;
+      _isPrivate = isPrivate;
+
+      print(_isPrivate);
     });
   }
   GetPosts() async {
     setState(() {
-      isLoading = true;
+      //isLoading = true;
     });
     List<Post1> PostsToBuild = [];
     QuerySnapshot snapshot = await getpostRef
@@ -102,21 +130,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     for( var doc in snapshot.docs){
       Post1 post = Post1(
-          caption: doc["Caption"],
-          imageURL: doc["Image"],
-          likes: doc["Likes"],
-          createdAt: doc["createdAt"],
-          isPrivate: doc["IsPrivate"],
-          location: doc["Location"],
-          UserID: doc["PostUser"],
-          PostID: doc.id
+        caption: doc["Caption"],
+        imageURL: doc["Image"],
+        likes: doc["Likes"],
+        createdAt: doc["createdAt"],
+        isPrivate: doc["IsPrivate"],
+        location: doc["Location"],
+        UserID: doc["PostUser"],
+        PostID: doc.id,
+        LikesMap : doc['LikesMap'],
       );
       PostsToBuild.add(post);
     }
     setState(() {
       PostCount = snapshot.docs.length;
       _PostsToBuild = PostsToBuild;
-      isLoading = false;
+      //isLoading = false;
     });
 
   }
@@ -214,12 +243,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .doc(widget.UID)
         .collection('feedItems')
         .doc(currentUser.uid)
-        .set({
+        .set({//todo think about adding post id(as an empty value) or not
+      "PostID": "NoPost",
       "type": "follow",
       "ownerId": widget.UID,
-      "username": username,//todo: pass username from previous page
+      //"username": username,//todo: pass username from previous page
       "userId": currentUser.uid,
-      "userProfileImg": userProfileImg,
+      //"userProfileImg": userProfileImg,
       "timestamp": timestamp,
     });
 
@@ -252,7 +282,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //Get user functions //TODO:replicated use from UserFnx try to remove
   @override
   Future<DocumentSnapshot> getUserInfo() {
-
     FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
 
     //final args = ModalRoute.of(context).settings.arguments as PassingUID;
@@ -340,13 +369,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         function: (){handleUnfollowUser();},
 
       );
-    } else if (!isFollowing) {
+    } else if (!isFollowing && !_isPrivate) {
       return buildButton(
         text: "Follow",
         function: (){handleFollowUser();},
 
       );
     }
+    else if(!isFollowing && _isPrivate)
+    {return buildButton(
+      text: "Request Follow",
+      function: (){},//TODO: request follow system
+
+    );}
   }
 
   //Main Header Widget: Avatar,following,follower,Post count,Bio,Username,Name
@@ -507,9 +542,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
   buildTogglePostOrientation() {
-    return Row(
+    return (!_isPrivate || isFollowing) ? Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
+      children:  <Widget>[
         IconButton(
           onPressed: () => setPostOrientation("grid"),
           icon: Icon(Icons.grid_on),
@@ -531,8 +566,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ? AppColors.peachpink
               : Colors.grey,
         ),
-      ],
-    );
+      ] ,
+    ): Image(image: AssetImage("assets/images/Private.png"),);
   }
 
   buildProfilePosts() {
@@ -544,7 +579,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   AppColors.primarypurple)),
         ),
       );
-    } else if (_PostsToBuild.isEmpty && postOrientation!="locations") {
+    }
+    else if(_isPrivate && !isFollowing){
+      return Text(" ");
+    }
+    else if (_PostsToBuild.isEmpty && postOrientation!="locations") {
       return Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -559,8 +598,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "grid") {
       List<GridTile> gridTiles = [];
+      int currindex = currentindex();
       _PostsToBuild.forEach((post) {
-        gridTiles.add(GridTile(child: PostTile(post)));
+        gridTiles.add(GridTile(child: PostTile(post,currindex)));
       });
 
       return GridView.count(
@@ -575,10 +615,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "list") {
       return Column(
-        children: [
-
-        ],
-      );
+          children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+         );
     }
     else if (postOrientation == "locations") {
       return Column(
@@ -684,7 +722,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   Divider(),
                   InkWell(
-                    onTap: () {},
+                    onTap: () => Navigator.pushNamed(context, "/settings"),
                     child: ListTile(
                       title: Text('Settings'),
                       leading: Icon(Icons.settings),
@@ -738,8 +776,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class PostTile extends StatelessWidget {
   final Post1 post;
+  final int index;
 
-  PostTile(this.post);
+  PostTile(this.post,this.index);
 
   showPost(context) {
     Navigator.push(
@@ -748,6 +787,8 @@ class PostTile extends StatelessWidget {
         builder: (context) => PostScreen(
           postId: post.PostID,
           userId: post.UserID,
+          index: index,
+
         ),
       ),
     );
