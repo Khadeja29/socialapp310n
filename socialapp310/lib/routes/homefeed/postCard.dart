@@ -28,6 +28,7 @@ class _PostCardState extends State<PostCard> {
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
+  final animatorKeyLike2 = AnimatorKey<double>();
   String _ProfPic = 'https://picsum.photos/250?image=9';
   // final animatorKeyLike = AnimatorKey<double>();
   // final animatorKeyLike2 = AnimatorKey<double>();
@@ -199,7 +200,7 @@ class _PostCardState extends State<PostCard> {
         likeCount +=1;
         isLiked = true;
         _Likesmap[currentUser.uid] = true;
-       // animatorKeyLike2.triggerAnimation(restart: true);
+        animatorKeyLike2.triggerAnimation(restart: true);
 
         // showHeart = true;
       });
@@ -311,21 +312,52 @@ class _PostCardState extends State<PostCard> {
                 height: 5,
                 thickness: 1.0,
               ),
-              GestureDetector(
-                child: Hero(
-                  tag: '${widget.post.imageURL}',
-                  child: Image(
-                    image: NetworkImage(widget.post.imageURL),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return DetailScreenLink(
-                      ImageUrlPost: widget.post.imageURL,
 
-                    );
-                  }));
-                },
+              Stack(
+                  alignment: Alignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return DetailScreenLink(
+                          ImageUrlPost: widget.post.imageURL,
+                        );
+                      }));
+                    },
+                    onDoubleTap: (){handleLikePost(widget.post.PostID);},
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8,5,5,8),
+                      child: Container(
+                        height: (MediaQuery.of(context).size.width)-70,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(widget.post.imageURL),
+                            fit: BoxFit.cover  ,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Animator<double>(
+                    tween: Tween<double>(begin: 0, end: 200),
+                    cycles: 2,
+                    animatorKey: animatorKeyLike2,
+                    triggerOnInit: false,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.bounceIn,
+
+                    builder: (context, animatorState, child ) => Center(
+                        child:  isLiked ? Icon(
+                          Icons.favorite,
+                          color: Colors.pink.withOpacity(0.7),
+                          size: animatorState.value,)
+                            : Icon(
+                          Icons.favorite_border_outlined,
+                          color: Colors.pink,
+                          size:animatorState.value,
+                        )
+                    ),
+                  ),]
               ),
               Divider(
                 color: AppColors.lightgrey,

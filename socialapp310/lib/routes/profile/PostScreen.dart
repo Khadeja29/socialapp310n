@@ -48,14 +48,27 @@ class _PostScreenState extends State<PostScreen> {
     return AppBar(
       leading: GestureDetector(
         onTap: (){
-          Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
-              builder: (context) =>
-                  ProfileScreen(analytics: AppBase.analytics,
-                      observer: AppBase.observer,
-                      index: widget.index,
-                      UID: (widget.userId== currentUser.uid)?null : widget.userId )
-          ),
-                  (route) => route.isFirst);
+          if(widget.userId != currentUser.uid)
+          {
+            Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
+            builder: (context) =>
+            ProfileScreen(analytics: AppBase.analytics,
+            observer: AppBase.observer,
+            index: widget.index,
+            UID: (widget.userId== currentUser.uid)?null : widget.userId )
+            ),
+            (route) => route.isFirst);
+          }
+          else {
+            Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
+                builder: (context) =>
+                    ProfileScreen(analytics: AppBase.analytics,
+                        observer: AppBase.observer,
+                        index: widget.index,
+                        UID: (widget.userId== currentUser.uid)?null : widget.userId )
+            ),
+                    (route) => false);
+          }
         },
         child: Icon(
           Icons.arrow_back,

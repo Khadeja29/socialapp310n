@@ -778,7 +778,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Icon(Icons.bookmark),
                     ),
                   ),
-                  data["IsPrivate"] ? InkWell(
+                   InkWell(
                     onTap: () {
                         //TODO create page to accept requests
                         //We can pass userid and username and profile pic
@@ -799,7 +799,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: Text('Follow Requests'),
                       leading: Icon(Icons.person),
                     ),
-                  ) : Text(""),
+                  ) ,
                   Divider(),
                   InkWell(
                     onTap: () {},
