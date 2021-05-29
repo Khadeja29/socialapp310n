@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
+import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/welcome.dart';
@@ -16,6 +17,7 @@ import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+final usersRef = FirebaseFirestore.instance.collection('user');
 
 class PostScreen extends StatefulWidget {
   final String userId;
@@ -347,7 +349,14 @@ class _PostScreenState extends State<PostScreen> {
                           padding: EdgeInsets.only(top: 40.0, left: 5.0)
                       ),
                       GestureDetector(
-                        onTap: () {},//todo push comment page
+
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Comments(postId: widget.postId, postOwnerId:  userId, postMediaUrl: imageURL,
+                                analytics: AppBase.analytics,
+                                observer: AppBase.observer)),);
+                        },
                         child: Icon(
                           Icons.chat_bubble_outline_sharp,
                           size: 26.0,

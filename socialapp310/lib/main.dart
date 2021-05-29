@@ -92,7 +92,6 @@ class AppBase extends StatelessWidget {
         '/creatpost' :  (context) => CreatePost(analytics: analytics, observer: observer,),
         '/comments' : (context) => Comments(analytics: analytics, observer: observer,postId: "rmIqMR4yiLKalMOz4gtl",postOwnerId: "NJR9BykZFHUWcDxIus5Mb2uAkp83"),
         '/followreq' :  (context) => FollowReq(analytics: analytics, observer: observer,),
-
         //'/postscreen' : (context) => PostScreen(analytics: analytics, observer: observer,),
       },
     );

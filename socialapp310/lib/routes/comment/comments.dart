@@ -12,7 +12,6 @@ import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 
 final commentsRef = FirebaseFirestore.instance.collection('comments');
 final usersRef = FirebaseFirestore.instance.collection('user');
-final DateTime timestamp = DateTime.now();
 
 FBauth.User curUser =  FBauth.FirebaseAuth.instance.currentUser;
 
@@ -154,6 +153,7 @@ class CommentsState extends State<Comments> {
   }
 
   addComment() async {
+    final DateTime timestamp = DateTime.now();
     String prf =  await UserFxns.getProfilePic();
     String usrName = await UserFxns.getUserName();
 
@@ -180,16 +180,24 @@ class CommentsState extends State<Comments> {
     }
     commentController.clear();
   }
-
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
+      leading: GestureDetector(
+        onTap: (){
+          Navigator.of(context).pop();
+        },
+        child: Icon(
+          Icons.arrow_back,
+          size: 28,
+        ),
+      ),
       automaticallyImplyLeading: removeBackButton ? false : true,
       title: Text(
         isAppTitle ? "FlutterShare" : "@$titleText",
         style: TextStyle(
           color: Colors.white,
           fontFamily: isAppTitle ? "Signatra" : "",
-          fontSize: isAppTitle ? 50.0 : 22.0,
+          fontSize: isAppTitle ? 22.0 : 22.0,
         ),
         overflow: TextOverflow.ellipsis,
       ),
@@ -197,6 +205,7 @@ class CommentsState extends State<Comments> {
       backgroundColor: AppColors.darkpurple,
     );
   }
+
 
 
 

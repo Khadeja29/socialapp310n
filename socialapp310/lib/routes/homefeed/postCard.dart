@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:socialapp310/main.dart';
+import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,9 @@ import 'package:socialapp310/models/Post1.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:animator/animator.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+final usersRef = FirebaseFirestore.instance.collection('user');
+final commentsRef = FirebaseFirestore.instance.collection('comments');
 
 
 class PostCard extends StatefulWidget {
@@ -22,10 +26,13 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   User currentUser = FirebaseAuth.instance.currentUser;
   bool pressed = false;
+  Future<QuerySnapshot> searchResultsFuture;
+
   String _postOwner ="";
   var _location = "Something Else";
   bool _isPostOwner = false;
   bool isLiked = false;
+  int commentLen = 0;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
   String displayTime;
@@ -45,8 +52,41 @@ class _PostCardState extends State<PostCard> {
     _isPostOwner = currentUser.uid == widget.post.UserID;
     setUpLikes();
     displayTime = timeago.format(widget.post.createdAt.toDate());
-
   }
+
+  buildCommentLength() {
+    return StreamBuilder(
+        stream: commentsRef
+            .doc(widget.post.PostID)
+            .collection('postComments')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(child: CircularProgressIndicator(),
+                  height: 20,
+                  width: 20,),
+              ],
+            );
+          }
+          commentLen = 0;
+          snapshot.data.docs.forEach((doc) {
+            commentLen+=1;
+          });
+          return Text(commentLen.toString() + " comments",
+               style: TextStyle(
+              color: AppColors.darkgreyblack,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0,
+              fontFamily: 'OpenSansCondensed-Bold'),
+          );
+        });
+  }
+
+
+
   getUserinfo() async{
     var result = await usersRef
         .doc(widget.post.UserID)
@@ -440,14 +480,7 @@ class _PostCardState extends State<PostCard> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "${likeCount} comments",
-                                style: TextStyle(
-                                    color: AppColors.darkgreyblack,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0,
-                                    fontFamily: 'OpenSansCondensed-Bold'),
-                              ),
+                              buildCommentLength(),
                             ],
                           ),
                           SizedBox(
@@ -483,7 +516,13 @@ class _PostCardState extends State<PostCard> {
                         IconButton(
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,
-                          onPressed: () {},
+                          onPressed: () {
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
+                              analytics: AppBase.analytics,
+                              observer: AppBase.observer)),);},
+
                           icon: Icon(
                             Icons.chat_bubble_outline,
                             size: 30.0,

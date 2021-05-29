@@ -2,11 +2,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:socialapp310/chats_page.dart';
-
 import 'package:socialapp310/models/Post1.dart';
-
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
@@ -48,40 +45,40 @@ class _TestPostState extends State<HomeFeed> {
     super.initState();
     _setCurrentScreen();
     buildHomefeed();
-    
+
   }
-  
+
   buildHomefeed () async {
     var result = await followingRef
-                 .doc(currentUser.uid)
-                 .collection("userFollowing")
-                 .get();
+        .doc(currentUser.uid)
+        .collection("userFollowing")
+        .get();
     print(currentUser.uid);
     List<Post1> PosttoBuild = [];
     for (var doc in result.docs)
     {
-       var SinglePost = await getpostRef
-                              .where("PostUser" , isEqualTo: doc.id)
-                              .orderBy("createdAt", descending: true)
-                              .limit(1)
-                               .get();
-       if(SinglePost.docs.isNotEmpty)
-       {
-         Post1 post = Post1(
-             caption: SinglePost.docs[0]["Caption"],
-             imageURL: SinglePost.docs[0]["Image"],
-             likes: SinglePost.docs[0]["Likes"],
-             createdAt: SinglePost.docs[0]["createdAt"],
-             isPrivate: SinglePost.docs[0]["IsPrivate"],
-             location: SinglePost.docs[0]["Location"],
-             LikesMap : SinglePost.docs[0]['LikesMap'],
-             UserID: SinglePost.docs[0]['PostUser'],
-             PostID: SinglePost.docs[0].id
-         );
-         PosttoBuild.add(post);
+      var SinglePost = await getpostRef
+          .where("PostUser" , isEqualTo: doc.id)
+          .orderBy("createdAt", descending: true)
+          .limit(1)
+          .get();
+      if(SinglePost.docs.isNotEmpty)
+      {
+        Post1 post = Post1(
+            caption: SinglePost.docs[0]["Caption"],
+            imageURL: SinglePost.docs[0]["Image"],
+            likes: SinglePost.docs[0]["Likes"],
+            createdAt: SinglePost.docs[0]["createdAt"],
+            isPrivate: SinglePost.docs[0]["IsPrivate"],
+            location: SinglePost.docs[0]["Location"],
+            LikesMap : SinglePost.docs[0]['LikesMap'],
+            UserID: SinglePost.docs[0]['PostUser'],
+            PostID: SinglePost.docs[0].id
+        );
+        PosttoBuild.add(post);
 
-       }
-       PosttoBuild.sort((a,b)=> b.createdAt.compareTo(a.createdAt));
+      }
+      PosttoBuild.sort((a,b)=> b.createdAt.compareTo(a.createdAt));
 
 
     }
@@ -136,10 +133,9 @@ class _TestPostState extends State<HomeFeed> {
           )
         ],
       ),
-
-       body: ListView(
-         children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
-       ),
+      body: ListView(
+        children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         backgroundColor: AppColors.darkpurple,
