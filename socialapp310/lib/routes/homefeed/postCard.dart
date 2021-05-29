@@ -34,7 +34,7 @@ class _PostCardState extends State<PostCard> {
   String _ProfPic = 'https://i.ibb.co/2sJtcNd/download.png';
   // final animatorKeyLike = AnimatorKey<double>();
   // final animatorKeyLike2 = AnimatorKey<double>();
-  // final animatorKeyBookmark = AnimatorKey<double>();
+  final animatorKeyBookmark = AnimatorKey<double>();
 
   void initState() {
     // TODO: implement initState
@@ -44,9 +44,9 @@ class _PostCardState extends State<PostCard> {
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
     _isPostOwner = currentUser.uid == widget.post.UserID;
-    //print(_isPostOwner);
     setUpLikes();
     displayTime = timeago.format(widget.post.createdAt.toDate());
+
   }
   getUserinfo() async{
     var result = await usersRef
@@ -491,16 +491,8 @@ class _PostCardState extends State<PostCard> {
                             color: Colors.black54,
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.all(0.0),
-                          splashRadius: 25,
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.redo,
-                            size: 30.0,
-                            color: Colors.black54,
-                          ),
-                        ),
+
+
                       ],
                     ),
                   ]),
