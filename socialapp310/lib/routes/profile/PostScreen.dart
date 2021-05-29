@@ -11,13 +11,14 @@ import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
-import 'package:socialapp310/routes/profile/userList.dart';
-import 'package:socialapp310/routes/welcome.dart';
-import 'package:socialapp310/services/UserFxns.dart';
+
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
 final usersRef = FirebaseFirestore.instance.collection('user');
+final commentsRef = FirebaseFirestore.instance.collection('comments');
 
 class PostScreen extends StatefulWidget {
   final String userId;
@@ -42,6 +43,7 @@ class _PostScreenState extends State<PostScreen> {
   Map<String,dynamic> _Likesmap;
   bool _Bookmarked = false;
   bool _isFlagged = false;
+  int commentLen = 0;
   final animatorKeyLike = AnimatorKey<double>();
   final animatorKeyLike2 = AnimatorKey<double>();
   final animatorKeyBookmark = AnimatorKey<double>();
@@ -90,6 +92,41 @@ class _PostScreenState extends State<PostScreen> {
       centerTitle: true,
       backgroundColor: AppColors.darkpurple,
     );
+  }
+
+  buildCommentLength() {
+    return StreamBuilder(
+        stream: commentsRef
+            .doc(widget.postId)
+            .collection('postComments')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(child: CircularProgressIndicator(),
+                  height: 20,
+                  width: 20,),
+              ],
+            );
+          }
+          commentLen = 0;
+          snapshot.data.docs.forEach((doc) {
+            commentLen+=1;
+          });
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(15,0,0,0),
+            child: Text(commentLen.toString() + " comments",
+              style: TextStyle(
+                  color: AppColors.darkgreyblack,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  letterSpacing: 0,
+                  fontFamily: 'OpenSansCondensed-Bold'),
+            ),
+          );
+        });
   }
 
   buildPostHeader(String userId)  {
@@ -298,7 +335,7 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  buildPostFooter(String userId, String caption, int likes , String imageURL) {
+  buildPostFooter(String userId, String caption, int likes , String imageURL, String time) {
     return FutureBuilder(
         future: _listFuture2,
         builder: (context, docsnap) {
@@ -427,11 +464,12 @@ class _PostScreenState extends State<PostScreen> {
                       "${likeCount} likes",
                       style: TextStyle(
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
                       ),
                     ),
                   ),
+                  buildCommentLength(),
                 ],
               ),
               SizedBox(height: 5),
@@ -445,7 +483,7 @@ class _PostScreenState extends State<PostScreen> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -458,6 +496,21 @@ class _PostScreenState extends State<PostScreen> {
                     ),
                   )
                   )
+
+                ],
+              ),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15,20, 0, 0),
+                    child: Text(
+                      time,
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -651,7 +704,7 @@ class _PostScreenState extends State<PostScreen> {
                   valueColor: new AlwaysStoppedAnimation<Color>(
                       AppColors.primarypurple)));
         }
-        print(snapshot.data);
+        //print(snapshot.data);
         Post1 post = Post1(
             caption: snapshot.data["Caption"],
             imageURL: snapshot.data["Image"],
@@ -673,7 +726,7 @@ class _PostScreenState extends State<PostScreen> {
                 buildPostHeader(widget.userId),
                 SizedBox(height: 5),
                 buildPostImage(post.imageURL),
-                buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL)
+                buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL,timeago.format(post.createdAt.toDate()))
               ],
             ),
           ),
