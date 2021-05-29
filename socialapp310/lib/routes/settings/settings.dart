@@ -29,7 +29,7 @@ class _SettingsState extends State<Settings> {
             context: context,
             type: CoolAlertType.success,
             text: "Successfully deleted",
-            //backgroundColor: AppColors.lightgrey,
+           //backgroundColor: AppColors.lightgrey,
             borderRadius: 40,
             confirmBtnColor: AppColors.darkpurple,
             onConfirmBtnTap: () {

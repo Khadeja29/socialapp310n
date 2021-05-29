@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:socialapp310/utils/color.dart';
 
 class SearchWidget extends StatefulWidget {
   final String text;
@@ -40,7 +41,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           icon: Icon(Icons.search, color: style.color),
           suffixIcon: widget.text.isNotEmpty
               ? GestureDetector(
-            child: Icon(Icons.close, color: style.color),
+            child: Icon(Icons.close, color: AppColors.darkpurple, size: 10,),
             onTap: () {
               controller.clear();
               widget.onChanged('');

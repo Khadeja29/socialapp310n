@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:socialapp310/main.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -18,6 +19,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:math';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+
+
 
 class Uploadpic extends StatefulWidget {
   const Uploadpic({Key key, this.analytics, this.observer}): super (key: key);
@@ -147,6 +150,32 @@ class _Uploadpic extends State<Uploadpic> {
                   ),
                 ),
               ),
+              SizedBox(height: 30,),
+              ElevatedButton(
+
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+
+                  ),
+                  backgroundColor: AppColors.peachpink,
+                ),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/searchlocation');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30),
+                  child: Text(
+                      'Search Location',
+                      style:  TextStyle(
+                          color: AppColors.darkpurple,
+                          fontSize: 20.0,
+                          letterSpacing: -0.7,
+                          fontFamily: 'OpenSansCondensed-Light'
+                      )
+                  ),
+                ),
+              ),
             ],
 
           ),
@@ -174,7 +203,9 @@ class _Uploadpic extends State<Uploadpic> {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 onPressed: () => {
-                  Navigator.pushNamed(context, '/creatpost', arguments: PassingValues(imageFile))
+                  Navigator.push(context, MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, imageFile:imageFile ),
+                  ),)
                 },
               ),
             ],
@@ -217,4 +248,3 @@ class _Uploadpic extends State<Uploadpic> {
     }
   }
 }
-

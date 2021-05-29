@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 //import 'package:socialapp310/models/user.dart';
+
+import 'package:socialapp310/routes/profile/profilepage.dart';
+
 
 class UserFxns{
 
@@ -18,21 +22,25 @@ class UserFxns{
         .where('Username', isEqualTo: Username)
         .get();
 
-      if(result.docs.isNotEmpty)
-      {unique = false;}
+    if(result.docs.isNotEmpty)
+    {unique = false;}
 
-       result.docs.forEach((doc) {// for doc in docs in python
-         if(currentUser != null)
-         {
-           if (doc.id == currentUser.uid) {
-             unique = true;
-           }
-         }
-       });
+    result.docs.forEach((doc) {// for doc in docs in python
+      if(currentUser != null)
+      {
+        if (doc.id == currentUser.uid) {
+          unique = true;
+        }
+      }
+    });
     print("here ${unique}");
     return unique;
   }
 
+  static Future<String> CurrentUserID() async{
+    User currentUser = _auth.currentUser;
+    return currentUser.uid;
+  }
   static Future<bool> UserExistsinFireStore(String uid) async{
 
     print(uid);
@@ -44,7 +52,9 @@ class UserFxns{
     return result.exists;
   }
   static Future<void> SignUpNormal(BuildContext context, String email,String password,String Bio, String FullName,
+
        String Username ,String ProfilePicture) async {
+
     Username = Username.toLowerCase();
     var isNewUser = false;
     try {
@@ -154,14 +164,14 @@ class UserFxns{
         usersCollection
             .doc(currentUser.uid)
             .set({
-              "ProfilePic" : ProfilePic,
-              "Bio": Bio,
-              "FullName": FullName,
-              "IsPrivate": isPrivate,
-              "Username": Username,
-              "Email": currentUser.email,
-              "isDeactivated" : isDeactivated
-            })
+          "ProfilePic" : ProfilePic,
+          "Bio": Bio,
+          "FullName": FullName,
+          "IsPrivate": isPrivate,
+          "Username": Username,
+          "Email": currentUser.email,
+          "isDeactivated" : isDeactivated
+        })
             .then((value) => print("User Added"))
             .catchError((error) => print("Failed to add user: $error"));
       }
@@ -183,9 +193,19 @@ class UserFxns{
     User currentFB =  FirebaseAuth.instance.currentUser;
     CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
     var result = await usersCollection
-                .doc(currentFB.uid)
-                .get();
+        .doc(currentFB.uid)
+        .get();
     return result.get("ProfilePic");
+  }
+
+  static Future<String> getUserName() async {
+    //Call the user's CollectionReference to add a new user
+    User currentFB =  FirebaseAuth.instance.currentUser;
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(currentFB.uid)
+        .get();
+    return result.get("Username");
   }
 
   static Future<void> UpdateUserInfo({String Bio, String FullName, String UserName, bool IsPriv}) async {
@@ -197,6 +217,16 @@ class UserFxns{
         .update({'Bio': Bio, 'FullName': FullName, 'Username':UserName, 'IsPrivate':IsPriv})
         .then((value) => print("Successful Edit User"))
         .catchError((error) => print("Error: $error"));
+
+    QuerySnapshot snapshot = await getpostRef
+        .where("PostUser" , isEqualTo: currentUser.uid)
+        .get();
+    
+    for(var doc in snapshot.docs){
+      await getpostRef
+          .doc(doc.id)
+          .update({'IsPrivate': IsPriv});
+    }
   }
 
 }
