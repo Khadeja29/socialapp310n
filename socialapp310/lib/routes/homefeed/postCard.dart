@@ -9,6 +9,7 @@ import 'package:socialapp310/models/Post1.dart';
 import 'package:flutter/gestures.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:animator/animator.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 
 class PostCard extends StatefulWidget {
@@ -28,8 +29,10 @@ class _PostCardState extends State<PostCard> {
   bool isLiked = false;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
+  String displayTime;
+
   final animatorKeyLike2 = AnimatorKey<double>();
-  String _ProfPic = 'https://picsum.photos/250?image=9';
+  String _ProfPic = 'https://i.ibb.co/2sJtcNd/download.png';
   // final animatorKeyLike = AnimatorKey<double>();
   // final animatorKeyLike2 = AnimatorKey<double>();
   // final animatorKeyBookmark = AnimatorKey<double>();
@@ -44,7 +47,7 @@ class _PostCardState extends State<PostCard> {
     _isPostOwner = currentUser.uid == widget.post.UserID;
     //print(_isPostOwner);
     setUpLikes();
-
+    displayTime = timeago.format(widget.post.createdAt.toDate());
   }
   getUserinfo() async{
     var result = await usersRef
@@ -229,6 +232,7 @@ class _PostCardState extends State<PostCard> {
           padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               ListTile(
                 leading: Container(
@@ -364,14 +368,46 @@ class _PostCardState extends State<PostCard> {
                 height: 10,
                 thickness: 1.0,
               ),
-              Text(
-                "${widget.post.caption}",
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0,
-                    fontFamily: 'OpenSansCondensed-Bold'),
+              /* Expanded(
+                child: Text(
+                  "${widget.post.caption}",
+                  style: TextStyle(
+                      color: Colors.lightBlue,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.4,
+                      fontFamily: 'OpenSansCondensed-Bold'
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  maxLines: 1,
+                ),
+              ), */
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 0.0),
+                    child: Text(
+                      "${_postOwner}",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width:5,),
+                  Expanded(child: Text(
+                    "${widget.post.caption}",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                    ),
+                  )
+                  )
+                ],
               ),
               SizedBox(height: 5),
               Row(
@@ -381,25 +417,52 @@ class _PostCardState extends State<PostCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "${likeCount} likes",
-                            style: TextStyle(
-                                color: AppColors.darkgrey,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0,
-                                fontFamily: 'OpenSansCondensed-Bold'),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${likeCount} likes",
+                                style: TextStyle(
+                                    color: AppColors.darkgreyblack,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0,
+                                    fontFamily: 'OpenSansCondensed-Bold'),
+                              ),
+                              // SizedBox(width: 15,),
+                              // Text(
+                              //   "${likeCount} comments",
+                              //   style: TextStyle(
+                              //       color: AppColors.darkgreyblack,
+                              //       fontWeight: FontWeight.w800,
+                              //       letterSpacing: 0,
+                              //       fontFamily: 'OpenSansCondensed-Bold'),
+                              // ),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${likeCount} comments",
+                                style: TextStyle(
+                                    color: AppColors.darkgreyblack,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0,
+                                    fontFamily: 'OpenSansCondensed-Bold'),
+                              ),
+                            ],
                           ),
                           SizedBox(
-                            width: 10,
+                            height: 15,
                           ),
-                          /*Text(   //Get total number of comments
-                            "${widget.post.comments} comments",
+                          Text(
+                            displayTime ,
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0,
                                 fontFamily: 'OpenSansCondensed-Bold'),
-                          ), */
+                          ),
                         ],
                       ),
                     ),

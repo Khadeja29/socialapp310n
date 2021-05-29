@@ -406,7 +406,7 @@ class _PostScreenState extends State<PostScreen> {
 
                       //TODO: add reshare button
                       SizedBox(width: 5,)],
-                  )
+                  ),
 
                 ],
               ),
