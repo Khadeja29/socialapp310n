@@ -33,8 +33,7 @@ class _PostCardState extends State<PostCard> {
   final animatorKeyLike2 = AnimatorKey<double>();
   String _ProfPic = 'https://i.ibb.co/2sJtcNd/download.png';
   // final animatorKeyLike = AnimatorKey<double>();
-  // final animatorKeyLike2 = AnimatorKey<double>();
-  final animatorKeyBookmark = AnimatorKey<double>();
+  //final animatorKeyBookmark = AnimatorKey<double>();
 
   void initState() {
     // TODO: implement initState
