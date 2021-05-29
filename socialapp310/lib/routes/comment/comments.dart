@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:socialapp310/routes/profile/PostScreen.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -181,11 +180,39 @@ class CommentsState extends State<Comments> {
     }
     commentController.clear();
   }
+  AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
+    return AppBar(
+      leading: GestureDetector(
+        onTap: (){
+            Navigator.of(context).pop();
+        },
+        child: Icon(
+          Icons.arrow_back,
+          size: 28,
+        ),
+      ),
+      automaticallyImplyLeading: removeBackButton ? false : true,
+      title: Text(
+        isAppTitle ? "FlutterShare" : "@$titleText",
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: isAppTitle ? "Signatra" : "",
+          fontSize: isAppTitle ? 22.0 : 22.0,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+      centerTitle: true,
+      backgroundColor: AppColors.darkpurple,
+    );
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "Comments", ),
+      appBar: header(context, titleText: "Comments", removeBackButton: true),
       body: Column(
         children: <Widget>[
           Expanded(

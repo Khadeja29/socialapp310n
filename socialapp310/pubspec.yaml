@@ -54,13 +54,9 @@ dependencies:
   flutter_search_bar:
   google_place:
   animator: ^3.0.0
-<<<<<<< HEAD
   timeago: ^3.0.2
   cached_network_image: ^3.0.0
-=======
   simple_animations: ^3.1.1
-  timeago: ^3.0.2
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
 dev_dependencies:
   flutter_test:
     sdk: flutter

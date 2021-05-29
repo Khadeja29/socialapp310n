@@ -2,20 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:socialapp310/main.dart';
+import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import '../../models/post.dart';
-import 'package:flutter/gestures.dart';
-import 'package:socialapp310/routes/comments.dart';
-import 'package:socialapp310/routes/editpost.dart';
-=======
 import 'package:socialapp310/models/Post1.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:animator/animator.dart';
 import 'package:timeago/timeago.dart' as timeago;
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
+
+final usersRef = FirebaseFirestore.instance.collection('user');
+final commentsRef = FirebaseFirestore.instance.collection('comments');
 
 
 class PostCard extends StatefulWidget {
@@ -29,10 +26,13 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   User currentUser = FirebaseAuth.instance.currentUser;
   bool pressed = false;
+  Future<QuerySnapshot> searchResultsFuture;
+
   String _postOwner ="";
   var _location = "Something Else";
   bool _isPostOwner = false;
   bool isLiked = false;
+  int commentLen = 0;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
   String displayTime;
@@ -52,8 +52,41 @@ class _PostCardState extends State<PostCard> {
     _isPostOwner = currentUser.uid == widget.post.UserID;
     setUpLikes();
     displayTime = timeago.format(widget.post.createdAt.toDate());
-
   }
+
+  buildCommentLength() {
+    return StreamBuilder(
+        stream: commentsRef
+            .doc(widget.post.PostID)
+            .collection('postComments')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(child: CircularProgressIndicator(),
+                  height: 20,
+                  width: 20,),
+              ],
+            );
+          }
+          commentLen = 0;
+          snapshot.data.docs.forEach((doc) {
+            commentLen+=1;
+          });
+          return Text(commentLen.toString() + " comments",
+               style: TextStyle(
+              color: AppColors.darkgreyblack,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0,
+              fontFamily: 'OpenSansCondensed-Bold'),
+          );
+        });
+  }
+
+
+
   getUserinfo() async{
     var result = await usersRef
         .doc(widget.post.UserID)
@@ -239,17 +272,6 @@ class _PostCardState extends State<PostCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-<<<<<<< HEAD
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/logo_woof.png'),//widget.post.ImageUrlAvatar),
-                      radius: 30,
-                    ),
-=======
               ListTile(
                 leading: Container(
                   width: 50,
@@ -257,7 +279,6 @@ class _PostCardState extends State<PostCard> {
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(_ProfPic),
                     backgroundColor: Colors.grey,
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
                   ),
                 ),
                 title: GestureDetector(
@@ -273,53 +294,6 @@ class _PostCardState extends State<PostCard> {
                       ),
                     ),
                   ),
-<<<<<<< HEAD
-                  Expanded(
-                    flex: 7,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        RichText(
-                          text: TextSpan(
-                            text: "${widget.post.username}",
-
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => print(
-                                  'Click on username'), //TODO: Push user profile
-                            style: TextStyle(
-                                color: AppColors.darkpurple,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -0.7,
-                                fontFamily: 'OpenSansCondensed-Bold'),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.location_on_rounded,
-                              size: 17.0,
-                              color: Colors.redAccent,
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text: "${widget.post.location}",//loc => lat and long
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () => print(
-                                      'Click on location'), //TODO: Push user profile
-                                style: TextStyle(
-                                    color: Colors.lightBlue,
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.4,
-                                    fontFamily: 'OpenSansCondensed-Bold'),
-                              ),
-                            ),
-                          ],
-=======
                 ),
                 subtitle: Row(
                   children: [
@@ -338,92 +312,12 @@ class _PostCardState extends State<PostCard> {
                             fontWeight: FontWeight.w400,
                             letterSpacing: -0.4,
                             fontFamily: 'OpenSansCondensed-Bold'
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
                         ),
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,
                         maxLines: 1,
                       ),
                     ),
-<<<<<<< HEAD
-                  ),
-                  PopupMenuButton(
-                    onSelected: (result) {
-                      if (result == 0) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => EditPost()),
-                        );
-                      }
-
-                    },
-
-                    iconSize: 50,
-                    tooltip: 'Menu',
-                    color: AppColors.peachpink,
-                    child:Icon(
-                      Icons.more_vert,
-                      size: 28.0,
-                      color: AppColors.darkpurple,
-                    ),
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-
-                          child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 20.0),
-                                child: Text('EDIT',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: -0.7,
-                                        fontFamily: 'OpenSansCondensed-Bold'
-                                    )),
-                              ),
-                              SizedBox(width: 15,),
-                              Icon(
-                                Icons.edit,
-                                color: AppColors.darkpurple,
-                              ),
-
-
-                            ],
-                          ),
-                        value: 0,
-                      ),
-                      PopupMenuItem(
-                          child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 20.0),
-                                child: Text('DELETE',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: -0.7,
-                                        fontFamily: 'OpenSansCondensed-Bold'
-                                    )),
-                              ),
-                              SizedBox(width: 15,),
-                              Icon(
-                                Icons.delete,
-                                color: AppColors.darkpurple,
-                              ),
-
-                            ],
-                          ))
-                    ],
-
-                  )
-                ],
-=======
                   ],
                 ),
                 trailing: _isPostOwner
@@ -454,7 +348,6 @@ class _PostCardState extends State<PostCard> {
                 )
                     : Text(''),
 
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
               ),
               Divider(
                 color: AppColors.lightgrey,
@@ -587,25 +480,14 @@ class _PostCardState extends State<PostCard> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "${likeCount} comments",
-                                style: TextStyle(
-                                    color: AppColors.darkgreyblack,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0,
-                                    fontFamily: 'OpenSansCondensed-Bold'),
-                              ),
+                              buildCommentLength(),
                             ],
                           ),
                           SizedBox(
                             height: 15,
                           ),
                           Text(
-<<<<<<< HEAD
-                            "${widget.post.comment} comments",
-=======
                             displayTime ,
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
@@ -637,7 +519,9 @@ class _PostCardState extends State<PostCard> {
                           onPressed: () {
                           Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => CommentScreen()),);},
+                          MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
+                              analytics: AppBase.analytics,
+                              observer: AppBase.observer)),);},
                           icon: Icon(
                             Icons.chat_bubble_outline,
                             size: 30.0,

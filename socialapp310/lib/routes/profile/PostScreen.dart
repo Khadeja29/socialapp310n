@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
+import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/welcome.dart';
@@ -16,31 +17,12 @@ import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+final usersRef = FirebaseFirestore.instance.collection('user');
 
-<<<<<<< HEAD
-AppBar header(context,
-    {bool isAppTitle = false, String titleText, removeBackButton = false}) {
-  return AppBar(
-    automaticallyImplyLeading: removeBackButton ? false : true,
-    title: Text(
-      isAppTitle ? "FlutterShare" : titleText,
-      style: TextStyle(
-        color: Colors.white,
-        fontFamily: isAppTitle ? "Signatra" : "",
-        fontSize: isAppTitle ? 50.0 : 22.0,
-      ),
-      overflow: TextOverflow.ellipsis,
-    ),
-    centerTitle: true,
-    backgroundColor: AppColors.darkpurple,//Theme.of(context).accentColor,
-  );
-}
-=======
 class PostScreen extends StatefulWidget {
   final String userId;
   final String postId;
   final int index;
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
 
   PostScreen({this.userId, this.postId,this.index});
 
@@ -71,13 +53,13 @@ class _PostScreenState extends State<PostScreen> {
           if(widget.userId != currentUser.uid)
           {
             Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
-            builder: (context) =>
-            ProfileScreen(analytics: AppBase.analytics,
-            observer: AppBase.observer,
-            index: widget.index,
-            UID: (widget.userId== currentUser.uid)?null : widget.userId )
+                builder: (context) =>
+                    ProfileScreen(analytics: AppBase.analytics,
+                        observer: AppBase.observer,
+                        index: widget.index,
+                        UID: (widget.userId== currentUser.uid)?null : widget.userId )
             ),
-            (route) => route.isFirst);
+                    (route) => route.isFirst);
           }
           else {
             Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
@@ -150,10 +132,10 @@ class _PostScreenState extends State<PostScreen> {
           ),
           subtitle: Row(
             children: [
-               Icon(
+              Icon(
                 Icons.location_pin,
                 color: Colors.red,
-                 size: 18,
+                size: 18,
               ),
               SizedBox(width: 2),
               Expanded(
@@ -165,7 +147,7 @@ class _PostScreenState extends State<PostScreen> {
                       fontWeight: FontWeight.w400,
                       letterSpacing: -0.4,
                       fontFamily: 'OpenSansCondensed-Bold'
-                ),
+                  ),
                   overflow: TextOverflow.ellipsis,
                   softWrap: true,
                   maxLines: 1,
@@ -174,32 +156,32 @@ class _PostScreenState extends State<PostScreen> {
             ],
           ),
           trailing: isPostOwner
-                ? DropdownButton<String>(
-                       elevation: 0,
-                        iconSize: 25,
-                        icon:Icon(
-                          Icons.more_vert,
-                           color: Colors.blueGrey,
-                        ),
+              ? DropdownButton<String>(
+            elevation: 0,
+            iconSize: 25,
+            icon:Icon(
+              Icons.more_vert,
+              color: Colors.blueGrey,
+            ),
             items: <String>['Edit', 'Delete'].map((String value) {
-                return new DropdownMenuItem<String>(
-                  value: value,
-                  child:  Text(value),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value == "Edit")
-                {
-                  //TODO: Edit post
-                }
-                else if (value == "Delete")
-                {
-                  handleDeletePost(context);
-                }
+              return new DropdownMenuItem<String>(
+                value: value,
+                child:  Text(value),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value == "Edit")
+              {
+                //TODO: Edit post
+              }
+              else if (value == "Delete")
+              {
+                handleDeletePost(context);
+              }
 
-              },
-            )
-                : Text(''),
+            },
+          )
+              : Text(''),
 
         );
       },
@@ -220,7 +202,7 @@ class _PostScreenState extends State<PostScreen> {
                     Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
                         builder: (context) =>
                             ProfileScreen(analytics: AppBase.analytics,
-                                observer: AppBase.observer,)
+                              observer: AppBase.observer,)
                     ),
                             (route) => route.isFirst);
                   },
@@ -255,11 +237,11 @@ class _PostScreenState extends State<PostScreen> {
         .get();
     for(var notif in toDelete.docs)
     {
-       activityFeedRef
-           .doc(widget.userId)
-           .collection('feedItems')
-           .doc(notif.id)
-           .delete();
+      activityFeedRef
+          .doc(widget.userId)
+          .collection('feedItems')
+          .doc(notif.id)
+          .delete();
     }
     // TODO:then delete all comments
 
@@ -267,40 +249,40 @@ class _PostScreenState extends State<PostScreen> {
 
   buildPostImage(String imageURL) {
     return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) {
-              return DetailScreenLink(
-                ImageUrlPost: imageURL,
-              );
-            }));
-          },
-          onDoubleTap: (){handleLikePost(widget.userId);},
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8,5,5,8),
-            child: Container(
-              height: (MediaQuery.of(context).size.width)-70,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(imageURL),
-                  fit: BoxFit.cover  ,
+        alignment: Alignment.center,
+        children: <Widget>[
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return DetailScreenLink(
+                  ImageUrlPost: imageURL,
+                );
+              }));
+            },
+            onDoubleTap: (){handleLikePost(widget.userId);},
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8,5,5,8),
+              child: Container(
+                height: (MediaQuery.of(context).size.width)-70,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(imageURL),
+                    fit: BoxFit.cover  ,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Animator<double>(
-          tween: Tween<double>(begin: 0, end: 200),
-          cycles: 2,
-          animatorKey: animatorKeyLike2,
-          triggerOnInit: false,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.bounceIn,
+          Animator<double>(
+            tween: Tween<double>(begin: 0, end: 200),
+            cycles: 2,
+            animatorKey: animatorKeyLike2,
+            triggerOnInit: false,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.bounceIn,
 
-          builder: (context, animatorState, child ) => Center(
-            child:  isLiked ? Icon(
+            builder: (context, animatorState, child ) => Center(
+                child:  isLiked ? Icon(
                   Icons.favorite,
                   color: Colors.pink.withOpacity(0.7),
                   size: animatorState.value,)
@@ -309,10 +291,10 @@ class _PostScreenState extends State<PostScreen> {
                   color: Colors.pink,
                   size:animatorState.value,
                 )
-                ),
+            ),
           ),
 
-      ]
+        ]
     );
   }
 
@@ -334,63 +316,69 @@ class _PostScreenState extends State<PostScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Animator<double>(
-                            tween: Tween<double>(begin: 0, end: 28),
-                            cycles: 1,
-                            animatorKey: animatorKeyLike,
-                            triggerOnInit: true,
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.decelerate,
-                            builder: (context, animatorState, child ) => Center(
-                              child: IconButton(
-                                  icon: isLiked ? Icon(
-                                    Icons.favorite,
-                                    color: Colors.pink,
-                                    size: animatorState.value,)
-                                      : Icon(
-                                    Icons.favorite_border_outlined,
-                                    color: Colors.pink,
-                                    size:animatorState.value,
-                                  )
-                                  , onPressed: () async {
-
-                                handleLikePost(userId);
-
-                              }),
-                            ),
-                          ),
-
-                          Padding(
-                              padding: EdgeInsets.only(top: 40.0, left: 5.0)
-                          ),
-                          GestureDetector(
-                            onTap: () {},//todo push comment page
-                            child: Icon(
-                              Icons.chat_bubble_outline_sharp,
-                              size: 26.0,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(top: 40.0, left: 5.0)
-                          ),
-                          !isPostOwner?GestureDetector(
-                              onTap: () {}, //TODO:add reshare functions
-                              child: (!_isFlagged) ? Icon(
-                                Icons.assistant_photo_outlined,
-                                size: 28.0,
-                                color: Colors.blueGrey[900],
-                              ) :  Icon(
-                                Icons.assistant_photo,
-                                size: 28.0,
-                                color: Colors.blueGrey[900],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Animator<double>(
+                        tween: Tween<double>(begin: 0, end: 28),
+                        cycles: 1,
+                        animatorKey: animatorKeyLike,
+                        triggerOnInit: true,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.decelerate,
+                        builder: (context, animatorState, child ) => Center(
+                          child: IconButton(
+                              icon: isLiked ? Icon(
+                                Icons.favorite,
+                                color: Colors.pink,
+                                size: animatorState.value,)
+                                  : Icon(
+                                Icons.favorite_border_outlined,
+                                color: Colors.pink,
+                                size:animatorState.value,
                               )
-                          ): SizedBox(width:5,),
-                        ],
-                    ),
+                              , onPressed: () async {
+
+                            handleLikePost(userId);
+
+                          }),
+                        ),
+                      ),
+
+                      Padding(
+                          padding: EdgeInsets.only(top: 40.0, left: 5.0)
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Comments(postId: widget.postId, postOwnerId:  userId, postMediaUrl: imageURL,
+                                analytics: AppBase.analytics,
+                                observer: AppBase.observer)),);
+                        },//todo push comment page
+                        child: Icon(
+                          Icons.chat_bubble_outline_sharp,
+                          size: 26.0,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(top: 40.0, left: 5.0)
+                      ),
+                      !isPostOwner?GestureDetector(
+                          onTap: () {}, //TODO:add reshare functions
+                          child: (!_isFlagged) ? Icon(
+                            Icons.assistant_photo_outlined,
+                            size: 28.0,
+                            color: Colors.blueGrey[900],
+                          ) :  Icon(
+                            Icons.assistant_photo,
+                            size: 28.0,
+                            color: Colors.blueGrey[900],
+                          )
+                      ): SizedBox(width:5,),
+                    ],
+                  ),
                   Row(
                     children: <Widget>[
                       Animator<double>(
@@ -462,7 +450,7 @@ class _PostScreenState extends State<PostScreen> {
                   ),
                   SizedBox(width:5,),
                   Expanded(child: Text(
-                      caption,
+                    caption,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 15,
@@ -476,31 +464,31 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
   handleBookmark(String imageURL) async {
-  var results = await favoriteRef
-                .where("PostId", isEqualTo: widget.postId)
-                .where("UserId", isEqualTo: currentUser.uid)
-                .get();
-  bool bookmarked;
-  if(results.docs.isNotEmpty)
-  {
-    //remove it
-    for(var result in results.docs)
+    var results = await favoriteRef
+        .where("PostId", isEqualTo: widget.postId)
+        .where("UserId", isEqualTo: currentUser.uid)
+        .get();
+    bool bookmarked;
+    if(results.docs.isNotEmpty)
     {
-      favoriteRef
-          .doc(result.id)
-          .delete();
+      //remove it
+      for(var result in results.docs)
+      {
+        favoriteRef
+            .doc(result.id)
+            .delete();
+      }
+      bookmarked = false;
     }
-    bookmarked = false;
-  }
-  else{
-    //add it
-    favoriteRef
-        .add({"PostId" : widget.postId, "UserId" : currentUser.uid, "Image" : imageURL});
-    bookmarked = true;
-  }
-  setState(() {
-    _Bookmarked = bookmarked;
-  });
+    else{
+      //add it
+      favoriteRef
+          .add({"PostId" : widget.postId, "UserId" : currentUser.uid, "Image" : imageURL});
+      bookmarked = true;
+    }
+    setState(() {
+      _Bookmarked = bookmarked;
+    });
   }
   handleLikePost(String userId) async {
     animatorKeyLike.refreshAnimation(
@@ -604,8 +592,8 @@ class _PostScreenState extends State<PostScreen> {
   Future<DocumentSnapshot> getPost() async{
 
     var result = await getpostRef
-                .doc(widget.postId)
-                .get();
+        .doc(widget.postId)
+        .get();
     var parseLocation = result.data()['Location'];
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
 

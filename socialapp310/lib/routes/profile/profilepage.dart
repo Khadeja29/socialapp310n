@@ -151,16 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     for( var doc in snapshot.docs){
       Post1 post = Post1(
-<<<<<<< HEAD
-          caption: doc["Caption"],
-          imageURL: doc["Image"],
-          likes: doc["Likes"],
-          createdAt: doc["createdAt"],
-          isPrivate: doc["IsPrivate"],
-          location: doc["Location"],
-          UserID: doc["PostUser"],
-          PostID: doc.id
-=======
         caption: doc["Caption"],
         imageURL: doc["Image"],
         likes: doc["Likes"],
@@ -170,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         UserID: doc["PostUser"],
         PostID: doc.id,
         LikesMap : doc['LikesMap'],
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
+
       );
 
       PostsToBuild.add(post);
