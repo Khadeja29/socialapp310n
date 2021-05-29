@@ -5,17 +5,10 @@ import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import '../../models/post.dart';
-import 'package:flutter/gestures.dart';
-import 'package:socialapp310/routes/comments.dart';
-import 'package:socialapp310/routes/editpost.dart';
-=======
 import 'package:socialapp310/models/Post1.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:animator/animator.dart';
 import 'package:timeago/timeago.dart' as timeago;
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
 
 
 class PostCard extends StatefulWidget {
@@ -61,8 +54,8 @@ class _PostCardState extends State<PostCard> {
     var PostOwner = result.data()['Username'];
     var profPic = result.data()['ProfilePic'];
     setState(() {
-     _postOwner =PostOwner;
-     _ProfPic = profPic;
+      _postOwner =PostOwner;
+      _ProfPic = profPic;
     });
   }
   setLocation(GeoPoint location1) async {
@@ -157,16 +150,16 @@ class _PostCardState extends State<PostCard> {
           .update({'LikesMap.${currentUser.uid}': false}); //update post likes inpost collection
       //removeLikeFromActivityFeed();
       if(widget.post.UserID != currentUser.uid) //if unliked by current user who is not the owner
-      {
+          {
         var toDelete =  await activityFeedRef //from notification collection
             .doc(widget.post.UserID) //find the user in notifications who owns the post
             .collection('feedItems')
             .where('PostID', isEqualTo: widget.post.PostID) //get all notififcations with this post ID from owner
             .get();
         for(var notif in toDelete.docs) //for each notification
-        {
+            {
           if(notif.data()["userId"] == currentUser.uid) //inside notfi use userID and compare to current user who unliked it/so remove only his like
-          {
+              {
             activityFeedRef
                 .doc(widget.post.UserID) //go to that userID and delete that Object with Postid returned
                 .collection('feedItems')
@@ -239,17 +232,6 @@ class _PostCardState extends State<PostCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-<<<<<<< HEAD
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/logo_woof.png'),//widget.post.ImageUrlAvatar),
-                      radius: 30,
-                    ),
-=======
               ListTile(
                 leading: Container(
                   width: 50,
@@ -257,7 +239,6 @@ class _PostCardState extends State<PostCard> {
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(_ProfPic),
                     backgroundColor: Colors.grey,
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
                   ),
                 ),
                 title: GestureDetector(
@@ -273,53 +254,6 @@ class _PostCardState extends State<PostCard> {
                       ),
                     ),
                   ),
-<<<<<<< HEAD
-                  Expanded(
-                    flex: 7,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        RichText(
-                          text: TextSpan(
-                            text: "${widget.post.username}",
-
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => print(
-                                  'Click on username'), //TODO: Push user profile
-                            style: TextStyle(
-                                color: AppColors.darkpurple,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -0.7,
-                                fontFamily: 'OpenSansCondensed-Bold'),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.location_on_rounded,
-                              size: 17.0,
-                              color: Colors.redAccent,
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text: "${widget.post.location}",//loc => lat and long
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () => print(
-                                      'Click on location'), //TODO: Push user profile
-                                style: TextStyle(
-                                    color: Colors.lightBlue,
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.4,
-                                    fontFamily: 'OpenSansCondensed-Bold'),
-                              ),
-                            ),
-                          ],
-=======
                 ),
                 subtitle: Row(
                   children: [
@@ -338,92 +272,12 @@ class _PostCardState extends State<PostCard> {
                             fontWeight: FontWeight.w400,
                             letterSpacing: -0.4,
                             fontFamily: 'OpenSansCondensed-Bold'
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
                         ),
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,
                         maxLines: 1,
                       ),
                     ),
-<<<<<<< HEAD
-                  ),
-                  PopupMenuButton(
-                    onSelected: (result) {
-                      if (result == 0) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => EditPost()),
-                        );
-                      }
-
-                    },
-
-                    iconSize: 50,
-                    tooltip: 'Menu',
-                    color: AppColors.peachpink,
-                    child:Icon(
-                      Icons.more_vert,
-                      size: 28.0,
-                      color: AppColors.darkpurple,
-                    ),
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-
-                          child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 20.0),
-                                child: Text('EDIT',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: -0.7,
-                                        fontFamily: 'OpenSansCondensed-Bold'
-                                    )),
-                              ),
-                              SizedBox(width: 15,),
-                              Icon(
-                                Icons.edit,
-                                color: AppColors.darkpurple,
-                              ),
-
-
-                            ],
-                          ),
-                        value: 0,
-                      ),
-                      PopupMenuItem(
-                          child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 20.0),
-                                child: Text('DELETE',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: -0.7,
-                                        fontFamily: 'OpenSansCondensed-Bold'
-                                    )),
-                              ),
-                              SizedBox(width: 15,),
-                              Icon(
-                                Icons.delete,
-                                color: AppColors.darkpurple,
-                              ),
-
-                            ],
-                          ))
-                    ],
-
-                  )
-                ],
-=======
                   ],
                 ),
                 trailing: _isPostOwner
@@ -454,7 +308,6 @@ class _PostCardState extends State<PostCard> {
                 )
                     : Text(''),
 
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
               ),
               Divider(
                 color: AppColors.lightgrey,
@@ -464,49 +317,49 @@ class _PostCardState extends State<PostCard> {
 
               Stack(
                   alignment: Alignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return DetailScreenLink(
-                          ImageUrlPost: widget.post.imageURL,
-                        );
-                      }));
-                    },
-                    onDoubleTap: (){handleLikePost(widget.post.PostID);},
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8,5,5,8),
-                      child: Container(
-                        height: (MediaQuery.of(context).size.width)-70,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(widget.post.imageURL),
-                            fit: BoxFit.cover  ,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return DetailScreenLink(
+                            ImageUrlPost: widget.post.imageURL,
+                          );
+                        }));
+                      },
+                      onDoubleTap: (){handleLikePost(widget.post.PostID);},
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8,5,5,8),
+                        child: Container(
+                          height: (MediaQuery.of(context).size.width)-70,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(widget.post.imageURL),
+                              fit: BoxFit.cover  ,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Animator<double>(
-                    tween: Tween<double>(begin: 0, end: 200),
-                    cycles: 2,
-                    animatorKey: animatorKeyLike2,
-                    triggerOnInit: false,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.bounceIn,
+                    Animator<double>(
+                      tween: Tween<double>(begin: 0, end: 200),
+                      cycles: 2,
+                      animatorKey: animatorKeyLike2,
+                      triggerOnInit: false,
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.bounceIn,
 
-                    builder: (context, animatorState, child ) => Center(
-                        child:  isLiked ? Icon(
-                          Icons.favorite,
-                          color: Colors.pink.withOpacity(0.7),
-                          size: animatorState.value,)
-                            : Icon(
-                          Icons.favorite_border_outlined,
-                          color: Colors.pink,
-                          size:animatorState.value,
-                        )
-                    ),
-                  ),]
+                      builder: (context, animatorState, child ) => Center(
+                          child:  isLiked ? Icon(
+                            Icons.favorite,
+                            color: Colors.pink.withOpacity(0.7),
+                            size: animatorState.value,)
+                              : Icon(
+                            Icons.favorite_border_outlined,
+                            color: Colors.pink,
+                            size:animatorState.value,
+                          )
+                      ),
+                    ),]
               ),
               Divider(
                 color: AppColors.lightgrey,
@@ -601,11 +454,7 @@ class _PostCardState extends State<PostCard> {
                             height: 15,
                           ),
                           Text(
-<<<<<<< HEAD
-                            "${widget.post.comment} comments",
-=======
                             displayTime ,
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
@@ -618,26 +467,23 @@ class _PostCardState extends State<PostCard> {
                     Row(
                       children: [
                         IconButton(
-                                icon: isLiked ? Icon(
-                                  Icons.favorite,
-                                  color: Colors.pink,
-                                  size: 28,)
-                                    : Icon(
-                                  Icons.favorite_border_outlined,
-                                  color: Colors.pink,
-                                  size: 28,
-                                )
-                                , onPressed: () async {
-                                  await handleLikePost(widget.post.PostID);
-                                }),
+                            icon: isLiked ? Icon(
+                              Icons.favorite,
+                              color: Colors.pink,
+                              size: 28,)
+                                : Icon(
+                              Icons.favorite_border_outlined,
+                              color: Colors.pink,
+                              size: 28,
+                            )
+                            , onPressed: () async {
+                          await handleLikePost(widget.post.PostID);
+                        }),
 
                         IconButton(
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,
-                          onPressed: () {
-                          Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => CommentScreen()),);},
+                          onPressed: () {},
                           icon: Icon(
                             Icons.chat_bubble_outline,
                             size: 30.0,

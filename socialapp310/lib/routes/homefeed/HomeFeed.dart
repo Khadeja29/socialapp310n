@@ -2,11 +2,11 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
+
 import 'package:socialapp310/chats_page.dart';
-=======
+
 import 'package:socialapp310/models/Post1.dart';
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
+
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
@@ -136,15 +136,10 @@ class _TestPostState extends State<HomeFeed> {
           )
         ],
       ),
-<<<<<<< HEAD
-      body: ListView(
-        //children: posts.map((post) => PostCard(post: post)).toList(),
-      ),
-=======
+
        body: ListView(
          children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
        ),
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         backgroundColor: AppColors.darkpurple,

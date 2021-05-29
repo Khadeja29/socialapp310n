@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:socialapp310/routes/profile/PostScreen.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -76,21 +75,21 @@ class CommentsState extends State<Comments> {
             height: 60,
             child: ListTile(
               contentPadding:  const EdgeInsets.only(left: 5, bottom: 5),
-            leading: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: 60,
-                minHeight: 40,
-                maxWidth: 80,
-                maxHeight: 50,
+              leading: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: 60,
+                  minHeight: 40,
+                  maxWidth: 80,
+                  maxHeight: 50,
+                ),
+                child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
+                ),
               ),
-              child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
+              title: Text(comment.comment, style: TextStyle(fontSize: 14)),
+              subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
+                //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
               ),
-            ),
-            title: Text(comment.comment, style: TextStyle(fontSize: 14)),
-            subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
-            //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
-            ),
             ),
           ),
           //Divider(),
@@ -101,15 +100,15 @@ class CommentsState extends State<Comments> {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-            leading:
-            Image(
-              image: AssetImage('assets/images/logo_woof.png'),
-              fit: BoxFit.cover,
-              width: 60,
-              height: 60,
-            ),
-            title: Text(comment.username),
-            subtitle:Text(comment.username + " "+ timeago.format(comment.timestamp.toDate())),
+          leading:
+          Image(
+            image: AssetImage('assets/images/logo_woof.png'),
+            fit: BoxFit.cover,
+            width: 60,
+            height: 60,
+          ),
+          title: Text(comment.username),
+          subtitle:Text(comment.username + " "+ timeago.format(comment.timestamp.toDate())),
         ),
       );
     }
@@ -146,9 +145,9 @@ class CommentsState extends State<Comments> {
                   .username != null) {
                 final product = comments[index];
                 return buildComment(product);
-                  // buildProductUser(product);
+                // buildProductUser(product);
               } //else
-                //return Text("success");
+              //return Text("success");
             },
           );
         });
@@ -159,7 +158,7 @@ class CommentsState extends State<Comments> {
     String usrName = await UserFxns.getUserName();
 
 
-     commentsRef.doc(postId).collection("postComments").add({
+    commentsRef.doc(postId).collection("postComments").add({
       "comment": commentController.text,
       "timestamp": timestamp,
       "avatarUrl": prf,
@@ -182,10 +181,29 @@ class CommentsState extends State<Comments> {
     commentController.clear();
   }
 
+  AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
+    return AppBar(
+      automaticallyImplyLeading: removeBackButton ? false : true,
+      title: Text(
+        isAppTitle ? "FlutterShare" : "@$titleText",
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: isAppTitle ? "Signatra" : "",
+          fontSize: isAppTitle ? 50.0 : 22.0,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+      centerTitle: true,
+      backgroundColor: AppColors.darkpurple,
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "Comments", ),
+      appBar: header(context, titleText: "Comments", removeBackButton: true),
       body: Column(
         children: <Widget>[
           Expanded(

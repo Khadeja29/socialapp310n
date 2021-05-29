@@ -151,16 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .get();
     for( var doc in snapshot.docs){
       Post1 post = Post1(
-<<<<<<< HEAD
-          caption: doc["Caption"],
-          imageURL: doc["Image"],
-          likes: doc["Likes"],
-          createdAt: doc["createdAt"],
-          isPrivate: doc["IsPrivate"],
-          location: doc["Location"],
-          UserID: doc["PostUser"],
-          PostID: doc.id
-=======
         caption: doc["Caption"],
         imageURL: doc["Image"],
         likes: doc["Likes"],
@@ -170,7 +160,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         UserID: doc["PostUser"],
         PostID: doc.id,
         LikesMap : doc['LikesMap'],
->>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
       );
 
       PostsToBuild.add(post);
@@ -687,8 +676,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "list") {
       return Column(
-          children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
-         );
+        children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+      );
     }
     else if (postOrientation == "locations") {
       return Column(
@@ -700,7 +689,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //Main Page function
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
 
 
     return Scaffold(
@@ -789,10 +778,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Icon(Icons.bookmark),
                     ),
                   ),
-                   InkWell(
+                  InkWell(
                     onTap: () {
-                        //TODO create page to accept requests
-                        //We can pass userid and username and profile pic
+                      //TODO create page to accept requests
+                      //We can pass userid and username and profile pic
                       Navigator.push(
                         context,
                         MaterialPageRoute(
