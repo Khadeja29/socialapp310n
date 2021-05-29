@@ -73,7 +73,6 @@ class _TestPostState extends State<HomeFeed> {
              PostID: SinglePost.docs[0].id
          );
          PosttoBuild.add(post);
-
        }
        PosttoBuild.sort((a,b)=> b.createdAt.compareTo(a.createdAt));
 
