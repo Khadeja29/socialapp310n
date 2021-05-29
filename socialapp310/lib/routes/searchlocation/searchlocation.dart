@@ -18,7 +18,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geocoder/geocoder.dart';
 
 class SearchLocation extends StatefulWidget {
-   SearchLocation({Key key, this.analytics, this.observer,this.imageFile,this.imageUrl,this.postId,this.caption})
+  SearchLocation({Key key, this.analytics, this.observer,this.imageFile,this.imageUrl,this.postId,this.caption})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -87,22 +87,22 @@ class _SearchLocationState extends State<SearchLocation> {
       ),);
     }
     else
-      {
-        Navigator.push(context, MaterialPageRoute<void>(
-          builder: (BuildContext context) =>
-              editpost(analytics: AppBase.analytics,
-                  observer: AppBase.observer,
-                  lat: lat,
-                  long: long,
-                  locationname: locationname,
-                  imageUrl: imageUrl,
-                  placeid: placeid,
-                  postId: postId,
-                  caption: caption,
-              ),
-        ),);
+    {
+      Navigator.push(context, MaterialPageRoute<void>(
+        builder: (BuildContext context) =>
+            editpost(analytics: AppBase.analytics,
+              observer: AppBase.observer,
+              lat: lat,
+              long: long,
+              locationname: locationname,
+              imageUrl: imageUrl,
+              placeid: placeid,
+              postId: postId,
+              caption: caption,
+            ),
+      ),);
     }
-    }
+  }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');
     // print(placeName);

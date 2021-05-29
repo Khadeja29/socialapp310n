@@ -150,7 +150,6 @@ class _userListState extends State<userList>{
               doc.reference.delete();
             }
           });
-
           activityFeedRef
               .doc(user.UID)
               .collection('feedItems')
@@ -161,7 +160,6 @@ class _userListState extends State<userList>{
               doc.reference.delete();
             }
           });
-
           setState(() {
             _userFollowingState[index] = false;
             _followingCount--;

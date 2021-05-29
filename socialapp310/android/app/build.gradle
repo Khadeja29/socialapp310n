@@ -63,8 +63,6 @@ android {
         debug{
             signingConfig signingConfigs.lecture
 
-            //signingConfig signingConfigs.prepro
-
         }
     }
 }

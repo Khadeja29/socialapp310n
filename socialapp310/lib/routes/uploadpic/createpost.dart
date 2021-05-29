@@ -231,10 +231,10 @@ class _CreatePost extends State<CreatePost> {
                       ),
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                          hintText: 'Write a caption...',
-                          hintStyle: TextStyle(
-                            color: Colors.white,
-                          ),
+                        hintText: 'Write a caption...',
+                        hintStyle: TextStyle(
+                          color: Colors.white,
+                        ),
                         enabledBorder:  UnderlineInputBorder(
                           borderSide: const BorderSide(color: Colors.white,width: 1.0),
                           borderRadius: BorderRadius.circular(1.0),
@@ -267,7 +267,7 @@ class _CreatePost extends State<CreatePost> {
                         color: Colors.red,
                       ),
                       onPressed: () => {//getCurrentLocation()
-                         }),
+                      }),
                   enabledBorder:  UnderlineInputBorder(
                     borderSide: const BorderSide(color: Colors.white,width: 1.0),
                     borderRadius: BorderRadius.circular(1.0),

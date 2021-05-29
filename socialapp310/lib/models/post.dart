@@ -1,30 +1,44 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialapp310/models/location.dart';
 
 class Post {
+  String userId;
   String username;
-  location loc;
-  String ImageUrlAvatar;
   String ImageUrlPost;
   String caption;
-  String date;
   int likes;
-  int comments;
-  int reposts;
+  bool IsPrivate;
+  dynamic comment;
+  dynamic location;
+  dynamic createdAt;
 
   Post(
       {this.username,
-      this.date,
-      this.likes,
-      this.comments,
-      this.ImageUrlAvatar,
-      this.loc,
-      this.ImageUrlPost,
-      this.caption,
-      this.reposts});
+        this.userId,
+        this.ImageUrlPost,
+        this.caption,
+        this.likes,
+        this.comment,
+        this.location,
+        this.createdAt,
+      this.IsPrivate,});
+  factory Post.fromDocument(DocumentSnapshot doc) {
+    return Post(
+      userId: doc['PostUser'],
+      ImageUrlPost: doc['Image'],
+      caption: doc['Caption'],
+      likes: doc['Likes'],
+      comment: doc['Comment'],
+      location: doc['Location'],
+      createdAt: doc['createdAt'],
+      IsPrivate: doc['IsPrivate'],
+    );
+  }
 }
 
-location x = location(loc_name: "Some Location", longitude: 41, latitude: 28.9);
 
+location x = location(loc_name: "Some Location", longitude: 41, latitude: 28.9);
+/*
 Post post = Post(
     username: "Generic Name",
     loc: x,
@@ -93,3 +107,4 @@ List<Post> posts = [
       date: "April 17 2021",
       comments: 0)
 ];
+*/
