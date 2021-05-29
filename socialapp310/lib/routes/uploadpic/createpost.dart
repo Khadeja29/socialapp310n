@@ -145,6 +145,7 @@ class _CreatePost extends State<CreatePost> {
       lat=0;
       long=0;
     }
+    Map<String,bool> LikesMap = {};
     FirebaseFirestore.instance.collection('Post').add({
       'Image': imageUrl,
       'Caption': caption,
@@ -154,6 +155,7 @@ class _CreatePost extends State<CreatePost> {
       'createdAt': Timestamp.now(),
       'PostUser': id_user,
       'IsPrivate': isprivate,
+      'LikesMap' : LikesMap
     });
   }
 

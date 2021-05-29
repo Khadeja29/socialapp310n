@@ -13,7 +13,6 @@ import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
-
 import 'package:socialapp310/routes/profile/userList.dart';
 
 import 'package:socialapp310/routes/unknownwelcome.dart';
@@ -26,6 +25,7 @@ import 'package:socialapp310/routes/uploadpic/Mappage.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
+import 'package:socialapp310/routes/profile/FollowRequest.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,7 +90,11 @@ class AppBase extends StatelessWidget {
         '/userList' : (context) => userList(analytics: analytics, observer: observer,),
         '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
         '/creatpost' :  (context) => CreatePost(analytics: analytics, observer: observer,),
+<<<<<<< HEAD
         '/comments' : (context) => Comments(analytics: analytics, observer: observer,postId: "rmIqMR4yiLKalMOz4gtl",postOwnerId: "NJR9BykZFHUWcDxIus5Mb2uAkp83"),
+=======
+        '/followreq' :  (context) => FollowReq(analytics: analytics, observer: observer,),
+>>>>>>> ebb34529e85fdd46a7b1e9a4c09c45f4e0544362
         //'/postscreen' : (context) => PostScreen(analytics: analytics, observer: observer,),
       },
     );

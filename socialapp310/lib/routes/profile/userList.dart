@@ -150,7 +150,6 @@ class _userListState extends State<userList>{
               doc.reference.delete();
             }
           });
-
           activityFeedRef
               .doc(user.UID)
               .collection('feedItems')
@@ -161,7 +160,6 @@ class _userListState extends State<userList>{
               doc.reference.delete();
             }
           });
-
           setState(() {
             _userFollowingState[index] = false;
             _followingCount--;
@@ -184,18 +182,20 @@ class _userListState extends State<userList>{
           String userProfileImg = await UserFxns.getProfilePic();
           var timestamp = DateTime.now();
           // add activity feed item for that user to notify about new follower (us)
-
+          //
           activityFeedRef
               .doc(user.UID)
               .collection('feedItems')
               .doc(widget.currentUserId)
               .set({
+            "PostID": "NoPost",
             "type": "follow",
             "ownerId": user.UID,
-            "username": username,
+            //"username": username,
             "userId": widget.currentUserId,
-            "userProfileImg": userProfileImg,
+            //"userProfileImg": userProfileImg,
             "timestamp": timestamp,
+
           });
 
           setState(() {
