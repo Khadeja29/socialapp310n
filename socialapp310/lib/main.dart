@@ -28,6 +28,7 @@ import 'package:socialapp310/routes/uploadpic/Mappage.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
 import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
+import 'package:socialapp310/routes/profile/FollowRequest.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -152,6 +153,8 @@ class AppBase extends StatelessWidget {
           analytics: analytics,
           observer: observer,
         ),
+        '/followreq' :  (context) => FollowReq(analytics: analytics, observer: observer,),
+        //'/postscreen' : (context) => PostScreen(analytics: analytics, observer: observer,),
       },
     );
   }

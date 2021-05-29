@@ -488,9 +488,10 @@ class _SearchState extends State<Search> {
                     likes: doc['Likes'],
                     comment: doc['Comment'],
                     location: doc['Location'],
-                    createdAt: doc['createdAt'],);
-
-                  if (post.userId != currentFB.uid && post.IsPrivate == false) {
+                    createdAt: doc['createdAt'],
+                    IsPrivate: doc['IsPrivate'],
+                  );
+                  if (post.userId != currentFB.uid && post.IsPrivate == false ) {
                     //TODO: add isPublic attribute to post class
                     searchResultsPosts.add(post);
                   } else {

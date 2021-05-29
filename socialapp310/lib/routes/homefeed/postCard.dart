@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:socialapp310/main.dart';
+import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,10 @@ import 'package:socialapp310/models/Post1.dart';
 import 'package:flutter/gestures.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:animator/animator.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
+final usersRef = FirebaseFirestore.instance.collection('user');
+final commentsRef = FirebaseFirestore.instance.collection('comments');
 
 class PostCard extends StatefulWidget {
   final Post1 post;
@@ -22,17 +27,22 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   User currentUser = FirebaseAuth.instance.currentUser;
   bool pressed = false;
-  String _postOwner = "";
+  Future<QuerySnapshot> searchResultsFuture;
+
+  String _postOwner ="";
   var _location = "Something Else";
   bool _isPostOwner = false;
   bool isLiked = false;
+  int commentLen = 0;
   int likeCount = 0;
-  Map<String, dynamic> _Likesmap;
-  String _ProfPic = 'https://picsum.photos/250?image=9';
+  Map<String,dynamic> _Likesmap;
+  String displayTime;
+
+  final animatorKeyLike2 = AnimatorKey<double>();
+  String _ProfPic = 'https://i.ibb.co/2sJtcNd/download.png';
 
   // final animatorKeyLike = AnimatorKey<double>();
-  // final animatorKeyLike2 = AnimatorKey<double>();
-  // final animatorKeyBookmark = AnimatorKey<double>();
+  //final animatorKeyBookmark = AnimatorKey<double>();
 
   void initState() {
     // TODO: implement initState
@@ -42,12 +52,48 @@ class _PostCardState extends State<PostCard> {
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
     _isPostOwner = currentUser.uid == widget.post.UserID;
-    //print(_isPostOwner);
     setUpLikes();
+    displayTime = timeago.format(widget.post.createdAt.toDate());
   }
 
-  getUserinfo() async {
-    var result = await usersRef.doc(widget.post.UserID).get();
+  buildCommentLength() {
+    return StreamBuilder(
+        stream: commentsRef
+            .doc(widget.post.PostID)
+            .collection('postComments')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(child: CircularProgressIndicator(),
+                  height: 20,
+                  width: 20,),
+              ],
+            );
+          }
+          commentLen = 0;
+          snapshot.data.docs.forEach((doc) {
+            commentLen+=1;
+          });
+          return Text(commentLen.toString() + " comments",
+               style: TextStyle(
+              color: AppColors.darkgreyblack,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0,
+              fontFamily: 'OpenSansCondensed-Bold'),
+          );
+        });
+  }
+
+
+
+  getUserinfo() async{
+    var result = await usersRef
+        .doc(widget.post.UserID)
+        .get();
+
     var PostOwner = result.data()['Username'];
     var profPic = result.data()['ProfilePic'];
     setState(() {
@@ -139,12 +185,7 @@ class _PostCardState extends State<PostCard> {
   }
 
   handleLikePost(String userID) async {
-    // animatorKeyLike.refreshAnimation(
-    //     tween: Tween<double>(begin: 0, end: 28),//new tween
-    //     duration : Duration(milliseconds: 500),
-    //     curve : Curves.elasticOut,
-    //     cycles : 1
-    // );
+
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {
       //already liked, current user unlikes post
@@ -186,13 +227,12 @@ class _PostCardState extends State<PostCard> {
         isLiked = false;
         _Likesmap[currentUser.uid] = false;
       });
-    } else if (!_isLiked) {
-      //if current user hasnot liked the post
-      getpostRef.doc(widget.post.PostID).update({
-        'LikesMap.${currentUser.uid}': true
-      }); //change like status to true in the posts table
-      if (widget.post.UserID != currentUser.uid) {
-        //if someone other than the postowner  liked
+    }
+    else if (!_isLiked) {   //if current user hasnot liked the post
+      getpostRef
+          .doc(widget.post.PostID)
+          .update({'LikesMap.${currentUser.uid}': true}); //change like status to true in the posts table
+      if(widget.post.UserID != currentUser.uid) { //if someone other than the postowner  liked
         activityFeedRef
             .doc(widget.post.UserID) //find the notifications of post owner
             .collection('feedItems')
@@ -213,8 +253,7 @@ class _PostCardState extends State<PostCard> {
         likeCount += 1;
         isLiked = true;
         _Likesmap[currentUser.uid] = true;
-        // animatorKeyLike2.triggerAnimation(restart: true);
-
+        animatorKeyLike2.triggerAnimation(restart: true);
         // showHeart = true;
       });
       // Timer(Duration(milliseconds: 500), () {
@@ -226,9 +265,11 @@ class _PostCardState extends State<PostCard> {
     //animatorKeyLike.triggerAnimation(restart:  true);
   }
 
-  getUser() async {
+  getUser() async{
     //query user using widget.post.userid
-    setState(() {});
+    setState(() {
+
+    });
   }
 
   @override
@@ -240,6 +281,7 @@ class _PostCardState extends State<PostCard> {
           padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               ListTile(
                 leading: Container(
@@ -280,7 +322,8 @@ class _PostCardState extends State<PostCard> {
                             fontSize: 13.0,
                             fontWeight: FontWeight.w400,
                             letterSpacing: -0.4,
-                            fontFamily: 'OpenSansCondensed-Bold'),
+                            fontFamily: 'OpenSansCondensed-Bold'
+                        ),
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,
                         maxLines: 1,
@@ -317,34 +360,98 @@ class _PostCardState extends State<PostCard> {
                 height: 5,
                 thickness: 1.0,
               ),
-              GestureDetector(
-                child: Hero(
-                  tag: '${widget.post.imageURL}',
-                  child: Image(
-                    image: NetworkImage(widget.post.imageURL),
+
+              Stack(
+                  alignment: Alignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return DetailScreenLink(
+                          ImageUrlPost: widget.post.imageURL,
+                        );
+                      }));
+                    },
+                    onDoubleTap: (){handleLikePost(widget.post.PostID);},
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8,5,5,8),
+                      child: Container(
+                        height: (MediaQuery.of(context).size.width)-70,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(widget.post.imageURL),
+                            fit: BoxFit.cover  ,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return DetailScreenLink(
-                      ImageUrlPost: widget.post.imageURL,
-                    );
-                  }));
-                },
+                  Animator<double>(
+                    tween: Tween<double>(begin: 0, end: 200),
+                    cycles: 2,
+                    animatorKey: animatorKeyLike2,
+                    triggerOnInit: false,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.bounceIn,
+
+                    builder: (context, animatorState, child ) => Center(
+                        child:  isLiked ? Icon(
+                          Icons.favorite,
+                          color: Colors.pink.withOpacity(0.7),
+                          size: animatorState.value,)
+                            : Icon(
+                          Icons.favorite_border_outlined,
+                          color: Colors.pink,
+                          size:animatorState.value,
+                        )
+                    ),
+                  ),]
               ),
               Divider(
                 color: AppColors.lightgrey,
                 height: 10,
                 thickness: 1.0,
               ),
-              Text(
-                "${widget.post.caption}",
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0,
-                    fontFamily: 'OpenSansCondensed-Bold'),
+              /* Expanded(
+                child: Text(
+                  "${widget.post.caption}",
+                  style: TextStyle(
+                      color: Colors.lightBlue,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.4,
+                      fontFamily: 'OpenSansCondensed-Bold'
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  maxLines: 1,
+                ),
+              ), */
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 0.0),
+                    child: Text(
+                      "${_postOwner}",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width:5,),
+                  Expanded(child: Text(
+                    "${widget.post.caption}",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                    ),
+                  )
+                  )
+                ],
               ),
               SizedBox(height: 5),
               Row(
@@ -354,25 +461,45 @@ class _PostCardState extends State<PostCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "${likeCount} likes",
-                            style: TextStyle(
-                                color: AppColors.darkgrey,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0,
-                                fontFamily: 'OpenSansCondensed-Bold'),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${likeCount} likes",
+                                style: TextStyle(
+                                    color: AppColors.darkgreyblack,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0,
+                                    fontFamily: 'OpenSansCondensed-Bold'),
+                              ),
+                              // SizedBox(width: 15,),
+                              // Text(
+                              //   "${likeCount} comments",
+                              //   style: TextStyle(
+                              //       color: AppColors.darkgreyblack,
+                              //       fontWeight: FontWeight.w800,
+                              //       letterSpacing: 0,
+                              //       fontFamily: 'OpenSansCondensed-Bold'),
+                              // ),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildCommentLength(),
+                            ],
                           ),
                           SizedBox(
-                            width: 10,
+                            height: 15,
                           ),
-                          /*Text(   //Get total number of comments
-                            "${widget.post.comments} comments",
+                          Text(
+                            displayTime ,
                             style: TextStyle(
                                 color: AppColors.darkgrey,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0,
                                 fontFamily: 'OpenSansCondensed-Bold'),
-                          ), */
+                          ),
                         ],
                       ),
                     ),
@@ -396,23 +523,20 @@ class _PostCardState extends State<PostCard> {
                         IconButton(
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,
-                          onPressed: () {},
+                          onPressed: () {
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
+                              analytics: AppBase.analytics,
+                              observer: AppBase.observer)),);},
                           icon: Icon(
                             Icons.chat_bubble_outline,
                             size: 30.0,
                             color: Colors.black54,
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.all(0.0),
-                          splashRadius: 25,
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.redo,
-                            size: 30.0,
-                            color: Colors.black54,
-                          ),
-                        ),
+
+
                       ],
                     ),
                   ]),
