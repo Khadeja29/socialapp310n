@@ -12,7 +12,6 @@ import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 
 final commentsRef = FirebaseFirestore.instance.collection('comments');
 final usersRef = FirebaseFirestore.instance.collection('user');
-final DateTime timestamp = DateTime.now();
 
 FBauth.User curUser =  FBauth.FirebaseAuth.instance.currentUser;
 
@@ -154,6 +153,7 @@ class CommentsState extends State<Comments> {
   }
 
   addComment() async {
+    final DateTime timestamp = DateTime.now();
     String prf =  await UserFxns.getProfilePic();
     String usrName = await UserFxns.getUserName();
 
