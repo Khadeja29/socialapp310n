@@ -636,7 +636,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return Container(
         child: Center(
           child: CircularProgressIndicator(
-                  valueColor: new AlwaysStoppedAnimation<Color>(
+              valueColor: new AlwaysStoppedAnimation<Color>(
                   AppColors.primarypurple)),
         ),
       );
@@ -676,8 +676,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "list") {
       return Column(
-          children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
-         );
+        children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+      );
     }
     else if (postOrientation == "locations") {
       return Column(
@@ -689,7 +689,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //Main Page function
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
 
 
     return Scaffold(
@@ -778,10 +778,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Icon(Icons.bookmark),
                     ),
                   ),
-                   InkWell(
+                  InkWell(
                     onTap: () {
-                        //TODO create page to accept requests
-                        //We can pass userid and username and profile pic
+                      //TODO create page to accept requests
+                      //We can pass userid and username and profile pic
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -872,7 +872,7 @@ class PostTile extends StatelessWidget {
         ),
       ),
     );
-   }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -895,6 +895,3 @@ class PostTile extends StatelessWidget {
     );
   }
 }
-
-
-

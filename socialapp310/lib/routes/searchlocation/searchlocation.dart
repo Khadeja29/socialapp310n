@@ -118,29 +118,30 @@ class _SearchLocationState extends State<SearchLocation> {
         // elevation: 0.0,
       ),
       body:
-      // StreamBuilder(
-      // stream: _stream,
-      // // initialData: [],
-      // builder: (context, snapshot) {
-      //   if (snapshot.hasError) {
-      //     return Text('There was an error :(');
-      //   } else if (snapshot.hasData || snapshot.data == null) {
-      //     res != null ? print(res) : null;
-      //     print(snapshot.data);
-      //     // if(snapshot.data != null)
-      //     // print(snapshot.data.length);
-      //     return
-      (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-          Widget>[
+          // StreamBuilder(
+          // stream: _stream,
+          // // initialData: [],
+          // builder: (context, snapshot) {
+          //   if (snapshot.hasError) {
+          //     return Text('There was an error :(');
+          //   } else if (snapshot.hasData || snapshot.data == null) {
+          //     res != null ? print(res) : null;
+          //     print(snapshot.data);
+          //     // if(snapshot.data != null)
+          //     // print(snapshot.data.length);
+          //     return
+          (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+              Widget>[
         SizedBox(
           height: 20,
         ),
         Form(
           key: _formKey,
-          child: Column(
+          child: Row(
             children: [
               Container(
-                height: 42,
+                height: 46,
+                width: 250,
                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -154,13 +155,13 @@ class _SearchLocationState extends State<SearchLocation> {
                     icon: Icon(Icons.search, color: style.color),
                     suffixIcon: text.isNotEmpty
                         ? GestureDetector(
-                      child: Icon(Icons.close, color: style.color),
-                      onTap: () {
-                        controller.clear();
-                        onChanged('');
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      },
-                    )
+                            child: Icon(Icons.close, color: style.color),
+                            onTap: () {
+                              controller.clear();
+                              onChanged('');
+                              FocusScope.of(context).requestFocus(FocusNode());
+                            },
+                          )
                         : null,
                     hintText: hintText,
                     hintStyle: style,
@@ -172,21 +173,24 @@ class _SearchLocationState extends State<SearchLocation> {
                   },
                 ),
               ),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.primarypurple,
-                ),
-                onPressed: () async {
-                  _formKey.currentState.save();
-                  findPlace(query);
-                  setState(() {
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Text(
-                    'Search',
-                    style: kButtonDarkTextStyle,
+              Padding(
+                padding: const EdgeInsets.only(top:15),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.darkpurple,
+                  ),
+                  onPressed: () async {
+                    _formKey.currentState.save();
+                    findPlace(query);
+                    setState(() {
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text(
+                      'Search',
+                      style: kButtonDarkTextStyle,
+                    ),
                   ),
                 ),
               ),
@@ -204,12 +208,12 @@ class _SearchLocationState extends State<SearchLocation> {
                     padding: const EdgeInsets.symmetric(),
                     child: ListView.builder(
                       itemCount:
-                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                          snapshot.data == null ? 0 : snapshot.data["predictions"].length,
                       itemBuilder: (context, index) => Column(
                         children: [
                           ListTile(
                             title:
-                            Text(snapshot.data["predictions"][index]["description"]),
+                                Text(snapshot.data["predictions"][index]["description"]),
                             leading: Icon(Icons.add_location_alt),
                             onTap:() {
                               print(snapshot.data["predictions"][index]["description"]);
@@ -220,13 +224,13 @@ class _SearchLocationState extends State<SearchLocation> {
                         ],
                       ),
                       //ItemCard(
-                      //product: snapshot.data[index],
-                      //press: () => Navigator.push(
-                      // context,
-                      //MaterialPageRoute(
-                      //builder: (context) =>
-                      // SingleProduct(id: products[index].productId),
-                      //)),
+                       //product: snapshot.data[index],
+                       //press: () => Navigator.push(
+                         // context,
+                           //MaterialPageRoute(
+                             //builder: (context) =>
+                                // SingleProduct(id: products[index].productId),
+                           //)),
                     ),
                   ),
                 );

@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/finishsignupgoogle.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/routes/finishsignup.dart';
@@ -89,6 +90,7 @@ class AppBase extends StatelessWidget {
         '/userList' : (context) => userList(analytics: analytics, observer: observer,),
         '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
         '/creatpost' :  (context) => CreatePost(analytics: analytics, observer: observer,),
+        '/comments' : (context) => Comments(analytics: analytics, observer: observer,postId: "rmIqMR4yiLKalMOz4gtl",postOwnerId: "NJR9BykZFHUWcDxIus5Mb2uAkp83"),
         '/followreq' :  (context) => FollowReq(analytics: analytics, observer: observer,),
         //'/postscreen' : (context) => PostScreen(analytics: analytics, observer: observer,),
       },
