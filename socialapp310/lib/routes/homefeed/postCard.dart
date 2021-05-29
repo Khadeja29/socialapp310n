@@ -6,7 +6,6 @@ import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp310/models/Post1.dart';
-import 'package:flutter/gestures.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:animator/animator.dart';
 import 'package:timeago/timeago.dart' as timeago;
