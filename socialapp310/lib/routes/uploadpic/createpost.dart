@@ -165,7 +165,7 @@ class _CreatePost extends State<CreatePost> {
       'LikesMap' : LikesMap,
       'Locationname':locationname,
     });
-    FirebaseFirestore.instance.collection('Locations').doc('placeid').set({
+    FirebaseFirestore.instance.collection('Locations').doc(placeid).set({
       'address':locationname,
       'coordinates':GeoPoint(lat,long),
     });
@@ -258,7 +258,7 @@ class _CreatePost extends State<CreatePost> {
                 }),
                 readOnly: true,
                 decoration: InputDecoration(
-                  hintText: (locationname!=null)?'$locationname':'Press button on left to get current location',
+                  hintText: (locationname!=null)?'$locationname':'Press button to search for location',
                   hintStyle: TextStyle(
                     color: Colors.white,
                   ),
@@ -266,8 +266,8 @@ class _CreatePost extends State<CreatePost> {
                       icon: Icon(Icons.location_on_outlined,
                         color: Colors.red,
                       ),
-                      onPressed: () => {getCurrentLocation()}
-                      ),
+                      onPressed: () => {//getCurrentLocation()
+                         }),
                   enabledBorder:  UnderlineInputBorder(
                     borderSide: const BorderSide(color: Colors.white,width: 1.0),
                     borderRadius: BorderRadius.circular(1.0),

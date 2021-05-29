@@ -162,7 +162,7 @@ class _editpost extends State<editpost> {
       'locationID': placeid,
       'Locationname':locationname,
     });
-    FirebaseFirestore.instance.collection('Locations').doc(placeid).update({
+    FirebaseFirestore.instance.collection('Locations').doc(placeid).set({
       'address':locationname,
       'coordinates':GeoPoint(lat,long),
     });
@@ -265,7 +265,7 @@ class _editpost extends State<editpost> {
                 onChanged: ((location_picx) {}),
                 readOnly: true,
                 decoration: InputDecoration(
-                  hintText: (locationname!=null)?'$locationname':'Press button on left to get current location',
+                  hintText: (locationname!=null)?'$locationname':'Press button to search for location',
                   hintStyle: TextStyle(
                     color: Colors.white,
                   ),
@@ -277,7 +277,8 @@ class _editpost extends State<editpost> {
                       icon: Icon(Icons.location_on_outlined,
                         color: Colors.red,
                       ),
-                      onPressed: () => {getCurrentLocation()}),
+                      onPressed: () => {//getCurrentLocation()
+                         }),
                 ),
               ),
             ),
