@@ -62,7 +62,14 @@ android {
         }
         debug{
             signingConfig signingConfigs.lecture
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2bd1d8c165ea342442601c899ab9f1572ba36fd5
+>>>>>>> f7e78495bee9cd6817aea49e73b29bdc69e7bea2
         }
     }
 }

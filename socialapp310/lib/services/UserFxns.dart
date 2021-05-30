@@ -3,6 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 
+//import 'package:socialapp310/models/user.dart';
+
+import 'package:socialapp310/routes/profile/profilepage.dart';
+
+
 class UserFxns{
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;

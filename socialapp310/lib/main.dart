@@ -6,6 +6,7 @@ import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/finishsignupgoogle.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/routes/finishsignup.dart';
+import 'package:socialapp310/routes/notificationsNew/notificationsnew.dart';
 import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
@@ -23,9 +24,13 @@ import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/routes/uploadpic/Mappage.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
+
+import 'package:socialapp310/models/user.dart';
+import 'package:socialapp310/routes/settings/password.dart';
 import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
 import 'package:socialapp310/routes/profile/FollowRequest.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +86,7 @@ class AppBase extends StatelessWidget {
         '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
         '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
         '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
-        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
+        '/notifications': (context) => ActivityFeed(analytics: analytics, observer: observer,),
         '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
         '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
         '/search' : (context) => Search(analytics: analytics, observer: observer,),
