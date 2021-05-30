@@ -278,50 +278,54 @@ class _editpost extends State<editpost> {
                         color: Colors.red,
                       ),
                       onPressed: () => {//getCurrentLocation()
-                         }),
+                        Navigator.push(context, MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,observer: AppBase.observer, imageUrl:imageUrl ),
+                        ),)
+                      }
+                      ),
                 ),
               ),
             ),
             SizedBox(
               height: 20,
             ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 50),
-              child: ElevatedButton(
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-
-                  ),
-                  backgroundColor: AppColors.peachpink,
-                ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,imageUrl:imageUrl),
-                  ),);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                          'Press button to search location',
-                          style:  TextStyle(
-                              color: AppColors.darkpurple,
-                              fontSize: 15.0,
-                              letterSpacing: -0.7,
-                              fontFamily: 'OpenSansCondensed-Light'
-                          )
-                      ),
-                      SizedBox(width:5),
-                      Icon(Icons.location_on_outlined,
-                        color: AppColors.darkpurple,)
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Container(
+            //   margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 50),
+            //   child: ElevatedButton(
+            //     style: OutlinedButton.styleFrom(
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(10.0),
+            //
+            //       ),
+            //       backgroundColor: AppColors.peachpink,
+            //     ),
+            //     onPressed: () {
+            //       Navigator.push(context, MaterialPageRoute<void>(
+            //         builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,imageUrl:imageUrl),
+            //       ),);
+            //     },
+            //     child: Padding(
+            //       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+            //       child: Row(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         children: <Widget>[
+            //           Text(
+            //               'Press button to search location',
+            //               style:  TextStyle(
+            //                   color: AppColors.darkpurple,
+            //                   fontSize: 15.0,
+            //                   letterSpacing: -0.7,
+            //                   fontFamily: 'OpenSansCondensed-Light'
+            //               )
+            //           ),
+            //           SizedBox(width:5),
+            //           Icon(Icons.location_on_outlined,
+            //             color: AppColors.darkpurple,)
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
