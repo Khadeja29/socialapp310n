@@ -134,8 +134,8 @@ class _ChatPageState extends State<ChatPage> {
 
     /// Upload images to firebase and returns a URL
     //if (msg?.isEmpty ?? false) {
-    print('thisiscalled $msg');
-    print('username = $userID');
+    //print('thisiscalled $msg');
+    //print('username = $userID');
     var ref = FirebaseFirestore.instance
         .collection('messages')
         .doc(groupChatId)
