@@ -103,11 +103,12 @@ class _ChatPageState extends State<ChatPage> {
                       Expanded(
                         child: TextField(
                           controller: textEditingController,
+
                         ),
                       ),
                       IconButton(
                         icon: Icon(Icons.send),
-                        onPressed: () => sendMsg(),
+                        onPressed: () {sendMsg(); textEditingController.clear();}
                       ),
                     ],
                   ),
@@ -147,6 +148,7 @@ class _ChatPageState extends State<ChatPage> {
         "senderId": userID,
         "anotherUserId": widget.docs.id,
         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        "senttime": DateTime.now(),
         'content': msg,
         "type": 'text',
       });

@@ -62,8 +62,8 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   buildItem(doc) {
-    print('MINE :$Username');
-    print(doc.id);
+    //print('MINE :$Username');
+   // print(doc.id);
     return (Username != doc['Username'])
         ? GestureDetector(
       onTap: () {
