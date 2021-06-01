@@ -652,22 +652,41 @@ class _PostScreenState extends State<PostScreen> {
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
 
     setLocation(location1);
-    setState(() {
-      isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
-      if (result.data()['LikesMap'] == null) {
-        likeCount = 0;
-      }
-      else{
-        int count = 0;
-        result.data()['LikesMap'].values.forEach((val) {
-          if (val == true) {
-            count += 1;
+    isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
+    int count = 0;
+    List<String> KeysToRemove = [];
+    _Likesmap = result.data()['LikesMap'];
+    if (_Likesmap == null) {
+      count = 0;
+    }
+    else{
+      for(var key in _Likesmap.keys)
+      {
+        await usersRef
+            .doc(key)
+            .get()
+            .then((doc) {
+          if (!doc.exists) {
+            KeysToRemove.add(doc.id);
+          }
+          else{
+            if(_Likesmap[doc.id] == true)
+            {
+              count++;
+            }
           }
         });
-        likeCount = count;
       }
+      for(var key in KeysToRemove)
+      {
+        _Likesmap.remove(key);
+      }
+      getpostRef.doc(widget.postId).update({'LikesMap': _Likesmap});
 
-      _Likesmap = result.data()['LikesMap'];
+    }
+    setState(() {
+      likeCount = count;
+      _Likesmap = _Likesmap;
     });
     return result;
   }

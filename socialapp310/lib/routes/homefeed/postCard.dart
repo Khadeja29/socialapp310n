@@ -203,20 +203,40 @@ class _PostCardState extends State<PostCard> {
   }
 
   setUpLikes() async{
-    setState(() {
-      isLiked = widget.post.LikesMap[currentUser.uid] == true ;
-      if (widget.post.LikesMap == null) {
-        likeCount = 0;
-      }
-      else{
-        int count = 0;
-        widget.post.LikesMap.values.forEach((val) {
-          if (val == true) {
-            count += 1;
+    isLiked = widget.post.LikesMap[currentUser.uid] == true ;
+    int count = 0;
+    List<String> KeysToRemove = [];
+    _Likesmap = widget.post.LikesMap;
+    if (widget.post.LikesMap == null) {
+     count = 0;
+    }
+    else{
+      for(var key in widget.post.LikesMap.keys)
+      {
+        await usersRef
+            .doc(key)
+            .get()
+            .then((doc) {
+          if (!doc.exists) {
+            KeysToRemove.add(doc.id);
+
           }
         });
-        likeCount = count;
       }
+      for(var key in KeysToRemove)
+      {
+        _Likesmap.remove(key);
+      }
+      getpostRef.doc(widget.post.PostID).update({'LikesMap': _Likesmap});
+      widget.post.LikesMap.values.forEach((val) {
+        if (val == true) {
+          count += 1;
+        }
+      });
+
+    }
+    setState(() {
+      likeCount = count;
       _Likesmap = widget.post.LikesMap;
 
     });

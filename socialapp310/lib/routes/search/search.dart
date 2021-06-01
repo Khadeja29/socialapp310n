@@ -23,7 +23,7 @@ import 'package:http/http.dart' as http;
 
 final usersRef = FirebaseFirestore.instance.collection('user');
 final postsRef = FirebaseFirestore.instance.collection('Post');
-FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
+
 
 class Search extends StatefulWidget {
   const Search({Key key, this.analytics, this.observer, this.imageFile}): super (key: key);
@@ -35,6 +35,7 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
+  FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
   double lat=0;
   double long=0;
   String locationname, locationMessage, placeId, placeName;
@@ -130,6 +131,7 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
+
     _setCurrentScreen();
     choiceIdx = 0;
   }
@@ -329,7 +331,9 @@ class _SearchState extends State<Search> {
             }
             else if (snapshot.hasData) {
               List<User1> searchResults = [];
-              snapshot.data.docs.forEach((doc) {
+
+              for(var doc in snapshot.data.docs)
+              {
                 User1 user = User1(
                     UID: doc.id,
                     username: doc['Username'],
@@ -340,12 +344,13 @@ class _SearchState extends State<Search> {
                     bio: doc['Bio'],
                     ProfilePic: doc['ProfilePic']);
 
-                if(user.email != currentFB.email){
-                  searchResults.add(user);
+                 if(user.email != currentFB.email){
+                   searchResults.add(user);
                 }else{
-                  print(user.email);
+                  print("hello" + user.email);
+                  print(doc["Email"]);
                 }
-              });
+              }
               int len = 0;
 
               if (searchResults != null)
