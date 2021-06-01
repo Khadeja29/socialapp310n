@@ -43,8 +43,11 @@ class _ActivityFeedState extends State<ActivityFeed> {
     );
   }
   @override
+
+  Future<DocumentSnapshot> _listFuture1;
   void initState() {
     super.initState();
+    _listFuture1 = getActivityFeed();
     _setCurrentScreen();
   }
 
@@ -106,8 +109,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
       feedItems.add(feedItem);
       print(feedItems.length);
     });
-    sleep(const Duration(seconds: 10));
-
+    //sleep(const Duration(seconds: 10));
     return await feedItems;
   }
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
@@ -210,7 +212,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
       appBar: header(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
-            future: getActivityFeed(),
+            future: _listFuture1,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return  SizedBox(child: CircularProgressIndicator(),
