@@ -66,7 +66,7 @@ class _SearchLocationState extends State<SearchLocation> {
     print("${first.featureName} : ${first.addressLine}");
     locationname = ("${first.featureName} : ${first.addressLine}");
     Navigator.push(context, MaterialPageRoute<void>(
-      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
+      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long, locationname:locationname,imageFile: imageFile, ),
     ),);
   }
   Future<dynamic> findPlace(String placeName) async {
@@ -118,20 +118,20 @@ class _SearchLocationState extends State<SearchLocation> {
         // elevation: 0.0,
       ),
       body:
-          // StreamBuilder(
-          // stream: _stream,
-          // // initialData: [],
-          // builder: (context, snapshot) {
-          //   if (snapshot.hasError) {
-          //     return Text('There was an error :(');
-          //   } else if (snapshot.hasData || snapshot.data == null) {
-          //     res != null ? print(res) : null;
-          //     print(snapshot.data);
-          //     // if(snapshot.data != null)
-          //     // print(snapshot.data.length);
-          //     return
-          (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-              Widget>[
+      // StreamBuilder(
+      // stream: _stream,
+      // // initialData: [],
+      // builder: (context, snapshot) {
+      //   if (snapshot.hasError) {
+      //     return Text('There was an error :(');
+      //   } else if (snapshot.hasData || snapshot.data == null) {
+      //     res != null ? print(res) : null;
+      //     print(snapshot.data);
+      //     // if(snapshot.data != null)
+      //     // print(snapshot.data.length);
+      //     return
+      (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+          Widget>[
         SizedBox(
           height: 20,
         ),
@@ -155,13 +155,13 @@ class _SearchLocationState extends State<SearchLocation> {
                     icon: Icon(Icons.search, color: style.color),
                     suffixIcon: text.isNotEmpty
                         ? GestureDetector(
-                            child: Icon(Icons.close, color: style.color),
-                            onTap: () {
-                              controller.clear();
-                              onChanged('');
-                              FocusScope.of(context).requestFocus(FocusNode());
-                            },
-                          )
+                      child: Icon(Icons.close, color: style.color),
+                      onTap: () {
+                        controller.clear();
+                        onChanged('');
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                    )
                         : null,
                     hintText: hintText,
                     hintStyle: style,
@@ -208,12 +208,12 @@ class _SearchLocationState extends State<SearchLocation> {
                     padding: const EdgeInsets.symmetric(),
                     child: ListView.builder(
                       itemCount:
-                          snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
                       itemBuilder: (context, index) => Column(
                         children: [
                           ListTile(
                             title:
-                                Text(snapshot.data["predictions"][index]["description"]),
+                            Text(snapshot.data["predictions"][index]["description"]),
                             leading: Icon(Icons.add_location_alt),
                             onTap:() {
                               print(snapshot.data["predictions"][index]["description"]);
@@ -224,13 +224,13 @@ class _SearchLocationState extends State<SearchLocation> {
                         ],
                       ),
                       //ItemCard(
-                       //product: snapshot.data[index],
-                       //press: () => Navigator.push(
-                         // context,
-                           //MaterialPageRoute(
-                             //builder: (context) =>
-                                // SingleProduct(id: products[index].productId),
-                           //)),
+                      //product: snapshot.data[index],
+                      //press: () => Navigator.push(
+                      // context,
+                      //MaterialPageRoute(
+                      //builder: (context) =>
+                      // SingleProduct(id: products[index].productId),
+                      //)),
                     ),
                   ),
                 );

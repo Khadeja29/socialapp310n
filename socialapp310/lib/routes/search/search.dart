@@ -14,6 +14,7 @@ import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
+import 'package:socialapp310/routes/subscribelocation/subscribelocation.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
@@ -78,9 +79,10 @@ class _SearchState extends State<Search> {
     //print("${first.featureName} : ${first.addressLine}");
     locationname = ("${first.featureName} : ${first.addressLine}");
     //TODO: IFRU'S CODE HERE user placeID and placeName
-   // Navigator.push(context, MaterialPageRoute<void>(
-     // builder: (BuildContext context) =>  LocationSubscription(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
-    //),);
+   Navigator.push(context, MaterialPageRoute<void>(
+     builder:(BuildContext context) =>
+         SubcribeLocation(analytics: AppBase.analytics, observer: AppBase.observer, place_id: placeID, address: placeName ),
+    ),);
   }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');

@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/finishsignupgoogle.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
@@ -10,11 +11,13 @@ import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
 import 'package:socialapp310/routes/notifications/notifications.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:socialapp310/routes/settings/deleteAccount.dart';
+import 'package:socialapp310/routes/settings/settings.dart';
 import 'package:socialapp310/routes/signup.dart';
 import 'package:socialapp310/routes/splashpage.dart';
 import 'package:socialapp310/routes/login.dart';
+import 'package:socialapp310/routes/subscribelocation/subscribelocation.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
-
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
@@ -75,22 +78,81 @@ class AppBase extends StatelessWidget {
       navigatorObservers: <NavigatorObserver>[observer],
       home: SplashScreen(analytics: analytics, observer: observer,),
       routes: {
-        '/searchlocation': (context) => SearchLocation(analytics: analytics, observer: observer,),
-        '/welcome': (context) => Welcome(analytics: analytics, observer: observer,),
-        '/login': (context) => Login(analytics: analytics, observer: observer,),
-        '/signup': (context) => SignUp(analytics: analytics, observer: observer,),
-        '/walkthrough' :(context) => WalkThrough(analytics: analytics, observer: observer,),
-        '/signupfinish': (context) => FinishSignupPage(analytics: analytics, observer: observer,),
-        '/notifications': (context) => ActivityScreen(analytics: analytics, observer: observer,),
-        '/homefeed': (context) => HomeFeed(analytics: analytics, observer: observer,),
-        '/profile': (context) => ProfileScreen(analytics: analytics, observer: observer,),
-        '/search' : (context) => Search(analytics: analytics, observer: observer,),
-        '/editprofile' : (context) => EditProfilePage(analytics: analytics, observer: observer,),
-        '/signupfinishgoogle' : (context) => FinishSignupPageGoogle(analytics: analytics, observer: observer,),
-        '/userList' : (context) => userList(analytics: analytics, observer: observer,),
-        '/uploadpic' : (context) => Uploadpic(analytics: analytics, observer: observer,),
-        '/creatpost' :  (context) => CreatePost(analytics: analytics, observer: observer,),
+
+        '/searchlocation': (context) => SearchLocation(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/welcome': (context) => Welcome(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/login': (context) => Login(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signup': (context) => SignUp(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/walkthrough': (context) => WalkThrough(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signupfinish': (context) => FinishSignupPage(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/notifications': (context) => ActivityScreen(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/homefeed': (context) => HomeFeed(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/profile': (context) => ProfileScreen(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/search': (context) => Search(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/editprofile': (context) => EditProfilePage(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/signupfinishgoogle': (context) => FinishSignupPageGoogle(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/uploadpic': (context) => Uploadpic(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/creatpost': (context) => CreatePost(
+              analytics: analytics,
+              observer: observer,
+            ),
+        '/favourites': (context) => Favourites(
+          analytics: analytics,
+          observer: observer,
+        ),
+        '/subscribelocation': (context) => SubcribeLocation(
+          analytics: analytics,
+          observer: observer,
+        ),
+    '/userList' : (context) => userList(analytics: analytics, observer: observer,),
         '/comments' : (context) => Comments(analytics: analytics, observer: observer,postId: "rmIqMR4yiLKalMOz4gtl",postOwnerId: "NJR9BykZFHUWcDxIus5Mb2uAkp83"),
+        '/settings': (context) => Settings(
+          analytics: analytics,
+          observer: observer,
+        ),
+        '/deleteaccount': (context) => DeleteAccount(
+          analytics: analytics,
+          observer: observer,
+        ),
         '/followreq' :  (context) => FollowReq(analytics: analytics, observer: observer,),
         //'/postscreen' : (context) => PostScreen(analytics: analytics, observer: observer,),
       },

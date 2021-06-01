@@ -117,11 +117,11 @@ class _PostCardState extends State<PostCard> {
             commentLen+=1;
           });
           return Text(commentLen.toString() + " comments",
-               style: TextStyle(
-              color: AppColors.darkgreyblack,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0,
-              fontFamily: 'OpenSansCondensed-Bold'),
+            style: TextStyle(
+                color: AppColors.darkgreyblack,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0,
+                fontFamily: 'OpenSansCondensed-Bold'),
           );
         });
   }
@@ -597,11 +597,11 @@ class _PostCardState extends State<PostCard> {
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,
                           onPressed: () {
-                          Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
-                              analytics: AppBase.analytics,
-                              observer: AppBase.observer)),);},
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
+                                  analytics: AppBase.analytics,
+                                  observer: AppBase.observer)),);},
 
                           icon: Icon(
                             Icons.chat_bubble_outline,
