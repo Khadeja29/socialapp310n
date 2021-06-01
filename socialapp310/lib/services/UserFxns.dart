@@ -229,5 +229,20 @@ class UserFxns{
           .update({'IsPrivate': IsPriv});
     }
   }
-
+  static Future<String> getProfilePicUser(String userID) async {
+    //Call the user's CollectionReference to add a new user
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(userID)
+        .get();
+    return result.get("ProfilePic");
+  }
+  static Future<String> getUserNameUser(String userID) async {
+    //Call the user's CollectionReference to add a new user
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(userID)
+        .get();
+    return result.get("Username");
+  }
 }
