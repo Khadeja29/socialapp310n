@@ -44,10 +44,10 @@ class _ActivityFeedState extends State<ActivityFeed> {
   }
   @override
 
-  Future<DocumentSnapshot> _listFuture1;
+  //Future<DocumentSnapshot> _listFuture1;
   void initState() {
     super.initState();
-    _listFuture1 = getActivityFeed();
+    //_listFuture1 = getActivityFeed();
     _setCurrentScreen();
   }
 
@@ -94,7 +94,8 @@ class _ActivityFeedState extends State<ActivityFeed> {
         .limit(50)
         .get();
     List<ActivityFeedItem> feedItems = [];
-     snapshot.docs.forEach((doc) async {
+
+      for (var doc in snapshot.docs) {
       userName = await  getUsername(doc['userId']);
       userProf = await getPic(doc['userId']);
       ActivityFeedItem feedItem=  ActivityFeedItem(
@@ -108,9 +109,9 @@ class _ActivityFeedState extends State<ActivityFeed> {
           );
       feedItems.add(feedItem);
       print(feedItems.length);
-    });
+    }
     //sleep(const Duration(seconds: 10));
-    return await feedItems;
+    return  feedItems;
   }
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
     return AppBar(
@@ -129,6 +130,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   }
 
   configureMediaPreview(context, ActivityFeedItem feedItem) {
+    //this is to show the post
     if (feedItem.type == "like" || feedItem.type == 'comment') {
       mediaPreview = Container(
         height: 50.0,
@@ -145,9 +147,8 @@ class _ActivityFeedState extends State<ActivityFeed> {
             )),
       );
     } else {
-      mediaPreview = Text('dsklfhsdjkh');
+      mediaPreview = Text('');
     }
-
     if (feedItem.type == 'like') {
       activityItemText = "liked your post";
     } else if (feedItem.type == 'follow') {
@@ -212,7 +213,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
       appBar: header(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
-            future: _listFuture1,
+            future: getActivityFeed(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return  SizedBox(child: CircularProgressIndicator(),
@@ -223,7 +224,6 @@ class _ActivityFeedState extends State<ActivityFeed> {
                 itemCount: snapshot.data.length,
                 // ignore: missing_return
                 itemBuilder: (context, index)  {
-                  print("hello");
                    return  buildFeed(snapshot.data[index]);
                   }
               );
