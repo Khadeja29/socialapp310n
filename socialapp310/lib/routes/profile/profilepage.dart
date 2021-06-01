@@ -270,6 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       "ownerId": widget.UID,
       //"username": username,//todo: pass username from previous page
       "userId": currentUser.uid,
+      "commentData": "",
       //"userProfileImg": userProfileImg,
       "timestamp": timestamp,
     });
