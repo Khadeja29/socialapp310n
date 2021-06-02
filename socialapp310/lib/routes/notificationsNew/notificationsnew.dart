@@ -102,11 +102,12 @@ class _ActivityFeedState extends State<ActivityFeed> {
         userName = await  getUsername(doc['userId']);
       if(userName != "InvalidUser"){
         userProf = await getPic(doc['userId']);
+        Map<String, dynamic> map = doc.data();
         ActivityFeedItem feedItem=  ActivityFeedItem(
           userId: doc['userId'],
           type: doc['type'],
           postId: doc['PostID'],
-          commentData: doc['commentData'],
+          commentData: map.containsKey('commentData') ? doc['commentData']: "",
           timestamp: doc['timestamp'],
           userProfileImg: userProf,
           username: userName,
