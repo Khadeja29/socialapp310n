@@ -6,6 +6,7 @@ class Post1 {
   final bool isPrivate;
   final int likes;
   final GeoPoint location;
+  final String locationName;
   final Timestamp createdAt;
   Map<String,dynamic> LikesMap;
   final String PostID;
@@ -13,6 +14,7 @@ class Post1 {
 
   Post1({
     this.caption,
+    this.locationName,
     this.imageURL,
     this.likes,
     this.createdAt,

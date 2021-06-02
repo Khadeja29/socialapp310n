@@ -84,6 +84,10 @@ class _SearchState extends State<Search> {
      builder:(BuildContext context) =>
          SubcribeLocation(analytics: AppBase.analytics, observer: AppBase.observer, place_id: placeID, address: placeName ),
     ),);
+
+    // Navigator.push(context, MaterialPageRoute<void>(
+    // builder: (BuildContext context) =>  LocationSubscription(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
+    //),);
   }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');
@@ -410,51 +414,51 @@ class _SearchState extends State<Search> {
       );
     } else {
       return
-          FutureBuilder(
-              future: findPlace(queryY),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text('There was an error :(');
-                } else if (snapshot.hasData || snapshot.data == null) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(),
-                      child: ListView.builder(
-                        itemCount:
-                        snapshot.data == null ? 0 : snapshot.data["predictions"].length,
-                        itemBuilder: (context, index) => Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ListTile(
-                                title:
-                                Text(snapshot.data["predictions"][index]["description"]),
-                                leading: Icon(Icons.add_location_alt, color: AppColors.darkgreyblack,),
-                                onTap:() {
-                                  placeId = snapshot.data["predictions"][index]['place_id'];
-                                  print('this is '+placeId);
-                                  locationfinder(snapshot.data["predictions"][index]["description"], placeId);
-                                },
-                              ),
+        FutureBuilder(
+            future: findPlace(queryY),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text('There was an error :(');
+              } else if (snapshot.hasData || snapshot.data == null) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(),
+                    child: ListView.builder(
+                      itemCount:
+                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                      itemBuilder: (context, index) => Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              title:
+                              Text(snapshot.data["predictions"][index]["description"]),
+                              leading: Icon(Icons.add_location_alt, color: AppColors.darkgreyblack,),
+                              onTap:() {
+                                placeId = snapshot.data["predictions"][index]['place_id'];
+                                print('this is '+placeId);
+                                locationfinder(snapshot.data["predictions"][index]["description"], placeId);
+                              },
                             ),
-                            //Divider(color: Colors.grey)
-                          ],
-                        ),
+                          ),
+                          //Divider(color: Colors.grey)
+                        ],
                       ),
                     ),
-                  );
-                } else {
-                  // print(snapshot.data);
-                  return (Center(
-                      child: CircularProgressIndicator(
-                          valueColor: new AlwaysStoppedAnimation<Color>(
-                              AppColors.darkpurple))));
-                }
-              });
+                  ),
+                );
+              } else {
+                // print(snapshot.data);
+                return (Center(
+                    child: CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            AppColors.darkpurple))));
+              }
+            });
     }  }
 
   Widget postsSearchDisplay() {
-   print(choiceIdx);
+    print(choiceIdx);
     if (searchResultsCaptionFuture == null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -531,20 +535,20 @@ class _SearchState extends State<Search> {
                                 onTap:(){ _showMyDialog("To do: path to this post should be added");},
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(0),
-                                      child: Image.network(
-                                        searchResultsPosts
-                                            .elementAt(index)
-                                            .ImageUrlPost,
-                                        fit: BoxFit.cover,
+                                  child: Image.network(
+                                    searchResultsPosts
+                                        .elementAt(index)
+                                        .ImageUrlPost,
+                                    fit: BoxFit.cover,
 
-                                      ),
-                                        /*Text( (searchResultsPosts
+                                  ),
+                                  /*Text( (searchResultsPosts
                                             .elementAt(index).caption.length < 15) ? searchResultsPosts
                                             .elementAt(index).caption.substring(0,searchResultsPosts
                                             .elementAt(index).caption.length-1 )+"..." : searchResultsPosts
                                             .elementAt(index).caption.substring(0, 3)+"...",
                                         textAlign: TextAlign.left,)*/
-                                    ),
+                                ),
                               ),
                             );
                           } else

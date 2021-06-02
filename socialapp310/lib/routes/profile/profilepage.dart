@@ -150,6 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .orderBy("createdAt", descending: true)
         .get();
     for( var doc in snapshot.docs){
+      Map<String, dynamic> map = doc.data();
       Post1 post = Post1(
         caption: doc["Caption"],
         imageURL: doc["Image"],
@@ -160,6 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         UserID: doc["PostUser"],
         PostID: doc.id,
         LikesMap : doc['LikesMap'],
+        locationName: map.containsKey('Locationname') ? doc['Locationname']: "temp",
       );
 
       PostsToBuild.add(post);

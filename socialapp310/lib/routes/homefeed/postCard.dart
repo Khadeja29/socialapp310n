@@ -143,7 +143,14 @@ class _PostCardState extends State<PostCard> {
     final coordinates = new Coordinates(location1.latitude, location1.longitude);
     var locationString = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     setState(() {
-      _location = locationString.first.addressLine;
+      if(widget.post.locationName == "temp" || widget.post.locationName == null)
+      {
+        _location = locationString.first.addressLine;
+      }
+      else {
+        _location = widget.post.locationName;
+      }
+
     });
   }
   handleDeletePost(BuildContext parentContext) {

@@ -11,6 +11,7 @@ import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
+import 'package:socialapp310/routes/uploadpic/editpost.dart';
 
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
@@ -129,7 +130,7 @@ class _PostScreenState extends State<PostScreen> {
         });
   }
 
-  buildPostHeader(String userId)  {
+  buildPostHeader(String userId ,String imageURL)  {
     return FutureBuilder(
       future: _listFuture2,
       builder: (context, docsnap) {
@@ -210,6 +211,9 @@ class _PostScreenState extends State<PostScreen> {
               if (value == "Edit")
               {
                 //TODO: Edit post
+                Navigator.push(context, MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>  editpost(imageUrl: imageURL,postId: widget.postId,),
+                ),);
               }
               else if (value == "Delete")
               {
@@ -651,8 +655,17 @@ class _PostScreenState extends State<PostScreen> {
         .get();
     var parseLocation = result.data()['Location'];
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
+    if(result.data()['Locationname'] != null)
+    {
+      setState(() {
+        _locationString = result.data()['Locationname'];
+      });
+    }
+    else {
+      setLocation(location1);
+    }
 
-    setLocation(location1);
+
     isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
     int count = 0;
     List<String> KeysToRemove = [];
@@ -743,7 +756,7 @@ class _PostScreenState extends State<PostScreen> {
             body: ListView(
               children: <Widget>[
                 SizedBox(height: 5),
-                buildPostHeader(widget.userId),
+                buildPostHeader(widget.userId , post.imageURL),
                 SizedBox(height: 5),
                 buildPostImage(post.imageURL),
                 buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL,timeago.format(post.createdAt.toDate()))

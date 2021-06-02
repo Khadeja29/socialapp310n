@@ -22,7 +22,6 @@ import 'package:socialapp310/routes/profile/userList.dart';
 import 'package:socialapp310/routes/unknownwelcome.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
 import 'package:socialapp310/routes/uploadpic/uploadpic.dart';
-
 import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/routes/uploadpic/Mappage.dart';

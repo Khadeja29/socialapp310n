@@ -54,7 +54,7 @@ class UserFxns{
   }
   static Future<void> SignUpNormal(BuildContext context, String email,String password,String Bio, String FullName,
 
-       String Username ,String ProfilePicture) async {
+      String Username ,String ProfilePicture) async {
 
     Username = Username.toLowerCase();
     var isNewUser = false;
@@ -222,7 +222,7 @@ class UserFxns{
     QuerySnapshot snapshot = await getpostRef
         .where("PostUser" , isEqualTo: currentUser.uid)
         .get();
-    
+
     for(var doc in snapshot.docs){
       await getpostRef
           .doc(doc.id)

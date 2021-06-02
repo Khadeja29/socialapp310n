@@ -74,7 +74,8 @@ class _TestPostState extends State<HomeFeed> {
             location: SinglePost.docs[0]["Location"],
             LikesMap : SinglePost.docs[0]['LikesMap'],
             UserID: SinglePost.docs[0]['PostUser'],
-            PostID: SinglePost.docs[0].id
+            PostID: SinglePost.docs[0].id,
+            locationName: SinglePost.docs[0].data()['Locationname'] !=null ? SinglePost.docs[0]['Locationname']: "temp",
         );
         PosttoBuild.add(post);
 
