@@ -596,6 +596,7 @@ class _PostScreenState extends State<PostScreen> {
             .doc(widget.userId)
             .collection('feedItems')
             .add({
+          "commentData" : "",
           "PostID": widget.postId,
           "type": "like",
           "ownerId": widget.userId,

@@ -292,6 +292,7 @@ class _PostCardState extends State<PostCard> {
             .doc(widget.post.UserID) //find the notifications of post owner
             .collection('feedItems')
             .add({  //add notification
+          "commentData" : "",
           "PostID": widget.post.PostID,
           "type": "like",
           "ownerId": widget.post.UserID,

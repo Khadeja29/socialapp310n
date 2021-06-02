@@ -188,6 +188,7 @@ class _userListState extends State<userList>{
               .collection('feedItems')
               .doc(widget.currentUserId)
               .set({
+            "commentData" : "",
             "PostID": "NoPost",
             "type": "follow",
             "ownerId": user.UID,
