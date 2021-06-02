@@ -15,7 +15,7 @@ import 'package:firebase_analytics/observer.dart';
 
 final usersRef = FirebaseFirestore.instance.collection('user');
 
-FBauth.User currentUser =  FBauth.FirebaseAuth.instance.currentUser;
+
 
 class ActivityFeed extends StatefulWidget {
   const ActivityFeed({Key key, this.analytics, this.observer,}): super (key: key);
@@ -27,7 +27,7 @@ class ActivityFeed extends StatefulWidget {
 
 class _ActivityFeedState extends State<ActivityFeed> {
   String userProf, userName;
-
+  FBauth.User currentUser =  FBauth.FirebaseAuth.instance.currentUser;
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Notifications Page');
     _setLogEvent();
@@ -83,7 +83,10 @@ class _ActivityFeedState extends State<ActivityFeed> {
     var result = await usersRef
         .doc(userId)
         .get();
-    return result.get("Username");
+    if (result.exists) {
+      return result.get("Username");
+    }
+    else{return "InvalidUser";}
   }
 
   getActivityFeed()  async {
@@ -96,10 +99,8 @@ class _ActivityFeedState extends State<ActivityFeed> {
     List<ActivityFeedItem> feedItems = [];
       bool UserExists;
       for (var doc in snapshot.docs) {
-        await usersRef.doc(doc['userId']).get().then((value) {UserExists = value.exists;} );
-
-      if(UserExists){
         userName = await  getUsername(doc['userId']);
+      if(userName != "InvalidUser"){
         userProf = await getPic(doc['userId']);
         ActivityFeedItem feedItem=  ActivityFeedItem(
           userId: doc['userId'],
@@ -227,9 +228,11 @@ class _ActivityFeedState extends State<ActivityFeed> {
             future: getActivityFeed(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return  SizedBox(child: CircularProgressIndicator(),
-                  height: 20,
-                  width: 20,);
+                return  Center(
+                  child: SizedBox(child: CircularProgressIndicator(
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          AppColors.primarypurple))),
+                );
               }
               return ListView.builder(
                 itemCount: snapshot.data.length,
