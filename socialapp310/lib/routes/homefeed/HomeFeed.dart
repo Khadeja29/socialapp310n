@@ -2,7 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp310/chats_page.dart';
+import 'package:socialapp310/routes/chatspage.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';

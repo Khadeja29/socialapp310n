@@ -497,7 +497,6 @@ class _SearchState extends State<Search> {
                     IsPrivate: doc['IsPrivate'],
                   );
                   if (post.userId != currentFB.uid && post.IsPrivate == false ) {
-                    //TODO: add isPublic attribute to post class
                     searchResultsPosts.add(post);
                   } else {
                     print(post.userId);

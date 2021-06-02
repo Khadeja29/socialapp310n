@@ -7,9 +7,10 @@ import 'package:socialapp310/routes/comment/comments.dart';
 import 'package:socialapp310/routes/finishsignupgoogle.dart';
 import 'package:socialapp310/routes/homefeed/HomeFeed.dart';
 import 'package:socialapp310/routes/finishsignup.dart';
+import 'package:socialapp310/routes/notificationsNew/notificationsnew.dart';
 import 'package:socialapp310/routes/profile/editprofile.dart';
 import 'package:socialapp310/routes/search/search.dart';
-import 'package:socialapp310/routes/notifications/notifications.dart';
+
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/settings/deleteAccount.dart';
 import 'package:socialapp310/routes/settings/settings.dart';
@@ -26,9 +27,13 @@ import 'package:socialapp310/routes/walkthrough.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/routes/uploadpic/Mappage.dart';
 import 'package:socialapp310/routes/welcomeNoFirebase.dart';
+
+import 'package:socialapp310/models/user.dart';
+import 'package:socialapp310/routes/settings/password.dart';
 import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
 import 'package:socialapp310/routes/profile/FollowRequest.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -103,7 +108,7 @@ class AppBase extends StatelessWidget {
               analytics: analytics,
               observer: observer,
             ),
-        '/notifications': (context) => ActivityScreen(
+        '/notifications': (context) => ActivityFeed(
               analytics: analytics,
               observer: observer,
             ),
@@ -143,7 +148,7 @@ class AppBase extends StatelessWidget {
           analytics: analytics,
           observer: observer,
         ),
-    '/userList' : (context) => userList(analytics: analytics, observer: observer,),
+        '/userList' : (context) => userList(analytics: analytics, observer: observer,),
         '/comments' : (context) => Comments(analytics: analytics, observer: observer,postId: "rmIqMR4yiLKalMOz4gtl",postOwnerId: "NJR9BykZFHUWcDxIus5Mb2uAkp83"),
         '/settings': (context) => Settings(
           analytics: analytics,

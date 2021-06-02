@@ -169,13 +169,11 @@ class CommentsState extends State<Comments> {
     if (isNotPostOwner) {
       activityFeedRef.doc(postOwnerId).collection('feedItems').add({
         "type": "comment",
+        "ownerId": postOwnerId,
         "commentData": commentController.text,
         "timestamp": timestamp,
-        "postId": postId,
+        "PostID": postId,
         "userId": curUser.uid,
-        "username":usrName,
-        "userProfileImg": prf,
-        "mediaUrl": postMediaUrl,
       });
     }
     commentController.clear();

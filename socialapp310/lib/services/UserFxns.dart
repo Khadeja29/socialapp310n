@@ -3,6 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 
+//import 'package:socialapp310/models/user.dart';
+
+import 'package:socialapp310/routes/profile/profilepage.dart';
+
+
 class UserFxns{
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -224,5 +229,20 @@ class UserFxns{
           .update({'IsPrivate': IsPriv});
     }
   }
-
+  static Future<String> getProfilePicUser(String userID) async {
+    //Call the user's CollectionReference to add a new user
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(userID)
+        .get();
+    return result.get("ProfilePic");
+  }
+  static Future<String> getUserNameUser(String userID) async {
+    //Call the user's CollectionReference to add a new user
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(userID)
+        .get();
+    return result.get("Username");
+  }
 }
