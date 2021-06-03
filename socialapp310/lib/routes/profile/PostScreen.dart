@@ -10,6 +10,7 @@ import 'package:geocoder/geocoder.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/comment/comments.dart';
+import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/uploadpic/editpost.dart';
 
@@ -53,7 +54,12 @@ class _PostScreenState extends State<PostScreen> {
     return AppBar(
       leading: GestureDetector(
         onTap: (){
-          if(widget.userId != currentUser.uid)
+          if(widget.index == 100)
+          {
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                builder: (context) => Favourites()), (route) => route.isFirst);
+          }
+          else if(widget.userId != currentUser.uid)
           {
             Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
                 builder: (context) =>

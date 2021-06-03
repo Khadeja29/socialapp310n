@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/models/favorites.dart';
+import 'package:socialapp310/routes/profile/PostScreen.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -70,7 +72,7 @@ class _FavoriteState extends State<Favourites> {
     return Scaffold(
       appBar: AppBar(
           title: Text(
-            'Search Location',
+            'Favourites',
             style: kAppBarTitleTextStyle,
           ),
           backgroundColor: AppColors.darkpurple,
@@ -83,61 +85,78 @@ class _FavoriteState extends State<Favourites> {
       body: FutureBuilder(
           future: getFavInfo(),
           builder: (context, snapshot) {
-            print(snapshot.data.docs);
             if (snapshot.hasError) {
               return Text('There was an error :(');
-            } else if (snapshot.hasData && snapshot.data.docs != []) {
-              print('here');
-              print(snapshot.data.docs);
-              List<Favorites> searchResults = [];
-              Favorites fav;
-              snapshot.data.docs.forEach((doc) {
-                fav = Favorites(
-                    Image: doc["Image"],
-                    UserId: doc["UserId"],
-                    PostId: doc["PostId"]);
-              });
-              searchResults.add(fav);
-              return SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    StaggeredGridView.countBuilder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      crossAxisCount: 3,
-                      itemCount: searchResults.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          padding: EdgeInsets.all(0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(0),
-                            child: GestureDetector(
-                              // onTap: () {
-                              //   Navigator.push(context, MaterialPageRoute(builder: (_) {
-                              //     return SinglePost(
-                              //       PostId: searchResults[index].PostId,);
-                              //   }));
-                              // },
-                              child: Image(
-                                fit: BoxFit.cover,
-                                image: NetworkImage(searchResults[index].Image),
+            }
+            else if (snapshot.hasData ) {
+              if(snapshot.data.docs != [])
+              {
+                print('here');
+                print(snapshot.data.docs);
+                List<Favorites> searchResults = [];
+                Favorites fav;
+                for (var doc in snapshot.data.docs) {
+                  fav = Favorites(
+                      Image: doc["Image"],
+                      UserId: doc["UserId"],
+                      PostId: doc["PostId"]);
+                  searchResults.add(fav);
+                }
+
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      StaggeredGridView.countBuilder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        crossAxisCount: 3,
+                        itemCount: searchResults.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            padding: EdgeInsets.all(0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(0),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  var UserId = await getpostRef.doc(searchResults[index].PostId).get();
+                                  Navigator.push(context, MaterialPageRoute<void>(
+                                      builder: (BuildContext context) => PostScreen(postId: searchResults[index].PostId,userId: UserId.get("PostUser"),index: 100,)));
+                                },
+                                child: Image(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(searchResults[index].Image),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                      staggeredTileBuilder: (index) =>
-                          StaggeredTile.count(1, 1),
-                      crossAxisSpacing: 2,
-                      mainAxisSpacing: 2,
+                          );
+                        },
+                        staggeredTileBuilder: (index) =>
+                            StaggeredTile.count(1, 1),
+                        crossAxisSpacing: 2,
+                        mainAxisSpacing: 2,
+                      ),
+                    ],
+                  ),
+                );
+              }
+              else {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      child: CircularProgressIndicator(),
+                      height: 20,
+                      width: 20,
                     ),
                   ],
-                ),
-              );
-            } else {
+                );
+              }
+            }
+            else {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

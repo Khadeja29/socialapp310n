@@ -14,7 +14,7 @@ import 'noresult.dart';
 
 final postsRef = FirebaseFirestore.instance.collection('Post');
 final favouritesRef = FirebaseFirestore.instance.collection('Favorites');
-FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+
 
 class SubcribeLocation extends StatefulWidget {
   String place_id;
@@ -42,7 +42,7 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
   var _getSubbedLocations;
   bool subbed = false;
   List subbedResults = [];
-
+  FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
   _SubcribeLocationState(this.place_id, this.address);
 
   Future<QuerySnapshot> getLocationPosts(id) {

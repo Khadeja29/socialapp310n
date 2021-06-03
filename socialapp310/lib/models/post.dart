@@ -37,7 +37,7 @@ class Post {
 }
 
 
-location x = location(loc_name: "Some Location", longitude: 41, latitude: 28.9);
+
 /*
 Post post = Post(
     username: "Generic Name",
