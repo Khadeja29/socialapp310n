@@ -49,36 +49,86 @@ class _DeleteAccountState extends State<DeleteAccount> {
         FirebaseFirestore.instance.collection('user');
 
     try {
-      await currentFB.reauthenticateWithCredential(credential).then((value) {
-        FirebaseAuth.instance.currentUser.delete().then((val) {
-          usersCollection.doc(currentFB.uid).delete().then((res) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text('Deleting account!')));
-            // Navigator.pushReplacementNamed(context, '/welcome');
+      // await currentFB.reauthenticateWithCredential(credential).then((value) {
+      //   FirebaseAuth.instance.currentUser.delete().then((val) {
+      //     usersCollection.doc(currentFB.uid).delete().then((res) {
+      //       ScaffoldMessenger.of(context)
+      //           .showSnackBar(SnackBar(content: Text('Deleting account!')));
+      //       // Navigator.pushReplacementNamed(context, '/welcome');
+      //     });
+      //   });
+      // });
+
+    await currentFB.reauthenticateWithCredential(credential).then((value) {
+      FirebaseAuth.instance.currentUser.delete().then((res) {
+        usersCollection.doc(currentFB.uid).delete().then((res) {
+          FirebaseFirestore.instance.collection('FollowRequests').doc(currentFB.uid).collection('requests').get().then((res) async {
+            for (var x in res.docs){
+              x.reference.delete();
+            }
+            FirebaseFirestore.instance.collection('feed').doc(currentFB.uid).collection('feedItems').get().then((res)async{
+              //TODO: consider feeds of other users. prob you will have to manually iterate through everything.
+
+              for (var x in res.docs){
+                x.reference.delete();
+              }
+              FirebaseFirestore.instance.collection('followers').doc(currentFB.uid).collection('userFollowers').get().then((res)async{
+                //delete following of others
+                for (var x in res.docs){
+                  await FirebaseFirestore.instance.collection('following').doc(x.id).collection('userFollowing').doc(currentFB.uid).delete();
+                  x.reference.delete();
+                }
+                FirebaseFirestore.instance.collection('following').doc(currentFB.uid).collection('userFollowing').get().then((res)async{
+                  //delete followers of others
+
+                  for (var x in res.docs){
+                    await FirebaseFirestore.instance.collection('followers').doc(x.id).collection('userFollowers').doc(currentFB.uid).delete();
+                    x.reference.delete();
+                  }
+                  FirebaseFirestore.instance.collection('Post').where("PostUser", isEqualTo: currentFB.uid).get().then((res) async{
+                    for (var x in res.docs){
+                      x.reference.delete();
+                    }
+                    FirebaseFirestore.instance.collection('subbedLocations').where("UserId", isEqualTo: currentFB.uid).get().then((res) async {
+                      for (var x in res.docs){
+                        x.reference.delete();
+                      }
+                      FirebaseFirestore.instance.collection('Favorites').where("UserId", isEqualTo: currentFB.uid).get().then((res){
+                        for (var x in res.docs){
+                          x.reference.delete();
+                        }
+                        FirebaseFirestore.instance.collection('comments').doc().collection('postComments').where("UserId", isEqualTo: currentFB.uid).get().then((res){
+                          for (var x in res.docs){
+                            x.reference.delete();
+                          }
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text('Deleting account!')));
+                          // Navigator.pushReplacementNamed(context, '/welcome');
+                        })
+                        ;
+                      });
+                    });
+                  });
+                });
+              });
+            });
           });
         });
       });
+    });
 
-     await Authentication.signOutWithGoogle(context: context);
-      FBauth.FirebaseAuth.instance.signOut().then((value) {
-        Navigator.pushReplacementNamed(context, '/welcome');
-      });
+    await Authentication.signOutWithGoogle(context: context);
+    FBauth.FirebaseAuth.instance.signOut().then((value) {
+      Navigator.pushReplacementNamed(context, '/welcome');
+    });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         print('The user must reauthenticate before this operation can be executed.');
       }
     }
-
-    await currentFB.reauthenticateWithCredential(credential).then((value) {
-      FirebaseAuth.instance.currentUser.delete().then((res) {
-        usersCollection.doc(currentFB.uid).delete().then((res) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Deleting account!')));
-          Navigator.pushReplacementNamed(context, '/welcome');
-        });
-      });
-    });
   }
+
+
 
   Future<void> showAlertDialog(String title, String message) async {
     return showDialog<void>(

@@ -6,8 +6,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
 import 'package:flutter/material.dart';
 import 'package:socialapp310/main.dart';
+import 'package:socialapp310/models/location.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
 import 'package:socialapp310/routes/profile/userList.dart';
+import 'package:socialapp310/routes/subscribelocation/subscribelocation.dart';
 import 'package:socialapp310/routes/welcome.dart';
 import 'package:socialapp310/services/UserFxns.dart';
 import 'package:socialapp310/utils/color.dart';
@@ -22,6 +24,7 @@ final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 final getpostRef = FirebaseFirestore.instance.collection('Post');
 final favoriteRef = FirebaseFirestore.instance.collection('Favorites');
 final followrequestRef = FirebaseFirestore.instance.collection('FollowRequests');
+final subLocationRef = FirebaseFirestore.instance.collection('subbedLocations');
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key key, this.analytics, this.observer, this.UID, this.index}): super (key: key);
@@ -41,6 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String postOrientation = "grid";
   int _selectedIndex = 4;
   List<Post1> _PostsToBuild = [];
+  List<LocationModel> _locations= [];
+  List<bool> _subbed_locations =[];
   String UID;
   User currentUser = FirebaseAuth.instance.currentUser;
   String username;
@@ -90,6 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     getFollowers();
     getFollowing();
     GetPosts();
+    GetLocations();
     _listFuture = getUserInfo();
     await checkIfFollowing();
     setState(() {
@@ -150,6 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .orderBy("createdAt", descending: true)
         .get();
     for( var doc in snapshot.docs){
+      Map<String, dynamic> map = doc.data();
       Post1 post = Post1(
         caption: doc["Caption"],
         imageURL: doc["Image"],
@@ -160,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         UserID: doc["PostUser"],
         PostID: doc.id,
         LikesMap : doc['LikesMap'],
-
+        locationName: map.containsKey('Locationname') ? doc['Locationname']: "temp",
       );
 
       PostsToBuild.add(post);
@@ -172,7 +179,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
   }
-
+  GetLocations() async {
+    List<LocationModel> locations= [];
+    List<bool> subbed_locations =[];
+    QuerySnapshot snapshot = await subLocationRef
+                            .where("UserId" , isEqualTo: widget.UID == null? currentUser.uid : widget.UID)
+                            .get();
+    for( var doc in snapshot.docs) {
+      Map<String, dynamic> map = doc.data();
+      LocationModel loc = LocationModel(
+          loc_name: doc['address'],
+          loc_id: doc['LocationId']
+      );
+      locations.add(loc);
+      subbed_locations.add(true);
+    }
+    setState(() {
+      _locations = locations;
+      _subbed_locations = subbed_locations;
+    });
+  }
   int currentindex() {
     if(widget.index != null)
     {return widget.index;}
@@ -271,6 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       "ownerId": widget.UID,
       //"username": username,//todo: pass username from previous page
       "userId": currentUser.uid,
+      "commentData": "",
       //"userProfileImg": userProfileImg,
       "timestamp": timestamp,
     });
@@ -632,7 +659,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ): Image(image: AssetImage("assets/images/Private.png"),);
   }
 
-  buildProfilePosts() {
+  buildTripCard(BuildContext context, int index) {
+    final loc = _locations[index].loc_name;
+    final loc_id = _locations[index].loc_id;
+    final subbed = _subbed_locations[index];
+    return new Container(
+      child: GestureDetector(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute<void>(
+            builder:(BuildContext context) =>
+                SubcribeLocation(analytics: AppBase.analytics, observer: AppBase.observer, place_id: loc_id, address: loc ),
+          ),).then((value) => GetLocations());
+        },
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.location_on, size: 18, color: AppColors.darkpurple,),
+                    SizedBox(width: 5,),
+                    Text("$loc", style: new TextStyle(fontSize: 18.0),),//todo fix this
+                  ],
+                ),
+                Visibility(
+                  visible: widget.UID == null,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        child: subbed ? Text('Subscribed') : Text("Unsubscribed"),
+                        style: ElevatedButton.styleFrom(
+                          primary: AppColors.peachpink,
+                          onPrimary: Colors.white,
+                          shadowColor: Colors.grey,
+                          elevation: 5,
+                        ),
+                        onPressed: () async{
+                          if(_subbed_locations[index])
+                          {
+                            //unsub logic
+                            await subLocationRef.where("UserId" ,isEqualTo: currentUser.uid)
+                                .where("LocationId", isEqualTo: _locations[index].loc_id )
+                                .get().then((value) => value.docs.first.reference.delete()) ;
+                          }
+                          else {
+                            //sub logic
+                            await subLocationRef.add({
+                              "LocationId" : _locations[index].loc_id,
+                              "address" : _locations[index].loc_name,
+                              "UserId" : currentUser.uid
+                            });
+                          }
+                          setState(() {
+                            _subbed_locations[index] = !_subbed_locations[index];
+                          });
+                          //todo:add logic to remove/add loc from database
+                          //add logic so that if current user and other user it does different things
+                        },
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  buildProfilePosts()  {
     if (isLoading) {
       return Container(
         child: Center(
@@ -677,12 +774,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     else if (postOrientation == "list") {
       return Column(
-          children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
-         );
+        children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+      );
     }
     else if (postOrientation == "locations") {
-      return Column(
-        children: [],
+
+      return ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: _locations.length,
+          itemBuilder: (BuildContext context, int index) =>
+              buildTripCard(context, index)
       );
     }
 
@@ -690,7 +792,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //Main Page function
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
 
 
     return Scaffold(
@@ -773,16 +875,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushNamed(context, '/favourites');
+                    },
                     child: ListTile(
                       title: Text('Favourites'),
                       leading: Icon(Icons.bookmark),
                     ),
                   ),
-                   InkWell(
+                  InkWell(
                     onTap: () {
-                        //TODO create page to accept requests
-                        //We can pass userid and username and profile pic
+                      //TODO create page to accept requests
+                      //We can pass userid and username and profile pic
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -803,7 +907,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ) ,
                   Divider(),
                   InkWell(
-                    onTap: () {},
+                    onTap: () => Navigator.pushNamed(context, "/settings"),
                     child: ListTile(
                       title: Text('Settings'),
                       leading: Icon(Icons.settings),

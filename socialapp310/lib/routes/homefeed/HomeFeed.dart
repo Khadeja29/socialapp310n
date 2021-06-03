@@ -45,40 +45,43 @@ class _TestPostState extends State<HomeFeed> {
     super.initState();
     _setCurrentScreen();
     buildHomefeed();
-    
+
   }
-  
+
   buildHomefeed () async {
     var result = await followingRef
-                 .doc(currentUser.uid)
-                 .collection("userFollowing")
-                 .get();
+        .doc(currentUser.uid)
+        .collection("userFollowing")
+        .get();
     print(currentUser.uid);
     List<Post1> PosttoBuild = [];
     for (var doc in result.docs)
     {
-       var SinglePost = await getpostRef
-                              .where("PostUser" , isEqualTo: doc.id)
-                              .orderBy("createdAt", descending: true)
-                              .limit(1)
-                               .get();
-       if(SinglePost.docs.isNotEmpty)
-       {
-         Post1 post = Post1(
-             caption: SinglePost.docs[0]["Caption"],
-             imageURL: SinglePost.docs[0]["Image"],
-             likes: SinglePost.docs[0]["Likes"],
-             createdAt: SinglePost.docs[0]["createdAt"],
-             isPrivate: SinglePost.docs[0]["IsPrivate"],
-             location: SinglePost.docs[0]["Location"],
-             LikesMap : SinglePost.docs[0]['LikesMap'],
-             UserID: SinglePost.docs[0]['PostUser'],
-             PostID: SinglePost.docs[0].id
-         );
-         PosttoBuild.add(post);
 
-       }
-       PosttoBuild.sort((a,b)=> b.createdAt.compareTo(a.createdAt));
+      var SinglePost = await getpostRef
+          .where("PostUser" , isEqualTo: doc.id)
+          .orderBy("createdAt", descending: true)
+          .limit(1)
+          .get();
+      if(SinglePost.docs.isNotEmpty)
+      {
+        Post1 post = Post1(
+            caption: SinglePost.docs[0]["Caption"],
+            imageURL: SinglePost.docs[0]["Image"],
+            likes: SinglePost.docs[0]["Likes"],
+            createdAt: SinglePost.docs[0]["createdAt"],
+            isPrivate: SinglePost.docs[0]["IsPrivate"],
+            location: SinglePost.docs[0]["Location"],
+            LikesMap : SinglePost.docs[0]['LikesMap'],
+            UserID: SinglePost.docs[0]['PostUser'],
+            PostID: SinglePost.docs[0].id,
+            locationName: SinglePost.docs[0].data()['Locationname'] !=null ? SinglePost.docs[0]['Locationname']: "temp",
+        );
+        PosttoBuild.add(post);
+
+      }
+      PosttoBuild.sort((a,b)=> b.createdAt.compareTo(a.createdAt));
+
 
 
     }
@@ -133,9 +136,9 @@ class _TestPostState extends State<HomeFeed> {
           )
         ],
       ),
-       body: ListView(
-         children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
-       ),
+      body: ListView(
+        children: _PostsToBuild.map((post) => PostCard(post: post)).toList(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         backgroundColor: AppColors.darkpurple,

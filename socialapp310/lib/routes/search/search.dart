@@ -14,6 +14,7 @@ import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
+import 'package:socialapp310/routes/subscribelocation/subscribelocation.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
@@ -22,7 +23,7 @@ import 'package:http/http.dart' as http;
 
 final usersRef = FirebaseFirestore.instance.collection('user');
 final postsRef = FirebaseFirestore.instance.collection('Post');
-FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
+
 
 class Search extends StatefulWidget {
   const Search({Key key, this.analytics, this.observer, this.imageFile}): super (key: key);
@@ -34,6 +35,7 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
+  FBauth.User currentFB =  FBauth.FirebaseAuth.instance.currentUser;
   double lat=0;
   double long=0;
   String locationname, locationMessage, placeId, placeName;
@@ -78,8 +80,13 @@ class _SearchState extends State<Search> {
     //print("${first.featureName} : ${first.addressLine}");
     locationname = ("${first.featureName} : ${first.addressLine}");
     //TODO: IFRU'S CODE HERE user placeID and placeName
-   // Navigator.push(context, MaterialPageRoute<void>(
-     // builder: (BuildContext context) =>  LocationSubscription(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
+   Navigator.push(context, MaterialPageRoute<void>(
+     builder:(BuildContext context) =>
+         SubcribeLocation(analytics: AppBase.analytics, observer: AppBase.observer, place_id: placeID, address: placeName ),
+    ),);
+
+    // Navigator.push(context, MaterialPageRoute<void>(
+    // builder: (BuildContext context) =>  LocationSubscription(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
     //),);
   }
   Future<dynamic> findPlace(String placeName) async {
@@ -128,6 +135,7 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
+
     _setCurrentScreen();
     choiceIdx = 0;
   }
@@ -327,7 +335,9 @@ class _SearchState extends State<Search> {
             }
             else if (snapshot.hasData) {
               List<User1> searchResults = [];
-              snapshot.data.docs.forEach((doc) {
+
+              for(var doc in snapshot.data.docs)
+              {
                 User1 user = User1(
                     UID: doc.id,
                     username: doc['Username'],
@@ -338,12 +348,13 @@ class _SearchState extends State<Search> {
                     bio: doc['Bio'],
                     ProfilePic: doc['ProfilePic']);
 
-                if(user.email != currentFB.email){
-                  searchResults.add(user);
+                 if(user.email != currentFB.email){
+                   searchResults.add(user);
                 }else{
-                  print(user.email);
+                  print("hello" + user.email);
+                  print(doc["Email"]);
                 }
-              });
+              }
               int len = 0;
 
               if (searchResults != null)
@@ -403,51 +414,51 @@ class _SearchState extends State<Search> {
       );
     } else {
       return
-          FutureBuilder(
-              future: findPlace(queryY),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text('There was an error :(');
-                } else if (snapshot.hasData || snapshot.data == null) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(),
-                      child: ListView.builder(
-                        itemCount:
-                        snapshot.data == null ? 0 : snapshot.data["predictions"].length,
-                        itemBuilder: (context, index) => Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ListTile(
-                                title:
-                                Text(snapshot.data["predictions"][index]["description"]),
-                                leading: Icon(Icons.add_location_alt, color: AppColors.darkgreyblack,),
-                                onTap:() {
-                                  placeId = snapshot.data["predictions"][index]['place_id'];
-                                  print('this is '+placeId);
-                                  locationfinder(snapshot.data["predictions"][index]["description"], placeId);
-                                },
-                              ),
+        FutureBuilder(
+            future: findPlace(queryY),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text('There was an error :(');
+              } else if (snapshot.hasData || snapshot.data == null) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(),
+                    child: ListView.builder(
+                      itemCount:
+                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                      itemBuilder: (context, index) => Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              title:
+                              Text(snapshot.data["predictions"][index]["description"]),
+                              leading: Icon(Icons.add_location_alt, color: AppColors.darkgreyblack,),
+                              onTap:() {
+                                placeId = snapshot.data["predictions"][index]['place_id'];
+                                print('this is '+placeId);
+                                locationfinder(snapshot.data["predictions"][index]["description"], placeId);
+                              },
                             ),
-                            //Divider(color: Colors.grey)
-                          ],
-                        ),
+                          ),
+                          //Divider(color: Colors.grey)
+                        ],
                       ),
                     ),
-                  );
-                } else {
-                  // print(snapshot.data);
-                  return (Center(
-                      child: CircularProgressIndicator(
-                          valueColor: new AlwaysStoppedAnimation<Color>(
-                              AppColors.darkpurple))));
-                }
-              });
+                  ),
+                );
+              } else {
+                // print(snapshot.data);
+                return (Center(
+                    child: CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            AppColors.darkpurple))));
+              }
+            });
     }  }
 
   Widget postsSearchDisplay() {
-   print(choiceIdx);
+    print(choiceIdx);
     if (searchResultsCaptionFuture == null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -490,7 +501,6 @@ class _SearchState extends State<Search> {
                     IsPrivate: doc['IsPrivate'],
                   );
                   if (post.userId != currentFB.uid && post.IsPrivate == false ) {
-                    //TODO: add isPublic attribute to post class
                     searchResultsPosts.add(post);
                   } else {
                     print(post.userId);
@@ -525,20 +535,20 @@ class _SearchState extends State<Search> {
                                 onTap:(){ _showMyDialog("To do: path to this post should be added");},
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(0),
-                                      child: Image.network(
-                                        searchResultsPosts
-                                            .elementAt(index)
-                                            .ImageUrlPost,
-                                        fit: BoxFit.cover,
+                                  child: Image.network(
+                                    searchResultsPosts
+                                        .elementAt(index)
+                                        .ImageUrlPost,
+                                    fit: BoxFit.cover,
 
-                                      ),
-                                        /*Text( (searchResultsPosts
+                                  ),
+                                  /*Text( (searchResultsPosts
                                             .elementAt(index).caption.length < 15) ? searchResultsPosts
                                             .elementAt(index).caption.substring(0,searchResultsPosts
                                             .elementAt(index).caption.length-1 )+"..." : searchResultsPosts
                                             .elementAt(index).caption.substring(0, 3)+"...",
                                         textAlign: TextAlign.left,)*/
-                                    ),
+                                ),
                               ),
                             );
                           } else

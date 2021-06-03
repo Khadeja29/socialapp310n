@@ -62,9 +62,9 @@ dependencies:
   url_launcher: ^6.0.4
   geocoder: ^0.2.1
 
-
-
   google_maps_webservice: ^0.0.19
+
+  avatar_letter: ^1.0.1
   cool_alert:
   flutter_search_bar:
   google_place:

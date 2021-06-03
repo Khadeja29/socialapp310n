@@ -11,19 +11,23 @@ import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
 import 'package:socialapp310/routes/uploadpic/createpost.dart';
+import 'package:socialapp310/routes/uploadpic/editpost.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geocoder/geocoder.dart';
 
 class SearchLocation extends StatefulWidget {
-  const SearchLocation({Key key, this.analytics, this.observer,this.imageFile})
+  SearchLocation({Key key, this.analytics, this.observer,this.imageFile,this.imageUrl,this.postId,this.caption})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   final File imageFile;
+  final String imageUrl;
+  final String postId;
+  var caption;
   @override
-  _SearchLocationState createState() => _SearchLocationState(imageFile);
+  _SearchLocationState createState() => _SearchLocationState(imageFile,imageUrl,postId,caption);
 }
 
 class _SearchLocationState extends State<SearchLocation> {
@@ -32,7 +36,10 @@ class _SearchLocationState extends State<SearchLocation> {
   String locationname;
   String locationMessage;
   File imageFile;
-  _SearchLocationState(this.imageFile);
+  String imageUrl;
+  String postId;
+  var caption;
+  _SearchLocationState(this.imageFile,this.imageUrl,this.postId,this.caption);
   Future<void> _setCurrentScreen() async {
     await widget.analytics.setCurrentScreen(screenName: 'Search Location Page');
     _setLogEvent();
@@ -54,7 +61,7 @@ class _SearchLocationState extends State<SearchLocation> {
   String hintText = 'Search Location';
   ValueChanged<String> onChanged;
 
-  Future<void> locationfinder(String address) async {
+  Future<void> locationfinder(String address,String placeid) async {
     var locations =  await locationFromAddress(address);
     print(locations);
     lat=(locations[0].latitude);
@@ -66,8 +73,40 @@ class _SearchLocationState extends State<SearchLocation> {
     print("${first.featureName} : ${first.addressLine}");
     locationname = ("${first.featureName} : ${first.addressLine}");
     Navigator.push(context, MaterialPageRoute<void>(
-      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long,locationname:locationname,imageFile: imageFile, ),
+      builder: (BuildContext context) =>  CreatePost(analytics: AppBase.analytics, observer: AppBase.observer, lat: lat,long: long, locationname:locationname,imageFile: imageFile, ),
     ),);
+    // locationname = ("${first.featureName} : ${first.addressLine}");
+    locationname=address;
+    if(imageUrl==null) {
+      Navigator.push(context, MaterialPageRoute<void>(
+        builder: (BuildContext context) =>
+            CreatePost(analytics: AppBase.analytics,
+                observer: AppBase.observer,
+                lat: lat,
+                long: long,
+                locationname: locationname,
+                imageFile: imageFile,
+                placeid: placeid,
+                caption: caption),
+      ),);
+    }
+    else
+    {
+      Navigator.push(context, MaterialPageRoute<void>(
+        builder: (BuildContext context) =>
+            editpost(analytics: AppBase.analytics,
+              observer: AppBase.observer,
+              lat: lat,
+              long: long,
+              locationname: locationname,
+              imageUrl: imageUrl,
+              placeid: placeid,
+              postId: postId,
+              caption: caption,
+            ),
+      ),);
+    }
+
   }
   Future<dynamic> findPlace(String placeName) async {
     // print('here');
@@ -118,30 +157,29 @@ class _SearchLocationState extends State<SearchLocation> {
         // elevation: 0.0,
       ),
       body:
-          // StreamBuilder(
-          // stream: _stream,
-          // // initialData: [],
-          // builder: (context, snapshot) {
-          //   if (snapshot.hasError) {
-          //     return Text('There was an error :(');
-          //   } else if (snapshot.hasData || snapshot.data == null) {
-          //     res != null ? print(res) : null;
-          //     print(snapshot.data);
-          //     // if(snapshot.data != null)
-          //     // print(snapshot.data.length);
-          //     return
-          (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-              Widget>[
+      // StreamBuilder(
+      // stream: _stream,
+      // // initialData: [],
+      // builder: (context, snapshot) {
+      //   if (snapshot.hasError) {
+      //     return Text('There was an error :(');
+      //   } else if (snapshot.hasData || snapshot.data == null) {
+      //     res != null ? print(res) : null;
+      //     print(snapshot.data);
+      //     // if(snapshot.data != null)
+      //     // print(snapshot.data.length);
+      //     return
+      (Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+          Widget>[
         SizedBox(
           height: 20,
         ),
         Form(
           key: _formKey,
-          child: Row(
+          child: Column(
             children: [
               Container(
-                height: 46,
-                width: 250,
+                height: 42,
                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -155,13 +193,13 @@ class _SearchLocationState extends State<SearchLocation> {
                     icon: Icon(Icons.search, color: style.color),
                     suffixIcon: text.isNotEmpty
                         ? GestureDetector(
-                            child: Icon(Icons.close, color: style.color),
-                            onTap: () {
-                              controller.clear();
-                              onChanged('');
-                              FocusScope.of(context).requestFocus(FocusNode());
-                            },
-                          )
+                      child: Icon(Icons.close, color: style.color),
+                      onTap: () {
+                        controller.clear();
+                        onChanged('');
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                    )
                         : null,
                     hintText: hintText,
                     hintStyle: style,
@@ -173,24 +211,21 @@ class _SearchLocationState extends State<SearchLocation> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top:15),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: AppColors.darkpurple,
-                  ),
-                  onPressed: () async {
-                    _formKey.currentState.save();
-                    findPlace(query);
-                    setState(() {
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    child: Text(
-                      'Search',
-                      style: kButtonDarkTextStyle,
-                    ),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: AppColors.primarypurple,
+                ),
+                onPressed: () async {
+                  _formKey.currentState.save();
+                  findPlace(query);
+                  setState(() {
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: Text(
+                    'Search',
+                    style: kButtonDarkTextStyle,
                   ),
                 ),
               ),
@@ -208,29 +243,29 @@ class _SearchLocationState extends State<SearchLocation> {
                     padding: const EdgeInsets.symmetric(),
                     child: ListView.builder(
                       itemCount:
-                          snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
                       itemBuilder: (context, index) => Column(
                         children: [
                           ListTile(
                             title:
-                                Text(snapshot.data["predictions"][index]["description"]),
+                            Text(snapshot.data["predictions"][index]["description"]),
                             leading: Icon(Icons.add_location_alt),
                             onTap:() {
                               print(snapshot.data["predictions"][index]["description"]);
-                              locationfinder(snapshot.data["predictions"][index]["description"]);
+                              locationfinder(snapshot.data["predictions"][index]["description"],snapshot.data["predictions"][index]["place_id"]);
                             },
                           ),
                           Divider(color: Colors.black)
                         ],
                       ),
                       //ItemCard(
-                       //product: snapshot.data[index],
-                       //press: () => Navigator.push(
-                         // context,
-                           //MaterialPageRoute(
-                             //builder: (context) =>
-                                // SingleProduct(id: products[index].productId),
-                           //)),
+                      //product: snapshot.data[index],
+                      //press: () => Navigator.push(
+                      // context,
+                      //MaterialPageRoute(
+                      //builder: (context) =>
+                      // SingleProduct(id: products[index].productId),
+                      //)),
                     ),
                   ),
                 );

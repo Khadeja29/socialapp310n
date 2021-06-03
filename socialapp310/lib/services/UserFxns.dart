@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:socialapp310/routes/profile/profilepage.dart';
 
 //import 'package:socialapp310/models/user.dart';
 
@@ -53,7 +54,7 @@ class UserFxns{
   }
   static Future<void> SignUpNormal(BuildContext context, String email,String password,String Bio, String FullName,
 
-       String Username ,String ProfilePicture) async {
+      String Username ,String ProfilePicture) async {
 
     Username = Username.toLowerCase();
     var isNewUser = false;
@@ -221,12 +222,27 @@ class UserFxns{
     QuerySnapshot snapshot = await getpostRef
         .where("PostUser" , isEqualTo: currentUser.uid)
         .get();
-    
+
     for(var doc in snapshot.docs){
       await getpostRef
           .doc(doc.id)
           .update({'IsPrivate': IsPriv});
     }
   }
-
+  static Future<String> getProfilePicUser(String userID) async {
+    //Call the user's CollectionReference to add a new user
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(userID)
+        .get();
+    return result.get("ProfilePic");
+  }
+  static Future<String> getUserNameUser(String userID) async {
+    //Call the user's CollectionReference to add a new user
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection('user');
+    var result = await usersCollection
+        .doc(userID)
+        .get();
+    return result.get("Username");
+  }
 }

@@ -28,28 +28,30 @@ import 'package:geocoder/geocoder.dart';
 
 import 'package:socialapp310/main.dart';
 
-class CreatePost extends StatefulWidget {
-  final File imageFile;
+class editpost extends StatefulWidget {
+  String postId;
+  String imageUrl;
   double lat;
   double long;
   var locationname;
   String placeid;
   var caption;
-  CreatePost({Key key, this.analytics, this.observer, this.imageFile,this.lat,this.long,this.locationname,this.placeid,this.caption})
+  editpost({Key key, this.analytics, this.observer, this.imageUrl,this.placeid,this.locationname,this.lat,this.long,this.postId,this.caption})
       : super(key: key);
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _CreatePost createState() => _CreatePost(imageFile,lat,long,locationname,placeid,caption);
+  _editpost createState() => _editpost(lat,long,locationname,placeid,imageUrl,postId,caption);
 }
 
 //Location Functions come here
-class _CreatePost extends State<CreatePost> {
-  File imageFile;
+class _editpost extends State<editpost> {
   var location_pic;
   var caption;
   var locationMessage;
+  String postId;
+  String imageUrl;
   String placeid;
   var locationname;
   String latitude;
@@ -57,7 +59,7 @@ class _CreatePost extends State<CreatePost> {
   double lat;
   double long;
 
-  _CreatePost(this.imageFile,this.lat,this.long,this.locationname,this.placeid,this.caption);
+  _editpost(this.lat,this.long,this.locationname,this.placeid,this.imageUrl,this.postId,this.caption);
 
   // function for getting the current location
   // but before that you need to add this permission!
@@ -66,7 +68,6 @@ class _CreatePost extends State<CreatePost> {
         desiredAccuracy: LocationAccuracy.high);
     lat = position.latitude;
     long = position.longitude;
-
 
     // passing this to latitude and longitude strings
     latitude = "$lat";
@@ -101,7 +102,6 @@ class _CreatePost extends State<CreatePost> {
     // TODO: implement initState
     super.initState();
     caption = TextEditingController();
-
   }
 
   // @override
@@ -111,22 +111,23 @@ class _CreatePost extends State<CreatePost> {
   //   caption?.dispose();
   // }
 
-  void imageuploader(String caption, File inputimageFile) {
-    String imagename = DateTime.now().millisecondsSinceEpoch.toString();
-    final Reference storageReference =
-    FirebaseStorage.instance.ref().child(imagename);
-    final UploadTask uploadTask = storageReference.putFile(inputimageFile);
-    uploadTask.then((TaskSnapshot taskSnapshot) {
-      taskSnapshot.ref.getDownloadURL().then((imageUrl) {
-        //save info to firestore
-        _saveData(imageUrl, caption);
-      });
-    }).catchError((error) {
-      Fluttertoast.showToast(
-        msg: error.toString(),
-      );
-    });
-  }
+
+  // void imageuploader(String caption, File inputimageFile) {
+  //   String imagename = DateTime.now().millisecondsSinceEpoch.toString();
+  //   final Reference storageReference =
+  //   FirebaseStorage.instance.ref().child(imagename);
+  //   final UploadTask uploadTask = storageReference.putFile(inputimageFile);
+  //   uploadTask.then((TaskSnapshot taskSnapshot) {
+  //     taskSnapshot.ref.getDownloadURL().then((imageUrl) {
+  //       //save info to firestore
+  //       _saveData(imageUrl, caption);
+  //     });
+  //   }).catchError((error) {
+  //     Fluttertoast.showToast(
+  //       msg: error.toString(),
+  //     );
+  //   });
+  // }
 
   Future<bool> checkUser()  async {
     bool privatesc;
@@ -140,7 +141,7 @@ class _CreatePost extends State<CreatePost> {
   // void newfunction ()async{
   //   print(await checkUser());
   // }
-  Future<void> _saveData(String imageUrl, String caption) async {
+  Future<void> _saveData(String caption) async {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
     String id_user = currentFB.uid;
     int num = 0;
@@ -151,18 +152,14 @@ class _CreatePost extends State<CreatePost> {
       lat=0;
       long=0;
     }
-    Map<String,bool> LikesMap = {};
-    FirebaseFirestore.instance.collection('Post').add({
-      'Image': imageUrl,
+
+    QuerySnapshot querySnap = await FirebaseFirestore.instance.collection('Post').where('Image', isEqualTo: widget.imageUrl).get();
+    QueryDocumentSnapshot doc = querySnap.docs[0];  // Assumption: the query returns only one document, THE doc you are looking for.
+    DocumentReference docRef = doc.reference;
+    docRef.update({
       'Caption': caption,
       'Location': GeoPoint(lat, long),
-      'Comment': comments,
-      'Likes': num,
-      'createdAt': Timestamp.now(),
-      'PostUser': id_user,
-      'IsPrivate': isprivate,
       'locationID': placeid,
-      'LikesMap' : LikesMap,
       'Locationname':locationname,
     });
     FirebaseFirestore.instance.collection('Locations').doc(placeid).set({
@@ -179,24 +176,33 @@ class _CreatePost extends State<CreatePost> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'New Post',
+          'Edit Post',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: AppColors.darkpurple,
         elevation: 1.0,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pushReplacementNamed(context, '/profile');
+          },
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black54,
+          ),
+        ),
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 20.0, top: 20.0),
             child: GestureDetector(
-                child: Text('Share',
+                child: Text('Update',
                     style: TextStyle(color: Colors.white, fontSize: 16.0)),
                 onTap: () {
                   //imageuploader(caption);
                   //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeFeed()), (Route<dynamic> route) => false);
 
-                  imageuploader(caption, widget.imageFile);
+                  _saveData(caption);
                   Navigator.pushNamedAndRemoveUntil(
-                      context, '/homefeed', (route) => false);
+                      context, '/profile', (route) => false);
                 }),
           )
         ],
@@ -219,7 +225,9 @@ class _CreatePost extends State<CreatePost> {
                     height: 80.0,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            fit: BoxFit.cover, image: FileImage(widget.imageFile))),
+                            fit: BoxFit.cover, image: NetworkImage(imageUrl)
+                        )
+                    ),
                   ),
                 ),
                 Expanded(
@@ -227,18 +235,19 @@ class _CreatePost extends State<CreatePost> {
                     padding: const EdgeInsets.only(left: 12.0, right: 8.0),
                     child: TextField(
                       style: TextStyle(
-                        color: Colors.white,
+                        color:Colors.white,
                       ),
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                        hintText: 'Write a caption...',
-                        hintStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        enabledBorder:  UnderlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.white,width: 1.0),
-                          borderRadius: BorderRadius.circular(1.0),
-                        ),
+                          hintText:  'Write a caption...',
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                          ),
+                          enabledBorder:  UnderlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white,width: 1.0),
+                            borderRadius: BorderRadius.circular(1.0),
+                          ),
+
                       ),
                       onChanged: ((value) {
                         setState(() {
@@ -253,31 +262,28 @@ class _CreatePost extends State<CreatePost> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextField(
-                onChanged: ((location_picx) {
-
-                }),
+                onChanged: ((location_picx) {}),
                 readOnly: true,
                 decoration: InputDecoration(
                   hintText: (locationname!=null)?'$locationname':'Press button to search for location',
                   hintStyle: TextStyle(
                     color: Colors.white,
                   ),
+                  enabledBorder:  UnderlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white,width: 1.0),
+                    borderRadius: BorderRadius.circular(1.0),
+                  ),
                   prefixIcon: IconButton(
                       icon: Icon(Icons.location_on_outlined,
                         color: Colors.red,
                       ),
                       onPressed: () => {//getCurrentLocation()
-                      Navigator.push(context, MaterialPageRoute<void>(
-                      builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,observer: AppBase.observer, imageFile: imageFile, ),
-                      ),)
+                        Navigator.push(context, MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,observer: AppBase.observer, imageUrl:imageUrl ),
+                        ),)
                       }
                       ),
-                  enabledBorder:  UnderlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white,width: 1.0),
-                    borderRadius: BorderRadius.circular(1.0),
-                  ),
                 ),
-
               ),
             ),
             SizedBox(
@@ -295,7 +301,7 @@ class _CreatePost extends State<CreatePost> {
             //     ),
             //     onPressed: () {
             //       Navigator.push(context, MaterialPageRoute<void>(
-            //         builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics, imageFile: imageFile, ),
+            //         builder: (BuildContext context) =>  SearchLocation(analytics: AppBase.analytics,imageUrl:imageUrl),
             //       ),);
             //     },
             //     child: Padding(

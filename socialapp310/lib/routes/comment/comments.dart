@@ -74,21 +74,21 @@ class CommentsState extends State<Comments> {
             height: 60,
             child: ListTile(
               contentPadding:  const EdgeInsets.only(left: 5, bottom: 5),
-            leading: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: 60,
-                minHeight: 40,
-                maxWidth: 80,
-                maxHeight: 50,
+              leading: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: 60,
+                  minHeight: 40,
+                  maxWidth: 80,
+                  maxHeight: 50,
+                ),
+                child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
+                ),
               ),
-              child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(comment.avatarUrl)
+              title: Text(comment.comment, style: TextStyle(fontSize: 14)),
+              subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
+                //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
               ),
-            ),
-            title: Text(comment.comment, style: TextStyle(fontSize: 14)),
-            subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
-            //subtitle: Text("by "+comment.username + " - "+ timeago.format(comment.timestamp.toDate()),
-            ),
             ),
           ),
           //Divider(),
@@ -99,15 +99,15 @@ class CommentsState extends State<Comments> {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-            leading:
-            Image(
-              image: AssetImage('assets/images/logo_woof.png'),
-              fit: BoxFit.cover,
-              width: 60,
-              height: 60,
-            ),
-            title: Text(comment.username),
-            subtitle:Text(comment.username + " "+ timeago.format(comment.timestamp.toDate())),
+          leading:
+          Image(
+            image: AssetImage('assets/images/logo_woof.png'),
+            fit: BoxFit.cover,
+            width: 60,
+            height: 60,
+          ),
+          title: Text(comment.username),
+          subtitle:Text(comment.username + " "+ timeago.format(comment.timestamp.toDate())),
         ),
       );
     }
@@ -144,9 +144,9 @@ class CommentsState extends State<Comments> {
                   .username != null) {
                 final product = comments[index];
                 return buildComment(product);
-                  // buildProductUser(product);
+                // buildProductUser(product);
               } //else
-                //return Text("success");
+              //return Text("success");
             },
           );
         });
@@ -158,7 +158,7 @@ class CommentsState extends State<Comments> {
     String usrName = await UserFxns.getUserName();
 
 
-     commentsRef.doc(postId).collection("postComments").add({
+    commentsRef.doc(postId).collection("postComments").add({
       "comment": commentController.text,
       "timestamp": timestamp,
       "avatarUrl": prf,
@@ -169,13 +169,11 @@ class CommentsState extends State<Comments> {
     if (isNotPostOwner) {
       activityFeedRef.doc(postOwnerId).collection('feedItems').add({
         "type": "comment",
+        "ownerId": postOwnerId,
         "commentData": commentController.text,
         "timestamp": timestamp,
-        "postId": postId,
+        "PostID": postId,
         "userId": curUser.uid,
-        "username":usrName,
-        "userProfileImg": prf,
-        "mediaUrl": postMediaUrl,
       });
     }
     commentController.clear();
@@ -184,7 +182,7 @@ class CommentsState extends State<Comments> {
     return AppBar(
       leading: GestureDetector(
         onTap: (){
-            Navigator.of(context).pop();
+          Navigator.of(context).pop();
         },
         child: Icon(
           Icons.arrow_back,

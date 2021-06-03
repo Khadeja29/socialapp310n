@@ -27,6 +27,7 @@ class _PostCardState extends State<PostCard> {
   User currentUser = FirebaseAuth.instance.currentUser;
   bool pressed = false;
   Future<QuerySnapshot> searchResultsFuture;
+  final animatorKeyBookmark = AnimatorKey<double>();
 
   String _postOwner ="";
   var _location = "Something Else";
@@ -36,16 +37,45 @@ class _PostCardState extends State<PostCard> {
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
   String displayTime;
+  bool _Bookmarked = false;
 
+  final animatorKeyLike1 = AnimatorKey<double>();
   final animatorKeyLike2 = AnimatorKey<double>();
   String _ProfPic = 'https://i.ibb.co/2sJtcNd/download.png';
   // final animatorKeyLike = AnimatorKey<double>();
-  //final animatorKeyBookmark = AnimatorKey<double>();
 
+  handleBookmark() async {
+    var results = await favoriteRef
+        .where("PostId", isEqualTo: widget.post.PostID)
+        .where("UserId", isEqualTo: currentUser.uid)
+        .get();
+    bool bookmarked;
+    if(results.docs.isNotEmpty)
+    {
+      //remove it
+      for(var result in results.docs)
+      {
+        favoriteRef
+            .doc(result.id)
+            .delete();
+      }
+      bookmarked = false;
+    }
+    else{
+      //add it
+      favoriteRef
+          .add({"PostId" : widget.post.PostID, "UserId" : currentUser.uid, "Image" : widget.post.imageURL});
+      bookmarked = true;
+    }
+    setState(() {
+      _Bookmarked = bookmarked;
+    });
+  }
   void initState() {
     // TODO: implement initState
     super.initState();
     getUserinfo();
+    setBookmark();
     var parseLocation = widget.post.location;
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
     setLocation(location1);
@@ -54,6 +84,16 @@ class _PostCardState extends State<PostCard> {
     displayTime = timeago.format(widget.post.createdAt.toDate());
   }
 
+  setBookmark() async {
+    var results = await favoriteRef
+        .where("PostId", isEqualTo: widget.post.PostID)
+        .where("UserId", isEqualTo: currentUser.uid)
+        .get();
+    setState(() {
+      _Bookmarked = results.docs.isNotEmpty;
+    });
+
+  }
   buildCommentLength() {
     return StreamBuilder(
         stream: commentsRef
@@ -72,15 +112,16 @@ class _PostCardState extends State<PostCard> {
             );
           }
           commentLen = 0;
+
           snapshot.data.docs.forEach((doc) {
             commentLen+=1;
           });
           return Text(commentLen.toString() + " comments",
-               style: TextStyle(
-              color: AppColors.darkgreyblack,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0,
-              fontFamily: 'OpenSansCondensed-Bold'),
+            style: TextStyle(
+                color: AppColors.darkgreyblack,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0,
+                fontFamily: 'OpenSansCondensed-Bold'),
           );
         });
   }
@@ -94,15 +135,22 @@ class _PostCardState extends State<PostCard> {
     var PostOwner = result.data()['Username'];
     var profPic = result.data()['ProfilePic'];
     setState(() {
-     _postOwner =PostOwner;
-     _ProfPic = profPic;
+      _postOwner =PostOwner;
+      _ProfPic = profPic;
     });
   }
   setLocation(GeoPoint location1) async {
     final coordinates = new Coordinates(location1.latitude, location1.longitude);
     var locationString = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     setState(() {
-      _location = locationString.first.addressLine;
+      if(widget.post.locationName == "temp" || widget.post.locationName == null)
+      {
+        _location = locationString.first.addressLine;
+      }
+      else {
+        _location = widget.post.locationName;
+      }
+
     });
   }
   handleDeletePost(BuildContext parentContext) {
@@ -162,27 +210,52 @@ class _PostCardState extends State<PostCard> {
   }
 
   setUpLikes() async{
-    setState(() {
-      isLiked = widget.post.LikesMap[currentUser.uid] == true ;
-      if (widget.post.LikesMap == null) {
-        likeCount = 0;
-      }
-      else{
-        int count = 0;
-        widget.post.LikesMap.values.forEach((val) {
-          if (val == true) {
-            count += 1;
+    isLiked = widget.post.LikesMap[currentUser.uid] == true ;
+    int count = 0;
+    List<String> KeysToRemove = [];
+    _Likesmap = widget.post.LikesMap;
+    if (widget.post.LikesMap == null) {
+     count = 0;
+    }
+    else{
+      for(var key in widget.post.LikesMap.keys)
+      {
+        await usersRef
+            .doc(key)
+            .get()
+            .then((doc) {
+          if (!doc.exists) {
+            KeysToRemove.add(doc.id);
+
           }
         });
-        likeCount = count;
       }
+      for(var key in KeysToRemove)
+      {
+        _Likesmap.remove(key);
+      }
+      getpostRef.doc(widget.post.PostID).update({'LikesMap': _Likesmap});
+      widget.post.LikesMap.values.forEach((val) {
+        if (val == true) {
+          count += 1;
+        }
+      });
+
+    }
+    setState(() {
+      likeCount = count;
       _Likesmap = widget.post.LikesMap;
 
     });
   }
 
   handleLikePost(String userID) async {
-
+    animatorKeyLike1.refreshAnimation(
+        tween: Tween<double>(begin: 0, end: 32),//new tween
+        duration : Duration(milliseconds: 500),
+        curve : Curves.elasticOut,
+        cycles : 1
+    );
     bool _isLiked = _Likesmap[currentUser.uid] == true;
     if (_isLiked) {  //already liked, current user unlikes post
       getpostRef
@@ -190,16 +263,16 @@ class _PostCardState extends State<PostCard> {
           .update({'LikesMap.${currentUser.uid}': false}); //update post likes inpost collection
       //removeLikeFromActivityFeed();
       if(widget.post.UserID != currentUser.uid) //if unliked by current user who is not the owner
-      {
+          {
         var toDelete =  await activityFeedRef //from notification collection
             .doc(widget.post.UserID) //find the user in notifications who owns the post
             .collection('feedItems')
             .where('PostID', isEqualTo: widget.post.PostID) //get all notififcations with this post ID from owner
             .get();
         for(var notif in toDelete.docs) //for each notification
-        {
+            {
           if(notif.data()["userId"] == currentUser.uid) //inside notfi use userID and compare to current user who unliked it/so remove only his like
-          {
+              {
             activityFeedRef
                 .doc(widget.post.UserID) //go to that userID and delete that Object with Postid returned
                 .collection('feedItems')
@@ -212,7 +285,7 @@ class _PostCardState extends State<PostCard> {
       setState(() {
         print("subtract 1");
         likeCount -= 1;
-
+        animatorKeyLike1.triggerAnimation(restart:  true);
         isLiked = false;
         _Likesmap[currentUser.uid] = false;
       });
@@ -226,6 +299,7 @@ class _PostCardState extends State<PostCard> {
             .doc(widget.post.UserID) //find the notifications of post owner
             .collection('feedItems')
             .add({  //add notification
+          "commentData" : "",
           "PostID": widget.post.PostID,
           "type": "like",
           "ownerId": widget.post.UserID,
@@ -242,7 +316,7 @@ class _PostCardState extends State<PostCard> {
         isLiked = true;
         _Likesmap[currentUser.uid] = true;
         animatorKeyLike2.triggerAnimation(restart: true);
-
+        animatorKeyLike1.triggerAnimation(restart:  true);
         // showHeart = true;
       });
       // Timer(Duration(milliseconds: 500), () {
@@ -251,7 +325,7 @@ class _PostCardState extends State<PostCard> {
       //   });
       // });
     }
-    //animatorKeyLike.triggerAnimation(restart:  true);
+
 
   }
 
@@ -357,49 +431,49 @@ class _PostCardState extends State<PostCard> {
 
               Stack(
                   alignment: Alignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return DetailScreenLink(
-                          ImageUrlPost: widget.post.imageURL,
-                        );
-                      }));
-                    },
-                    onDoubleTap: (){handleLikePost(widget.post.PostID);},
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8,5,5,8),
-                      child: Container(
-                        height: (MediaQuery.of(context).size.width)-70,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(widget.post.imageURL),
-                            fit: BoxFit.cover  ,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return DetailScreenLink(
+                            ImageUrlPost: widget.post.imageURL,
+                          );
+                        }));
+                      },
+                      onDoubleTap: (){handleLikePost(widget.post.PostID);},
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8,5,5,8),
+                        child: Container(
+                          height: (MediaQuery.of(context).size.width)-70,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(widget.post.imageURL),
+                              fit: BoxFit.cover  ,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Animator<double>(
-                    tween: Tween<double>(begin: 0, end: 200),
-                    cycles: 2,
-                    animatorKey: animatorKeyLike2,
-                    triggerOnInit: false,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.bounceIn,
+                    Animator<double>(
+                      tween: Tween<double>(begin: 0, end: 200),
+                      cycles: 2,
+                      animatorKey: animatorKeyLike2,
+                      triggerOnInit: false,
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.bounceIn,
 
-                    builder: (context, animatorState, child ) => Center(
-                        child:  isLiked ? Icon(
-                          Icons.favorite,
-                          color: Colors.pink.withOpacity(0.7),
-                          size: animatorState.value,)
-                            : Icon(
-                          Icons.favorite_border_outlined,
-                          color: Colors.pink,
-                          size:animatorState.value,
-                        )
-                    ),
-                  ),]
+                      builder: (context, animatorState, child ) => Center(
+                          child:  isLiked ? Icon(
+                            Icons.favorite,
+                            color: Colors.pink.withOpacity(0.7),
+                            size: animatorState.value,)
+                              : Icon(
+                            Icons.favorite_border_outlined,
+                            color: Colors.pink,
+                            size: animatorState.value,
+                          )
+                      ),
+                    ),]
               ),
               Divider(
                 color: AppColors.lightgrey,
@@ -499,29 +573,64 @@ class _PostCardState extends State<PostCard> {
                     ),
                     Row(
                       children: [
-                        IconButton(
+                        Animator<double>(
+                          tween: Tween<double>(begin: 0, end: 32),
+                          cycles: 1,
+                          animatorKey: animatorKeyLike1,
+                          triggerOnInit: true,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.decelerate,
+                          builder: (context, animatorState, child ) => Center(
+                            child: IconButton(
                                 icon: isLiked ? Icon(
                                   Icons.favorite,
                                   color: Colors.pink,
-                                  size: 28,)
+                                  size: animatorState.value,)
                                     : Icon(
                                   Icons.favorite_border_outlined,
                                   color: Colors.pink,
-                                  size: 28,
+                                  size: animatorState.value,
                                 )
                                 , onPressed: () async {
-                                  await handleLikePost(widget.post.PostID);
-                                }),
+                              await handleLikePost(widget.post.PostID);
+                            }),
+                          ),
+                        ),
 
+                        Animator<double>(
+                          tween: Tween<double>(begin: 0, end: 32),
+                          cycles: 1,
+                          animatorKey: animatorKeyBookmark,
+                          triggerOnInit: true,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.decelerate,
+                          builder: (context, animatorState, child ) => Center(
+                            child: GestureDetector(
+                                onTap: () {
+                                  animatorKeyBookmark.triggerAnimation(restart:  true);
+                                  handleBookmark(); },//todo add to favorites
+                                child: _Bookmarked ? Icon(
+                                  Icons.bookmark,
+                                  size: animatorState.value,
+                                  color: Colors.blue[900],
+                                ) : Icon(
+                                  Icons.bookmark_border,
+                                  size: animatorState.value,
+                                  color: Colors.blue[900],
+                                )
+                            ),
+                          ),
+                        ),
                         IconButton(
                           padding: EdgeInsets.all(0.0),
                           splashRadius: 25,
                           onPressed: () {
-                          Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
-                              analytics: AppBase.analytics,
-                              observer: AppBase.observer)),);},
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Comments(postId: widget.post.PostID, postOwnerId:  widget.post.UserID, postMediaUrl: widget.post.imageURL,
+                                  analytics: AppBase.analytics,
+                                  observer: AppBase.observer)),);},
+
                           icon: Icon(
                             Icons.chat_bubble_outline,
                             size: 30.0,

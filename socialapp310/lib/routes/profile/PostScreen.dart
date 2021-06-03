@@ -10,14 +10,17 @@ import 'package:geocoder/geocoder.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/user1.dart';
 import 'package:socialapp310/routes/comment/comments.dart';
+import 'package:socialapp310/routes/favourites/favourites.dart';
 import 'package:socialapp310/routes/homefeed/postCard.dart';
-import 'package:socialapp310/routes/profile/userList.dart';
-import 'package:socialapp310/routes/welcome.dart';
-import 'package:socialapp310/services/UserFxns.dart';
+import 'package:socialapp310/routes/uploadpic/editpost.dart';
+
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/models/Post1.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
 final usersRef = FirebaseFirestore.instance.collection('user');
+final commentsRef = FirebaseFirestore.instance.collection('comments');
 
 class PostScreen extends StatefulWidget {
   final String userId;
@@ -42,6 +45,7 @@ class _PostScreenState extends State<PostScreen> {
   Map<String,dynamic> _Likesmap;
   bool _Bookmarked = false;
   bool _isFlagged = false;
+  int commentLen = 0;
   final animatorKeyLike = AnimatorKey<double>();
   final animatorKeyLike2 = AnimatorKey<double>();
   final animatorKeyBookmark = AnimatorKey<double>();
@@ -50,7 +54,12 @@ class _PostScreenState extends State<PostScreen> {
     return AppBar(
       leading: GestureDetector(
         onTap: (){
-          if(widget.userId != currentUser.uid)
+          if(widget.index == 100)
+          {
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                builder: (context) => Favourites()), (route) => route.isFirst);
+          }
+          else if(widget.userId != currentUser.uid)
           {
             Navigator.pushAndRemoveUntil(context,MaterialPageRoute(
                 builder: (context) =>
@@ -92,7 +101,42 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  buildPostHeader(String userId)  {
+  buildCommentLength() {
+    return StreamBuilder(
+        stream: commentsRef
+            .doc(widget.postId)
+            .collection('postComments')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(child: CircularProgressIndicator(),
+                  height: 20,
+                  width: 20,),
+              ],
+            );
+          }
+          commentLen = 0;
+          snapshot.data.docs.forEach((doc) {
+            commentLen+=1;
+          });
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(15,0,0,0),
+            child: Text(commentLen.toString() + " comments",
+              style: TextStyle(
+                  color: AppColors.darkgreyblack,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  letterSpacing: 0,
+                  fontFamily: 'OpenSansCondensed-Bold'),
+            ),
+          );
+        });
+  }
+
+  buildPostHeader(String userId ,String imageURL)  {
     return FutureBuilder(
       future: _listFuture2,
       builder: (context, docsnap) {
@@ -173,6 +217,9 @@ class _PostScreenState extends State<PostScreen> {
               if (value == "Edit")
               {
                 //TODO: Edit post
+                Navigator.push(context, MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>  editpost(imageUrl: imageURL,postId: widget.postId,),
+                ),);
               }
               else if (value == "Delete")
               {
@@ -298,7 +345,7 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  buildPostFooter(String userId, String caption, int likes , String imageURL) {
+  buildPostFooter(String userId, String caption, int likes , String imageURL, String time) {
     return FutureBuilder(
         future: _listFuture2,
         builder: (context, docsnap) {
@@ -349,13 +396,14 @@ class _PostScreenState extends State<PostScreen> {
                           padding: EdgeInsets.only(top: 40.0, left: 5.0)
                       ),
                       GestureDetector(
+
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => Comments(postId: widget.postId, postOwnerId:  userId, postMediaUrl: imageURL,
                                 analytics: AppBase.analytics,
                                 observer: AppBase.observer)),);
-                        },//todo push comment page
+                        },
                         child: Icon(
                           Icons.chat_bubble_outline_sharp,
                           size: 26.0,
@@ -426,11 +474,12 @@ class _PostScreenState extends State<PostScreen> {
                       "${likeCount} likes",
                       style: TextStyle(
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
                       ),
                     ),
                   ),
+                  buildCommentLength(),
                 ],
               ),
               SizedBox(height: 5),
@@ -444,7 +493,7 @@ class _PostScreenState extends State<PostScreen> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -457,6 +506,21 @@ class _PostScreenState extends State<PostScreen> {
                     ),
                   )
                   )
+
+                ],
+              ),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15,20, 0, 0),
+                    child: Text(
+                      time,
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -542,6 +606,7 @@ class _PostScreenState extends State<PostScreen> {
             .doc(widget.userId)
             .collection('feedItems')
             .add({
+          "commentData" : "",
           "PostID": widget.postId,
           "type": "like",
           "ownerId": widget.userId,
@@ -596,24 +661,52 @@ class _PostScreenState extends State<PostScreen> {
         .get();
     var parseLocation = result.data()['Location'];
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
+    if(result.data()['Locationname'] != null)
+    {
+      setState(() {
+        _locationString = result.data()['Locationname'];
+      });
+    }
+    else {
+      setLocation(location1);
+    }
 
-    setLocation(location1);
-    setState(() {
-      isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
-      if (result.data()['LikesMap'] == null) {
-        likeCount = 0;
-      }
-      else{
-        int count = 0;
-        result.data()['LikesMap'].values.forEach((val) {
-          if (val == true) {
-            count += 1;
+
+    isLiked = result.data()['LikesMap'][currentUser.uid] == true ;
+    int count = 0;
+    List<String> KeysToRemove = [];
+    _Likesmap = result.data()['LikesMap'];
+    if (_Likesmap == null) {
+      count = 0;
+    }
+    else{
+      for(var key in _Likesmap.keys)
+      {
+        await usersRef
+            .doc(key)
+            .get()
+            .then((doc) {
+          if (!doc.exists) {
+            KeysToRemove.add(doc.id);
+          }
+          else{
+            if(_Likesmap[doc.id] == true)
+            {
+              count++;
+            }
           }
         });
-        likeCount = count;
       }
+      for(var key in KeysToRemove)
+      {
+        _Likesmap.remove(key);
+      }
+      getpostRef.doc(widget.postId).update({'LikesMap': _Likesmap});
 
-      _Likesmap = result.data()['LikesMap'];
+    }
+    setState(() {
+      likeCount = count;
+      _Likesmap = _Likesmap;
     });
     return result;
   }
@@ -650,7 +743,7 @@ class _PostScreenState extends State<PostScreen> {
                   valueColor: new AlwaysStoppedAnimation<Color>(
                       AppColors.primarypurple)));
         }
-        print(snapshot.data);
+        //print(snapshot.data);
         Post1 post = Post1(
             caption: snapshot.data["Caption"],
             imageURL: snapshot.data["Image"],
@@ -669,10 +762,10 @@ class _PostScreenState extends State<PostScreen> {
             body: ListView(
               children: <Widget>[
                 SizedBox(height: 5),
-                buildPostHeader(widget.userId),
+                buildPostHeader(widget.userId , post.imageURL),
                 SizedBox(height: 5),
                 buildPostImage(post.imageURL),
-                buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL)
+                buildPostFooter(widget.userId, post.caption, post.likes, post.imageURL,timeago.format(post.createdAt.toDate()))
               ],
             ),
           ),
