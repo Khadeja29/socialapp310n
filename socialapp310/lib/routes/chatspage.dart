@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:socialapp310/models/user.dart';
 import 'package:socialapp310/routes/chatpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socialapp310/services/DataController.dart';
 import 'package:socialapp310/utils/color.dart';
 import 'package:socialapp310/utils/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart' as FBauth;
+import 'package:get/get.dart';
+import 'package:socialapp310/services/DataController.dart';
+import 'package:socialapp310/routes/chatsearch.dart';
 
 String Username =  FBauth.FirebaseAuth.instance.currentUser.uid;
 
@@ -17,6 +21,8 @@ class ChatsPage extends StatefulWidget {
 
 class _ChatsPageState extends State<ChatsPage> {
 
+
+
   @override
   void initState() {
 
@@ -26,39 +32,50 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+
+
+
     return Scaffold(
         backgroundColor: AppColors.lightgrey,
-        appBar: AppBar(
-          elevation: 8,
+      appBar: AppBar(
+        elevation: 8,
 
-          backgroundColor: AppColors.darkpurple,
-          centerTitle: true,
-          title: Text(
-            "Inbox",
-            style: kAppBarTitleTextStyle,
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search),
-              color: Colors.white,
-              onPressed: (){},
-            )
-          ],
+        backgroundColor: AppColors.darkpurple,
+        centerTitle: true,
+        title: Text(
+          "Inbox",
+          style: kAppBarTitleTextStyle,
         ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('user').snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return ListView.builder(
-                itemBuilder: (listContext, index) =>
-                    buildItem(snapshot.data.docs[index]),
-                itemCount: snapshot.data.docs.length,
-              );
-            }
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            color: Colors.white,
+            onPressed: (){
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ChatSearch()));
+            },
+          )
+        ],
+      ),
 
-            return Container();
-          },
-        ));
+        body:
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('user').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return ListView.builder(
+                    itemBuilder: (listContext, index) =>
+                        buildItem(snapshot.data.docs[index]),
+                    itemCount: snapshot.data.docs.length,
+                  );
+                }
+
+                return Container();
+              },
+            ),
+
+
+    );
   }
 
   buildItem(doc) {
