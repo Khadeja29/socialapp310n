@@ -36,7 +36,7 @@ class _PostCardState extends State<PostCard> {
   int commentLen = 0;
   int likeCount = 0;
   Map<String,dynamic> _Likesmap;
-  String displayTime;
+  String displayTime = "";
   bool _Bookmarked = false;
 
   final animatorKeyLike1 = AnimatorKey<double>();
@@ -74,16 +74,19 @@ class _PostCardState extends State<PostCard> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _setupall();
+  }
+
+  _setupall() async{
     getUserinfo();
     setBookmark();
     var parseLocation = widget.post.location;
     var location1 = GeoPoint(parseLocation.latitude, parseLocation.longitude);
-    setLocation(location1);
+    await setLocation(location1);
     _isPostOwner = currentUser.uid == widget.post.UserID;
     setUpLikes();
     displayTime = timeago.format(widget.post.createdAt.toDate());
   }
-
   setBookmark() async {
     var results = await favoriteRef
         .where("PostId", isEqualTo: widget.post.PostID)

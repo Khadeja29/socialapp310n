@@ -27,21 +27,48 @@ class Favourites extends StatefulWidget {
 class _FavoriteState extends State<Favourites> {
   Future<QuerySnapshot> searchResultsFuture;
   int _selectedIndex;
-
-  Future<QuerySnapshot> getFavInfo() {
+  List<Favorites> searchResults = [];
+  Future<QuerySnapshot> getFavInfo() async {
     //Call the user's CollectionReference to add a new user
     User currentFB = FirebaseAuth.instance.currentUser;
-    CollectionReference usersCollection =
+    CollectionReference FavCollection =
         FirebaseFirestore.instance.collection('Favorites');
-    return usersCollection.where("UserId", isEqualTo: currentFB.uid).get();
+    var results = await FavCollection.where("UserId", isEqualTo: currentFB.uid).get();
+
+    List<Favorites> _searchResults = [];
+    Favorites fav;
+    for (var doc in results.docs) {
+      fav = Favorites(
+          Image: doc["Image"],
+          UserId: doc["UserId"],
+          PostId: doc["PostId"]);
+
+      if(await PostIdExists(doc["PostId"]))
+      {
+        _searchResults.add(fav);
+      }
+      else {
+        FavCollection.doc(doc.id).delete();
+      }
+  }
+    setState(() {
+      searchResults = _searchResults;
+    });
+    return results;
   }
 
   @override
   void initState() {
     super.initState();
-    getFavInfo();
+    searchResultsFuture = getFavInfo();
   }
 
+  Future<bool> PostIdExists(String postID) async
+  {
+    bool exists = false;
+    var result = await getpostRef.doc(postID).get().then((value) => exists = value.exists);
+    return exists;
+  }
   void _onItemTapped(int index) {
     setState(() {
       print(index);
@@ -83,7 +110,7 @@ class _FavoriteState extends State<Favourites> {
           ),
       ),
       body: FutureBuilder(
-          future: getFavInfo(),
+          future: searchResultsFuture,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Text('There was an error :(');
@@ -91,19 +118,6 @@ class _FavoriteState extends State<Favourites> {
             else if (snapshot.hasData ) {
               if(snapshot.data.docs != [])
               {
-                print('here');
-                print(snapshot.data.docs);
-                List<Favorites> searchResults = [];
-                Favorites fav;
-                for (var doc in snapshot.data.docs) {
-                  fav = Favorites(
-                      Image: doc["Image"],
-                      UserId: doc["UserId"],
-                      PostId: doc["PostId"]);
-                  searchResults.add(fav);
-                }
-
-
                 return SingleChildScrollView(
                   child: Column(
                     children: <Widget>[
@@ -144,28 +158,22 @@ class _FavoriteState extends State<Favourites> {
                 );
               }
               else {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      child: CircularProgressIndicator(),
-                      height: 20,
-                      width: 20,
-                    ),
-                  ],
+                return Container(
+                  child: Center(
+                    child: CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            AppColors.primarypurple)),
+                  ),
                 );
               }
             }
             else {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    child: CircularProgressIndicator(),
-                    height: 20,
-                    width: 20,
-                  ),
-                ],
+              return Container(
+                child: Center(
+                  child: CircularProgressIndicator(
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          AppColors.primarypurple)),
+                ),
               );
             }
           }),
