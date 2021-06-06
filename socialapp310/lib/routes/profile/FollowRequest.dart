@@ -1,3 +1,4 @@
+import 'package:animator/animator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -29,6 +30,7 @@ class FollowReq extends StatefulWidget {
 class _FollowReqState extends State<FollowReq> {
   List<User1> _userRequests = [];
   Future<DocumentSnapshot> _listFuture;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -37,6 +39,7 @@ class _FollowReqState extends State<FollowReq> {
   }
 
   Future<DocumentSnapshot> getRequests() async{
+    print(widget.UID);
     var snapshot = await followrequestRef
                 .doc(widget.UID)
                 .collection("requests")
@@ -47,6 +50,7 @@ class _FollowReqState extends State<FollowReq> {
       docsnap = await usersRef
                 .doc(doc.id)
                 .get();
+      print(doc.id);
       User1 user = User1(
           UID: docsnap.id,
           username: docsnap['Username'],
@@ -66,7 +70,7 @@ class _FollowReqState extends State<FollowReq> {
         GestureDetector(
           child: Card(
             color: Colors.white,
-              margin: EdgeInsets.symmetric(horizontal: 8.0),
+              margin: EdgeInsets.symmetric(horizontal: 0.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -145,123 +149,149 @@ class _FollowReqState extends State<FollowReq> {
   }
 
   _buildRequestNew(User1 user, int index) {
-    return Column(
-      children: [
-        GestureDetector(
-          child: Card(
-            clipBehavior: Clip.hardEdge,
-            color:  Colors.white,
+    final animatorKey = AnimatorKey<double>();
 
-            shape: StadiumBorder(
-              side: BorderSide(
-                color: Colors.brown ,
-                width: 3,
-              ),
-            ),
-            margin: EdgeInsets.symmetric(horizontal: 2.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+    return Animator<double>(
+      tween: Tween<double>(begin: 65, end: 0),
+      cycles: 1,
+      animatorKey: animatorKey,
+      triggerOnInit: false,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInBack,
+      builder: (context, animatorState, child ) => Container(
 
-                  Row(
-                    children: [
-                      SizedBox(width: 5,),
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(user.ProfilePic),
-                        radius: 25,
-                      ),
-                      SizedBox(width: 8,),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+        height: animatorState.value,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 66,
+              child: GestureDetector(
+                child: Card(
+                  clipBehavior: Clip.hardEdge,
+                  color:  Colors.white,
 
-                        children: [
-                          Text(
-                              "@${user.username}",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: AppColors.darkpurple,
-                                fontWeight: FontWeight.bold,
-                              )
-                          ),
-                          SizedBox(height: 3,),
-                          Text("${user.email}",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.normal,
-                              ))
-                        ],
-                      ),
-                    ],
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: AppColors.darkpurple ,
+                      width: 1,
+                    ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                          alignment : Alignment.centerRight,
-                          padding: const EdgeInsets.all(0.0),
-                          icon: ImageIcon(AssetImage("assets/images/times-solid.png"),color: Colors.red,),
-                          splashColor: AppColors.peachpink ,
-                          splashRadius: 0.1,
-                          onPressed: () async
-                          {
-                            await followrequestRef
-                                .doc(widget.UID)
-                                .collection("requests")
-                                .doc(user.UID)
-                                .delete();
-                            setState(() {
-                              _userRequests.removeAt(index );
-                            });
+                  margin: EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 5,),
+                               CircleAvatar(
+                                backgroundImage: NetworkImage(user.ProfilePic),
+                                radius: 25,
+                              ) ,
+                              SizedBox(width: 8,),
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                          "@${user.username}",
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: AppColors.darkpurple,
+                                            fontWeight: FontWeight.bold,
+                                          )
+                                      ),
+                                    ),
+                                    Flexible(child: SizedBox(height: 2,)),
+                                    Flexible(
+                                      child: Text("${user.email}",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.normal,
+                                          )),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                                alignment : Alignment.centerRight,
+                                padding: const EdgeInsets.all(0.0),
+                                icon: ImageIcon(AssetImage("assets/images/times-solid.png"),color: Colors.red,),
+                                splashColor: AppColors.peachpink ,
+                                splashRadius: 0.1,
+                                onPressed: () async
+                                {
+
+                                  animatorKey.triggerAnimation();
+
+                                  await followrequestRef
+                                      .doc(widget.UID)
+                                      .collection("requests")
+                                      .doc(user.UID)
+                                      .delete();
 
 
-                          },
-                      ),
+                                },
+                            ),
 
-                      IconButton(
-                        padding: const EdgeInsets.all(0.0),
-                        alignment : Alignment.center,
-                        icon: ImageIcon(AssetImage("assets/images/check-solid(1).png"),color: Colors.green,),
-                        splashColor: AppColors.peachpink ,
-                        splashRadius: 0.1,
-                        onPressed: () async {
-                          await followrequestRef
-                              .doc(widget.UID)
-                              .collection("requests")
-                              .doc(user.UID)
-                              .delete();
+                            IconButton(
+                              padding: const EdgeInsets.all(0.0),
+                              alignment : Alignment.center,
+                              icon: ImageIcon(AssetImage("assets/images/check-solid(1).png"),color: Colors.green,),
+                              splashColor: AppColors.peachpink ,
+                              splashRadius: 0.1,
+                              onPressed: () async {
+                                animatorKey.triggerAnimation();
 
-                          followersRef
-                              .doc(widget.UID)
-                              .collection("userFollowers")
-                              .doc(user.UID)
-                              .set({});
+                                await followrequestRef
+                                    .doc(widget.UID)
+                                    .collection("requests")
+                                    .doc(user.UID)
+                                    .delete();
 
-                          followingRef
-                              .doc(user.UID)
-                              .collection("userFollowing")
-                              .doc(widget.UID)
-                              .set({});
+                                followersRef
+                                    .doc(widget.UID)
+                                    .collection("userFollowers")
+                                    .doc(user.UID)
+                                    .set({});
 
-                          setState(() {
-                            _userRequests.removeAt(index );
-                          });
-                          },
-                      ),
+                                followingRef
+                                    .doc(user.UID)
+                                    .collection("userFollowing")
+                                    .doc(widget.UID)
+                                    .set({});
 
 
-                    ],
-                  )
+                                },
+                            ),
 
-                ],
+
+                          ],
+                        )
+
+                      ],
+                    ),
+                  ),
+                ),
+                onTap: () => {},
               ),
             ),
-          ),
-          onTap: () => {},
+            Expanded(flex:5,  child: Divider(height: 5, thickness: 5, color: Colors.transparent,))
+          ],
         ),
-        Divider(height: 5, thickness: 5, color: Colors.transparent,)
-      ],
+      ),
     );
   }
   @override
@@ -274,10 +304,9 @@ class _FollowReqState extends State<FollowReq> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: <Color>[
-                    Colors.pink[100],
-                    Colors.pink[600],
-                    Colors.pink[200],
-                    Colors.pink[700]
+                    Colors.white,
+                    Colors.white,
+
                   ], // red to yellow
                   tileMode: TileMode.repeated, // repeats the gradient over the canvas
                 ),
@@ -314,10 +343,11 @@ class _FollowReqState extends State<FollowReq> {
                   clipBehavior: Clip.hardEdge,
                   color: Colors.white,
                   shadowColor: AppColors.peachpink,
+                  margin: EdgeInsets.symmetric(horizontal: 8),
                   shape: StadiumBorder(
                     side: BorderSide(
-                      color: Colors.brown  ,
-                      width: 2,
+                      color: AppColors.darkpurple  ,
+                      width: 1,
                     ),
                   ),
                   child: Padding(
@@ -332,7 +362,7 @@ class _FollowReqState extends State<FollowReq> {
                         SizedBox(width: 10,),
                         Text("@${widget.Username}",
                           style: TextStyle(
-                              fontSize: 25,
+                              fontSize: 20,
                               color: Colors.black
                           ),
                         )
@@ -340,7 +370,7 @@ class _FollowReqState extends State<FollowReq> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5,),
+                SizedBox(height: 30,),
                 FutureBuilder(
                   future: _listFuture,
                   builder:(BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
