@@ -26,6 +26,7 @@ class ActivityFeed extends StatefulWidget {
 }
 
 class _ActivityFeedState extends State<ActivityFeed> {
+  List<ActivityFeedItem> _feedItems = [];
   String userProf, userName;
   FBauth.User currentUser =  FBauth.FirebaseAuth.instance.currentUser;
   Future<void> _setCurrentScreen() async {
@@ -44,11 +45,12 @@ class _ActivityFeedState extends State<ActivityFeed> {
   }
   @override
 
-  //Future<DocumentSnapshot> _listFuture1;
+  Future _listFuture1;
   void initState() {
     super.initState();
-    //_listFuture1 = getActivityFeed();
+    _listFuture1 = getActivityFeed();
     _setCurrentScreen();
+
   }
 
   int _selectedIndex = 3;
@@ -107,6 +109,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
           userId: doc['userId'],
           type: doc['type'],
           postId: doc['PostID'],
+          feedId: doc.id,
           commentData: map.containsKey('commentData') ? doc['commentData']: "",
           timestamp: doc['timestamp'],
           userProfileImg: userProf,
@@ -124,6 +127,9 @@ class _ActivityFeedState extends State<ActivityFeed> {
 
     }
     //sleep(const Duration(seconds: 10));
+    setState(() {
+      _feedItems = feedItems;
+    });
     return  feedItems;
   }
   AppBar header(context, {bool isAppTitle = false, String titleText, removeBackButton = false}) {
@@ -174,46 +180,60 @@ class _ActivityFeedState extends State<ActivityFeed> {
   }
 
 
-   Widget buildFeed(ActivityFeedItem feedItem){
+   Widget buildFeed(ActivityFeedItem feedItem , int index){
+
     String pic = feedItem.userProfileImg, usr = feedItem.username;
     configureMediaPreview(context, feedItem);
-    return Padding(
-      padding: EdgeInsets.only(bottom: 2.0),
-      child: Container(
-        color: Colors.white54,
-        child: ListTile(
-          title: GestureDetector(
-            onTap: () =>  {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: feedItem.userId, index: 1),
-              ),)
-            },
-            child: RichText(
-              overflow: TextOverflow.ellipsis,
-              text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.black,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: usr.toString(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
+
+
+    return Dismissible(
+      background: Container(color: Colors.purple[100],),
+      key: Key(feedItem.feedId),
+      onDismissed: (DismissDirection direction) async {
+        await activityFeedRef.doc(currentUser.uid).collection("feedItems").doc(feedItem.feedId).delete();
+        setState(() {
+          _feedItems.removeAt(index);
+        });
+      },
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 2.0),
+        child: Container(
+          color: Colors.white54,
+          child: ListTile(
+            tileColor: Colors.white,
+            title: GestureDetector(
+              onTap: () =>  {
+                Navigator.push(context, MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>  ProfileScreen(analytics: AppBase.analytics, observer: AppBase.observer, UID: feedItem.userId, index: 1),
+                ),)
+              },
+              child: RichText(
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.black,
                     ),
-                    TextSpan(
-                      text: ' $activityItemText',
-                    ),
-                  ]),
+                    children: [
+                      TextSpan(
+                        text: usr.toString(),
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: ' $activityItemText',
+                      ),
+                    ]),
+              ),
             ),
+            leading: CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(pic.toString()),
+            ),
+            subtitle: Text(
+              timeago.format(feedItem.timestamp.toDate()),
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: mediaPreview,
           ),
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(pic.toString()),
-          ),
-          subtitle: Text(
-            timeago.format(feedItem.timestamp.toDate()),
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: mediaPreview,
         ),
       ),
     );
@@ -222,50 +242,57 @@ class _ActivityFeedState extends State<ActivityFeed> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: header(context, titleText: "Activity Feed"),
-      body: Container(
-          child: FutureBuilder(
-            future: getActivityFeed(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return  Center(
-                  child: SizedBox(child: CircularProgressIndicator(
-                      valueColor: new AlwaysStoppedAnimation<Color>(
-                          AppColors.primarypurple))),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        image: DecorationImage(image : AssetImage('assets/images/logo_woof.png')),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: header(context, titleText: "Activity Feed"),
+        body: Container(
+            child: FutureBuilder(
+              future: _listFuture1,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return  Center(
+                    child: SizedBox(child: CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            AppColors.primarypurple))),
+                  );
+                }
+                return ListView.builder(
+                  itemCount: _feedItems.length,
+                  // ignore: missing_return
+                  itemBuilder: (context, index)  {
+                     return  buildFeed(_feedItems[index], index);
+                    }
                 );
-              }
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                // ignore: missing_return
-                itemBuilder: (context, index)  {
-                   return  buildFeed(snapshot.data[index]);
-                  }
-              );
-            },
-          )),
-      bottomNavigationBar: BottomNavigationBar(
-        iconSize: 30,
-        backgroundColor: AppColors.darkpurple,
-        selectedItemColor: AppColors.peachpink,
-        unselectedItemColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Create"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border_outlined),
-              label: "Notifications"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+              },
+            )),
+        bottomNavigationBar: BottomNavigationBar(
+          iconSize: 30,
+          backgroundColor: AppColors.darkpurple,
+          selectedItemColor: AppColors.peachpink,
+          unselectedItemColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined), label: "Home"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.search), label: "Search"),
+            BottomNavigationBarItem(icon: Icon(Icons.add), label: "Create"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.favorite_border_outlined),
+                label: "Notifications"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person), label: "Profile"),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }
@@ -283,9 +310,11 @@ class ActivityFeedItem{
   String commentData;
   String mediaUrl;
   Timestamp timestamp;
+  String feedId;
 
   ActivityFeedItem({
     this.username,
+    this.feedId,
     this.userId,
     this.type,
     this.postId,

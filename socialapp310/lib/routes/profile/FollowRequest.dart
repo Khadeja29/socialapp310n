@@ -198,21 +198,22 @@ class _FollowReqState extends State<FollowReq> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
 
                                   children: [
-                                    Flexible(
+                                    Expanded(
+                                      flex:1,
                                       child: Text(
                                           "@${user.username}",
                                           style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 16,
                                             color: AppColors.darkpurple,
                                             fontWeight: FontWeight.bold,
                                           )
                                       ),
                                     ),
-                                    Flexible(child: SizedBox(height: 2,)),
-                                    Flexible(
+                                    SizedBox(height: 3,),
+                                    Expanded(
                                       child: Text("${user.email}",
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 13,
                                             color: Colors.black87,
                                             fontWeight: FontWeight.normal,
                                           )),

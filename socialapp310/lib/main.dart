@@ -32,6 +32,7 @@ import 'package:socialapp310/routes/settings/password.dart';
 import 'package:socialapp310/routes/searchlocation/searchlocation.dart';
 import 'package:socialapp310/routes/profile/PostScreen.dart';
 import 'package:socialapp310/routes/profile/FollowRequest.dart';
+import 'package:socialapp310/utils/color.dart';
 
 
 void main() {
@@ -59,9 +60,10 @@ class MyApp extends StatelessWidget {
         else if(snapshot.connectionState == ConnectionState.done){
           return AppBase();
         }
-        return MaterialApp(
-            home: WelcomeViewNoFB()
-        );
+        return (Center(
+            child: CircularProgressIndicator(
+                valueColor: new AlwaysStoppedAnimation<Color>(
+                    AppColors.primarypurple))));
       },
     );
 
