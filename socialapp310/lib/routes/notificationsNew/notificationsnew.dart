@@ -245,7 +245,8 @@ class _ActivityFeedState extends State<ActivityFeed> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        image: DecorationImage(image : AssetImage('assets/images/logo_woof.png')),
+        image: DecorationImage(image : AssetImage('assets/images/logo_woof.png'),
+        colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.8), BlendMode.overlay)),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
