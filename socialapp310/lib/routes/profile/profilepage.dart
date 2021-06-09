@@ -493,7 +493,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
         else{
           Map<String, dynamic> data = snapshot.data.data();
-          return Padding(
+          return !waiting ? Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
@@ -623,7 +623,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-          );
+          ) : Text("");
         }
 
       },

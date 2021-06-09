@@ -50,17 +50,20 @@ class _FollowReqState extends State<FollowReq> {
       docsnap = await usersRef
                 .doc(doc.id)
                 .get();
-      print(doc.id);
-      User1 user = User1(
-          UID: docsnap.id,
-          username: docsnap['Username'],
-          email: docsnap['Email'],
-          fullName: docsnap['FullName'],
-          isPrivate: docsnap['IsPrivate'],
-          isDeactivated: docsnap['isDeactivated'],
-          bio: docsnap['Bio'],
-          ProfilePic: docsnap['ProfilePic']);
-      _userRequests.add(user);
+      if(docsnap.exists)
+      {
+        User1 user = User1(
+            UID: docsnap.id,
+            username: docsnap['Username'],
+            email: docsnap['Email'],
+            fullName: docsnap['FullName'],
+            isPrivate: docsnap['IsPrivate'],
+            isDeactivated: docsnap['isDeactivated'],
+            bio: docsnap['Bio'],
+            ProfilePic: docsnap['ProfilePic']);
+        _userRequests.add(user);
+      }
+
     }
     return docsnap;
   }
