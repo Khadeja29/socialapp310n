@@ -11,6 +11,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:socialapp310/main.dart';
 import 'package:socialapp310/models/post.dart';
 import 'package:socialapp310/models/user1.dart';
+import 'package:socialapp310/routes/profile/PostScreen.dart';
 import 'package:socialapp310/routes/profile/profilepage.dart';
 import 'package:socialapp310/routes/search/searchTabs.dart';
 import 'package:socialapp310/routes/search/searchWidget.dart';
@@ -420,32 +421,36 @@ class _SearchState extends State<Search> {
               if (snapshot.hasError) {
                 return Text('There was an error :(');
               } else if (snapshot.hasData || snapshot.data == null) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(),
-                    child: ListView.builder(
-                      itemCount:
-                      snapshot.data == null ? 0 : snapshot.data["predictions"].length,
-                      itemBuilder: (context, index) => Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                              title:
-                              Text(snapshot.data["predictions"][index]["description"]),
-                              leading: Icon(Icons.add_location_alt, color: AppColors.darkgreyblack,),
-                              onTap:() {
-                                placeId = snapshot.data["predictions"][index]['place_id'];
-                                print('this is '+placeId);
-                                locationfinder(snapshot.data["predictions"][index]["description"], placeId);
-                              },
-                            ),
+                return Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(),
+                        child: ListView.builder(
+                          itemCount:
+                          snapshot.data == null ? 0 : snapshot.data["predictions"].length,
+                          itemBuilder: (context, index) => Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ListTile(
+                                  title:
+                                  Text(snapshot.data["predictions"][index]["description"]),
+                                  leading: Icon(Icons.add_location_alt, color: AppColors.darkgreyblack,),
+                                  onTap:() {
+                                    placeId = snapshot.data["predictions"][index]['place_id'];
+                                    print('this is '+placeId);
+                                    locationfinder(snapshot.data["predictions"][index]["description"], placeId);
+                                  },
+                                ),
+                              ),
+                              //Divider(color: Colors.grey)
+                            ],
                           ),
-                          //Divider(color: Colors.grey)
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 );
               } else {
                 // print(snapshot.data);
@@ -499,6 +504,7 @@ class _SearchState extends State<Search> {
                     location: doc['Location'],
                     createdAt: doc['createdAt'],
                     IsPrivate: doc['IsPrivate'],
+                    PostID: doc.id,
                   );
                   if (post.userId != currentFB.uid && post.IsPrivate == false ) {
                     searchResultsPosts.add(post);
@@ -532,7 +538,19 @@ class _SearchState extends State<Search> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: InkWell(
-                                onTap:(){ _showMyDialog("To do: path to this post should be added");},
+                                onTap:(){ Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PostScreen(
+                                      postId: searchResultsPosts
+                                          .elementAt(index).PostID,
+                                      userId: searchResultsPosts
+                                          .elementAt(index).userId,
+                                      index: 101,
+
+                                    ),
+                                  ),
+                                );},
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(0),
                                   child: Image.network(

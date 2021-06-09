@@ -59,6 +59,10 @@ class _PostScreenState extends State<PostScreen> {
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                 builder: (context) => Favourites()), (route) => route.isFirst);
           }
+          else if(widget.index == 101)
+          {
+            Navigator.pop(context) ;
+          }
           else if(widget.userId != currentUser.uid)
           {
             Navigator.pushAndRemoveUntil(context,MaterialPageRoute(

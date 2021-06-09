@@ -195,6 +195,7 @@ class Authentication {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          duration: Duration(milliseconds: 500),
           backgroundColor: Colors.grey,
           content: Text(
             "Logging Out",

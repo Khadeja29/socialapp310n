@@ -3,6 +3,7 @@ import 'package:socialapp310/models/location.dart';
 
 class Post {
   String userId;
+  String PostID;
   String username;
   String ImageUrlPost;
   String caption;
@@ -16,6 +17,7 @@ class Post {
       {this.username,
         this.userId,
         this.ImageUrlPost,
+        this.PostID,
         this.caption,
         this.likes,
         this.comment,
