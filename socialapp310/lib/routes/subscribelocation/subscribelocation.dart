@@ -67,7 +67,7 @@ class _SubcribeLocationState extends State<SubcribeLocation> {
         FirebaseFirestore.instance.collection('subbedLocations');
     var x = await subbedLocationsCollection
         .where("LocationId", isEqualTo: place_id)
-        .where("UserId", isEqualTo: currentFB.uid)
+        //.where("UserId", isEqualTo: currentFB.uid)
         .get();
     if(x != null)
       for(var y in x.docs) {

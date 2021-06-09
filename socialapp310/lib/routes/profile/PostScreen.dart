@@ -738,10 +738,14 @@ class _PostScreenState extends State<PostScreen> {
       future:  _listFuture1,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(
-              child: CircularProgressIndicator(
-                  valueColor: new AlwaysStoppedAnimation<Color>(
-                      AppColors.primarypurple)));
+          return Scaffold(
+                backgroundColor: Colors.white,
+                body: Center(
+                  child: CircularProgressIndicator(
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          AppColors.primarypurple)),
+                ),
+              );
         }
         //print(snapshot.data);
         Post1 post = Post1(

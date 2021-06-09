@@ -43,6 +43,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
   Future<void> deleteUserAccount() async {
     FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+
+
     EmailAuthCredential credential =
         EmailAuthProvider.credential(email: email, password: password);
     CollectionReference usersCollection =
@@ -58,9 +60,68 @@ class _DeleteAccountState extends State<DeleteAccount> {
       //     });
       //   });
       // });
+    if(!currentFB.emailVerified)
+    {
+      await currentFB.reauthenticateWithCredential(credential).then((value) {
+        FirebaseAuth.instance.currentUser.delete().then((res) {
+          usersCollection.doc(currentFB.uid).delete().then((res) {
+            FirebaseFirestore.instance.collection('FollowRequests').doc(currentFB.uid).collection('requests').get().then((res) async {
+              for (var x in res.docs){
+                x.reference.delete();
+              }
+              FirebaseFirestore.instance.collection('feed').doc(currentFB.uid).collection('feedItems').get().then((res)async{
+                //TODO: consider feeds of other users. prob you will have to manually iterate through everything.
 
-    await currentFB.reauthenticateWithCredential(credential).then((value) {
-      FirebaseAuth.instance.currentUser.delete().then((res) {
+                for (var x in res.docs){
+                  x.reference.delete();
+                }
+                FirebaseFirestore.instance.collection('followers').doc(currentFB.uid).collection('userFollowers').get().then((res)async{
+                  //delete following of others
+                  for (var x in res.docs){
+                    await FirebaseFirestore.instance.collection('following').doc(x.id).collection('userFollowing').doc(currentFB.uid).delete();
+                    x.reference.delete();
+                  }
+                  FirebaseFirestore.instance.collection('following').doc(currentFB.uid).collection('userFollowing').get().then((res)async{
+                    //delete followers of others
+
+                    for (var x in res.docs){
+                      await FirebaseFirestore.instance.collection('followers').doc(x.id).collection('userFollowers').doc(currentFB.uid).delete();
+                      x.reference.delete();
+                    }
+                    FirebaseFirestore.instance.collection('Post').where("PostUser", isEqualTo: currentFB.uid).get().then((res) async{
+                      for (var x in res.docs){
+                        x.reference.delete();
+                      }
+                      FirebaseFirestore.instance.collection('subbedLocations').where("UserId", isEqualTo: currentFB.uid).get().then((res) async {
+                        for (var x in res.docs){
+                          x.reference.delete();
+                        }
+                        FirebaseFirestore.instance.collection('Favorites').where("UserId", isEqualTo: currentFB.uid).get().then((res){
+                          for (var x in res.docs){
+                            x.reference.delete();
+                          }
+                          FirebaseFirestore.instance.collection('comments').doc().collection('postComments').where("UserId", isEqualTo: currentFB.uid).get().then((res){
+                            for (var x in res.docs){
+                              x.reference.delete();
+                            }
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text('Deleting account!')));
+                            // Navigator.pushReplacementNamed(context, '/welcome');
+                          })
+                          ;
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    }
+    else{
+      await FirebaseAuth.instance.currentUser.delete().then((res) {
         usersCollection.doc(currentFB.uid).delete().then((res) {
           FirebaseFirestore.instance.collection('FollowRequests').doc(currentFB.uid).collection('requests').get().then((res) async {
             for (var x in res.docs){
@@ -115,7 +176,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
           });
         });
       });
-    });
+    }
+
 
     await Authentication.signOutWithGoogle(context: context);
     FBauth.FirebaseAuth.instance.signOut().then((value) {
@@ -358,20 +420,29 @@ class _DeleteAccountState extends State<DeleteAccount> {
                                     ),
                                     onPressed: () async {
                                       if (_formKey.currentState.validate()) {
-                                        await deleteUserAccount();
-                                        if (validpassword && validuser) {
-                                          Navigator.of(context)
-                                              .pushNamedAndRemoveUntil(
-                                                  "/homefeed",
-                                                  (Route<dynamic> route) =>
-                                                      false);
-                                        } else if (!validuser) {
-                                          showAlertDialog(
-                                              "Error", "User Does not exist");
-                                        } else if (!validpassword) {
-                                          showAlertDialog(
-                                              "Error", "Password is wrong");
+                                        FBauth.User currentFB = FBauth.FirebaseAuth.instance.currentUser;
+                                        if(currentFB.emailVerified)
+                                        {
+                                          await deleteUserAccount();
                                         }
+                                        else {
+                                          await deleteUserAccount();
+                                          if (validpassword && validuser) {
+                                            Navigator.of(context)
+                                                .pushNamedAndRemoveUntil(
+                                                "/homefeed",
+                                                    (Route<dynamic> route) =>
+                                                false);
+                                          } else if (!validuser) {
+                                            showAlertDialog(
+                                                "Error", "User Does not exist");
+                                          } else if (!validpassword) {
+                                            showAlertDialog(
+                                                "Error", "Password is wrong");
+                                          }
+                                        }
+
+
                                       }
                                     },
                                     child: Padding(

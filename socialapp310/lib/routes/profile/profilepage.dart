@@ -54,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int followingCount;
   int PostCount;
   bool _isPrivate = true;
+  bool waiting = true;
   bool isLoading = true;
   bool _Requested = false;
   //Analytics
@@ -101,6 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
 
       isLoading = false;
+      waiting = false;
     });
 
   }
@@ -437,6 +439,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // viewing your own profile - should show edit profile button
 
     bool isProfileOwner = (currentUser.uid == UID);
+    if(waiting)
+    {
+      return Text("");
+    }
     if (isProfileOwner) {
       return buildButton(
         text: "Edit Profile",
@@ -631,6 +637,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
   buildTogglePostOrientation() {
+    if(waiting)
+    {
+      return Text("");
+    }
     return (!_isPrivate || isFollowing) ? Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children:  <Widget>[
@@ -680,7 +690,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: <Widget>[
                     Icon(Icons.location_on, size: 18, color: AppColors.darkpurple,),
                     SizedBox(width: 5,),
-                    Text("$loc", style: new TextStyle(fontSize: 18.0),),//todo fix this
+                    Flexible(child: Container(child: Text("$loc", style: new TextStyle(fontSize: 18.0), overflow: TextOverflow.ellipsis,))),//todo fix this
                   ],
                 ),
                 Visibility(

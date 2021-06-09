@@ -281,22 +281,7 @@ class _LoginState extends State<Login> {
                         ],
                       ),
 
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: remember,
-                            activeColor: AppColors.darkgrey,
-                            onChanged: (value) {
-                              setState(() {
-                                remember = value;
-                              });
-                            },
-                          ),
-                          Text("Remember me"),
-                          Spacer()
-                        ],
-                      ),
-
+                      SizedBox(height: 15,),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

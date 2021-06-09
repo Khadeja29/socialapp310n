@@ -240,15 +240,15 @@ class _SignUpState extends State<SignUp> {
                               if (value.isEmpty) {
                                 return 'Please enter your Full Name';
                               }
-                              if (value.length > 8) {
-                                return 'Full Name has to be less than or equal to 8 characters';
+                              if (value.length > 16) {
+                                return 'Full Name has to be less than or equal to 16 characters';
                               }
                               //Todo: add some more validation logic for full screen
 
                               return null;
                             },
                             onSaved: (String value) {
-                              fullname = value; //TODO: make if full name
+                              fullname = value;
                             },
                           ),
                         ),
